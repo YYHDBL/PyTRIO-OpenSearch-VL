@@ -1,0 +1,17 @@
+[project]
+name = "pytrio-opensearch-vl"
+version = "0.1.0"
+description = "Small-scale OpenSearch-VL method reproduction with PyTRIO"
+requires-python = ">=3.11"
+dependencies = [
+    "pytrio==0.2.9",
+    "numpy>=1.26",
+    "pillow>=10",
+    "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+train = ["torch>=2.4", "torchvision>=0.19"]
+
+[tool.uv]
+package = false

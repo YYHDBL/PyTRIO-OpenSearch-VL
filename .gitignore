@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+data/
+datasets/
+outputs/
+logs/
+checkpoints/
+*.log
+*.zip
+*.parquet
+*.safetensors

@@ -1,0 +1,33 @@
+{# 保留 OpenSearch-VL 的动作文本协议，只监督 assistant 生成内容。 #}
+{%- macro render_content(content) -%}
+    {%- if content is string -%}
+        {{- content -}}
+    {%- else -%}
+        {%- for item in content -%}
+            {%- if item.type == 'image' -%}
+                {{- '<|vision_start|><|image_pad|><|vision_end|>' -}}
+            {%- else -%}
+                {{- item.text -}}
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endif -%}
+{%- endmacro -%}
+{%- for message in messages -%}
+    {%- set content = render_content(message.content) -%}
+    {%- if message.role == 'system' -%}
+        {{- '<|im_start|>system\n' + content + '<|im_end|>\n' -}}
+    {%- elif message.role == 'user' -%}
+        {{- '<|im_start|>user\n' + content + '<|im_end|>\n' -}}
+    {%- elif message.role == 'assistant' -%}
+        {{- '<|im_start|>assistant\n' -}}
+        {%- generation -%}
+            {{- content + '<|im_end|>' -}}
+        {%- endgeneration -%}
+        {{- '\n' -}}
+    {%- elif message.role == 'tool' -%}
+        {{- '<|im_start|>user\n<tool_response>\n' + content + '\n</tool_response><|im_end|>\n' -}}
+    {%- endif -%}
+{%- endfor -%}
+{%- if add_generation_prompt -%}
+    {{- '<|im_start|>assistant\n' -}}
+{%- endif -%}
