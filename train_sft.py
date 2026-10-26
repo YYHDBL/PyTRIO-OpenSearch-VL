@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import numpy as np
@@ -35,7 +36,7 @@ def main() -> None:
     if len(rows) != 512:
         raise ValueError(f"当前方案要求 512 条 SFT 轨迹，数据文件有 {len(rows)} 条")
 
-    client = trio.ServiceClient()
+    client = trio.ServiceClient(api_key=os.environ.get("PYTRIO_API_KEY"))
     supported = client.get_supported_models()
     if args.base_model not in supported:
         raise ValueError(f"PyTRIO 账号暂不支持 {args.base_model}；当前支持：{supported}")

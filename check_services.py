@@ -21,7 +21,7 @@ def main() -> None:
         if not os.environ.get("PYTRIO_API_KEY", "").strip():
             parser.error("请先在 .env 配置 PYTRIO_API_KEY")
         try:
-            models = trio.ServiceClient().get_supported_models()
+            models = trio.ServiceClient(api_key=os.environ["PYTRIO_API_KEY"]).get_supported_models()
         except Exception as error:
             # 部分 HTTP 异常包含请求 URL；不输出异常内容，避免日志泄露凭据。
             raise SystemExit(f"PyTRIO 查询失败：{type(error).__name__}") from None
