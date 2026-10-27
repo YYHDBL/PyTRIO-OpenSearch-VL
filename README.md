@@ -45,7 +45,27 @@ uv run python check_services.py --pytrio
 - `select_experiment_data.py`：从服务器上的原始数据中生成固定的 512 条 SFT、128 条 RL 和 200 题评测数据。具体来源和筛选规则见 [docs/data.md](docs/data.md)。
 - `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 草稿，尚未用真实数据验证。
 - `train_sft.py`：PyTRIO LoRA SFT 入口草稿，未运行远程训练。
-- 多轮 rollout、搜索适配、fatal-aware RL 与统一评测尚待实现。
+- `agent_baseline.py`、`agent_tools.py`：固定评测集上的多轮评测，支持裁剪、Serper 文字搜索、SerpApi 图片搜索、Jina 网页读取、搜索缓存、逐题断点续跑和 token/工具调用上限。
+- `judge_baseline.py`：沿用 OpenSearch-VL 的裁判提示词，通过 Anthropic Messages 接口调用固定的 GLM-5.3-Flash，记录逐题判定与总体、分来源成绩。该裁判与论文的 GPT-4o 有差异。
+- fatal-aware RL 尚待实现。
+
+## 固定评测
+
+在服务器的项目根目录执行；这些命令会产生模型与搜索服务消耗：
+
+```sh
+.venv/bin/python agent_baseline.py --output-dir outputs/base-v1
+.venv/bin/python judge_baseline.py \
+  --results-dir outputs/base-v1 --output-dir outputs/judge-base-v1
+```
+
+默认使用 Qwen3.5-4B、temperature 0、seed 42，每题最多 6 轮工具交互，耗尽后追加一次最终作答，每轮最多生成 1536 token。连续 3 次工具错误终止；空回答、未完成回答计为无最终答案。工具接口失败、网页读取失败、达到轮数上限均保留记录。
+
+评测程序默认总输入和输出上限 500 万 token，图片搜索尝试上限 220 次、文字搜索尝试上限 1500 次。调用上限跨同一缓存目录累计；token 上限按本次输出目录累计。它们用于限制调用量，不等同于人民币账单上限。中断或未返回的模型请求保留 65536 token 预留；SDK 内部重试的真实费用以控制台为准。
+
+代码、数据和参数的哈希写入 `config.json`。重新运行相同命令会跳过已完成题目并恢复中断轨迹；代码或配置变化时必须使用新输出目录。正式评测与流程检查使用不同目录，评测题面中不加入参考答案或发布包的 `image_caption`。
+
+`data/tool_cache/` 保存成功搜索与网页结果，跨 Base、SFT、RL 复用相同请求结果，减少搜索漂移和重复消耗。文字搜索返回前五项，尝试读取前两项正文，每页最多保留 5000 字符；正文读取失败会明确返回 `page_error`，仍保留搜索摘要。这与论文的专门网页摘要模型不同。
 
 从已校验并解压的原始数据生成切分；已有输出目录时脚本会报错，避免覆盖既有结果：
 

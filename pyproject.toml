@@ -10,6 +10,7 @@ dependencies = [
     "python-dotenv>=1.0",
     "ijson>=3.3",
     "pyarrow>=20",
+    "httpx>=0.27,<1",
 ]
 
 [project.optional-dependencies]
