@@ -88,6 +88,12 @@ def write_json(path: Path, value: dict) -> None:
     partial.replace(path)
 
 
+def assert_run_allowed(output_dir: Path) -> None:
+    status = output_dir / "STATUS.json"
+    if status.exists() and json.loads(status.read_text()).get("status") == "halted_pending_protocol_review":
+        raise ValueError("该批评测因协议不一致已停止，不能续跑或作为修正后的正式对比")
+
+
 class TokenBudget:
     def __init__(self, path: Path, limit: int):
         self.path, self.limit = path, limit
@@ -212,6 +218,7 @@ def main() -> None:
     parser.add_argument("--max-tokens", type=int, default=1536)
     parser.add_argument("--token-budget", type=int, default=5_000_000)
     args = parser.parse_args()
+    assert_run_allowed(args.output_dir)
     load_dotenv(ROOT / ".env")
     if min(args.max_turns, args.max_tokens, args.token_budget) < 1:
         parser.error("轮数、输出长度和 token 预算必须为正")

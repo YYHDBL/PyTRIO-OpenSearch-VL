@@ -9,11 +9,13 @@
 | 基模 | Qwen3.5-4B，LoRA rank 32 |
 | SFT | 作者公开轨迹中筛选 512 条，1 epoch |
 | RL | 128 道训练题，每题 4 条轨迹，共 512 条 rollout |
-| 工具 | 裁剪、以图搜图、文字搜索与网页读取 |
+| 工具 | 按作者七类能力准备，环境尚未完整验收 |
 | 评测 | 200 题冻结子集，比较 Base、SFT、RL |
 | 预算 | 暂按 PyTRIO ¥500 上限安排，先小试实测消耗 |
 
 这是更换基模和训练栈、缩小规模后的方法复现。结果尚未产生，不能据此宣称复现论文成绩。
+
+当前付费运行已停止：此前 base-v1 使用自行改写的三工具提示词，SFT 数据则保留作者提示词，145 题结果只作诊断。正在按 [协议核对](docs/protocol-review.md) 修正，七工具环境未验收完成前不恢复正式评测或训练。
 
 ## 数据与执行位置
 
@@ -43,7 +45,7 @@ uv run python check_services.py --pytrio
 ## 当前实现
 
 - `select_experiment_data.py`：从服务器上的原始数据中生成固定的 512 条 SFT、128 条 RL 和 200 题评测数据。具体来源和筛选规则见 [docs/data.md](docs/data.md)。
-- `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 草稿，尚未用真实数据验证。
+- `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 转换，保留作者 system 文本，并加入独立 tools 字段。验收方法与结果见 [SFT CPU 验收](docs/sft-audit.md)。
 - `train_sft.py`：PyTRIO LoRA SFT 入口草稿，未运行远程训练。
 - `agent_baseline.py`、`agent_tools.py`：固定评测集上的多轮评测，支持裁剪、Serper 文字搜索、SerpApi 图片搜索、Jina 网页读取、搜索缓存、逐题断点续跑和 token/工具调用上限。
 - `judge_baseline.py`：沿用 OpenSearch-VL 的裁判提示词，通过 Anthropic Messages 接口调用固定的 GLM-5.3-Flash，记录逐题判定与总体、分来源成绩。该裁判与论文的 GPT-4o 有差异。
@@ -51,7 +53,7 @@ uv run python check_services.py --pytrio
 
 ## 固定评测
 
-在服务器的项目根目录执行；这些命令会产生模型与搜索服务消耗：
+旧批次 `outputs/base-v1/` 已停止，程序会拒绝续跑。以下是既有接口形式；修正后的完整协议须在新目录重新验收再运行，这些命令会产生模型与搜索服务消耗：
 
 ```sh
 .venv/bin/python agent_baseline.py --output-dir outputs/base-v1
@@ -74,7 +76,7 @@ uv sync --frozen
 uv run python select_experiment_data.py
 ```
 
-筛选时的字符数限制不等同于多模态 token 数。训练前还需检查真实 token 长度、图文 mask、工具协议和 RL 参考答案质量。
+筛选时的字符数限制不等同于多模态 token 数。当前数据的长度和 mask 验收见报告；训练前仍须统一完整工具协议并复核 RL 参考答案质量。
 
 ## 来源
 

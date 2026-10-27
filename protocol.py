@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import re
 from collections.abc import Iterator
 from pathlib import Path
@@ -15,6 +16,38 @@ from PIL import Image
 IMAGE_MARKER = "<image>"
 IMAGE_PAD = "<|image_pad|>"
 TEMPLATE_PATH = Path(__file__).parent / "templates/qwen3_5_opensearch.jinja"
+
+# 沿用原仓库 LlamaFactory QwenToolUtils 的 JSON 工具格式，不改写作者 system 文本。
+QWEN_TOOL_PROMPT = (
+    "\n\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\n"
+    "You are provided with function signatures within <tools></tools> XML tags:\n<tools>{tool_text}"
+    "\n</tools>\n\nFor each function call, return a json object with function name and arguments within "
+    '<tool_call></tool_call> XML tags:\n<tool_call>\n{{"name": <function-name>, '
+    '"arguments": <args-json-object>}}\n</tool_call>'
+)
+
+
+def system_with_tools(system: str, tools: str | list[dict]) -> str:
+    definitions = json.loads(tools) if isinstance(tools, str) and tools.strip() else tools
+    if not definitions:
+        return system
+    if not isinstance(definitions, list):
+        raise ValueError("tools 字段必须为 JSON 数组")
+    wrapped = []
+    names = set()
+    for definition in definitions:
+        if not isinstance(definition, dict):
+            raise ValueError("工具定义必须是对象")
+        tool = definition if definition.get("type") == "function" else {"type": "function", "function": definition}
+        function = tool.get("function")
+        if not isinstance(function, dict) or not isinstance(function.get("name"), str):
+            raise ValueError("工具定义缺少 function.name")
+        if function["name"] in names:
+            raise ValueError("工具定义名称重复")
+        names.add(function["name"])
+        wrapped.append(tool)
+    text = "".join("\n" + json.dumps(tool, ensure_ascii=False) for tool in wrapped)
+    return system + QWEN_TOOL_PROMPT.format(tool_text=text)
 
 
 def _message_content(text: str, image_refs: Iterator[str], image_root: Path) -> str | list[dict]:
@@ -35,7 +68,7 @@ def _message_content(text: str, image_refs: Iterator[str], image_root: Path) -> 
 
 def build_messages(row: dict[str, Any], image_root: Path) -> list[dict]:
     images = iter(row.get("images", []))
-    messages = [{"role": "system", "content": row.get("system", "") }]
+    messages = [{"role": "system", "content": system_with_tools(row.get("system", ""), row.get("tools", []))}]
     roles = {"human": "user", "gpt": "assistant", "observation": "tool"}
     for turn in row["conversations"]:
         source_role = turn["from"]

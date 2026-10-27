@@ -88,6 +88,22 @@ class BaselineTest(unittest.TestCase):
         finally:
             shutil.rmtree(root)
 
+    def test_halted_protocol_run_cannot_resume(self):
+        from pathlib import Path
+        import shutil
+        import agent_baseline
+
+        self.assertTrue(hasattr(agent_baseline, "assert_run_allowed"))
+        root = Path("outputs/test-halted-run")
+        self.assertFalse(root.exists())
+        root.mkdir(parents=True)
+        try:
+            (root / "STATUS.json").write_text('{"status":"halted_pending_protocol_review"}')
+            with self.assertRaises(ValueError):
+                agent_baseline.assert_run_allowed(root)
+        finally:
+            shutil.rmtree(root)
+
 
 if __name__ == "__main__":
     unittest.main()
