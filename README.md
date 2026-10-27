@@ -10,7 +10,7 @@
 | SFT | 作者公开轨迹中筛选 512 条，1 epoch |
 | RL | 128 道训练题，每题 4 条轨迹，共 512 条 rollout |
 | 工具 | 裁剪、以图搜图、文字搜索与网页读取 |
-| 评测 | 100 题冻结子集，比较 Base、SFT、RL |
+| 评测 | 200 题冻结子集，比较 Base、SFT、RL |
 | 预算 | 暂按 PyTRIO ¥500 上限安排，先小试实测消耗 |
 
 这是更换基模和训练栈、缩小规模后的方法复现。结果尚未产生，不能据此宣称复现论文成绩。
@@ -42,27 +42,19 @@ uv run python check_services.py --pytrio
 
 ## 当前实现
 
-- `prepare_data.py`：对已准备的轨迹与图片抽样、验证和去重。尚未实际生成 512/128/100 切分，数据语义验收和 token 长度检查仍需完成。
+- `select_experiment_data.py`：从服务器上的原始数据中生成固定的 512 条 SFT、128 条 RL 和 200 题评测数据。具体来源和筛选规则见 [docs/data.md](docs/data.md)。
 - `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 草稿，尚未用真实数据验证。
 - `train_sft.py`：PyTRIO LoRA SFT 入口草稿，未运行远程训练。
 - 多轮 rollout、搜索适配、fatal-aware RL 与统一评测尚待实现。
 
-在远程执行环境准备好数据并完成核验后再运行 SFT；下面命令会产生 PyTRIO 消耗：
+从已校验并解压的原始数据生成切分；已有输出目录时脚本会报错，避免覆盖既有结果：
 
 ```sh
-uv sync --extra train
-uv run python prepare_data.py \
-  --sft-json /server/data/sft/source.json \
-  --sft-image-root /server/data/sft \
-  --rl-jsonl /server/data/rl/rl_data.jsonl \
-  --rl-image-root /server/data/rl \
-  --output-dir /server/experiment/selected
-
-uv run python train_sft.py \
-  --data /server/experiment/selected/sft.jsonl \
-  --image-root /server/data/sft \
-  --output-dir /server/experiment/outputs/sft
+uv sync --frozen
+uv run python select_experiment_data.py
 ```
+
+筛选时的字符数限制不等同于多模态 token 数。训练前还需检查真实 token 长度、图文 mask、工具协议和 RL 参考答案质量。
 
 ## 来源
 

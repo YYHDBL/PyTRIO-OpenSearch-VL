@@ -8,6 +8,8 @@ dependencies = [
     "numpy>=1.26",
     "pillow>=10",
     "python-dotenv>=1.0",
+    "ijson>=3.3",
+    "pyarrow>=20",
 ]
 
 [project.optional-dependencies]
