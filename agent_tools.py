@@ -13,6 +13,8 @@ from urllib.parse import urlsplit
 import httpx
 from PIL import Image
 
+from paddle_ocr import OCRServiceError, PaddleOCRClient
+
 
 class BudgetExhausted(RuntimeError):
     pass
@@ -66,7 +68,7 @@ class ToolEnvironment:
         self.ledger = cache_dir / "requests.jsonl"
         self.image_limit = image_limit
         self.text_limit = text_limit
-        self.stats = {"text_search": 0, "image_search": 0, "reader": 0, "cache_hit": 0}
+        self.stats = {"text_search": 0, "image_search": 0, "reader": 0, "layout_parsing": 0, "cache_hit": 0}
 
     def cached(self, kind: str, parameters: dict, producer):
         identifier = hashlib.sha256(json.dumps(parameters, sort_keys=True).encode()).hexdigest()
@@ -126,6 +128,20 @@ class ToolEnvironment:
 
     def execute(self, action: dict, images: dict[str, bytes]) -> tuple[str, bytes | None]:
         name, args = action["name"], action["arguments"]
+        if name == "layout_parsing":
+            ref = args.get("image")
+            if ref not in images:
+                raise ValueError("版面解析需要已登记的图片引用")
+            options = {"useDocOrientationClassify": args.get("use_doc_orientation_classify", False),
+                       "useDocUnwarping": args.get("use_doc_unwarping", False),
+                       "useChartRecognition": args.get("use_chart_recognition", False)}
+            self.stats["layout_parsing"] += 1
+            try:
+                result = PaddleOCRClient(self.cache_dir / "ocr-v1").parse(images[ref], options)
+            except OCRServiceError as error:
+                raise ToolError(str(error)) from None
+            body = result["formatted_text"] or "(no text detected)"
+            return "Tool execution result:\nLayout Parsing SUCCESS.\n\nALL RECOGNIZED TEXT:\n" + body, None
         if name == "crop":
             ref = args.get("image")
             if ref not in images:

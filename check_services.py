@@ -14,7 +14,7 @@ def main() -> None:
     args = parser.parse_args()
     load_dotenv(Path(__file__).parent / ".env", override=False)
     required = ("PYTRIO_API_KEY", "SERPER_API_KEY", "SERPAPI_API_KEY")
-    for key in (*required, "JINA_API_KEY"):
+    for key in (*required, "JINA_API_KEY", "PADDLE_OCR_JOB_URL", "PADDLE_OCR_MODEL", "PADDLE_OCR_TOKEN"):
         state = "已配置" if os.environ.get(key, "").strip() else "未配置"
         print(f"{key}: {state}")
     if args.pytrio:

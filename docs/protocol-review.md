@@ -32,9 +32,9 @@
 | 锐化 | OpenCV 高斯模糊与加权运算 | 原代码可参考，当前环境尚未安装 OpenCV |
 | 透视校正 | OpenCV 轮廓检测与透视变换 | 原代码可参考，当前环境尚未安装 OpenCV |
 | 超分辨率 | OpenCV dnn_superres、EDSR 权重 | 当前未配置权重，也未安装 OpenCV contrib |
-| OCR/版面解析 | LAYOUT_PARSING_API_URL 及认证 | 当前没有接口配置，也没有安装本地 OCR |
+| OCR/版面解析 | 版面解析接口及认证 | 已接入用户提供的 PaddleOCR-VL-1.6 异步接口，通过真实图片与缓存检查；作者服务版本未确认 |
 
-服务器检查未发现当前虚拟环境中的 cv2、paddleocr、paddle 或 torch，也没有 tesseract。仅以配置名判断服务是否就绪，没有输出真实凭据。七工具本身不受 PyTRIO 限制；图像处理可在 CPU 运行，模型采样和训练由 PyTRIO 远程执行。
+服务器检查未发现当前虚拟环境中的 cv2、paddleocr、paddle 或 torch，也没有 tesseract。OCR 现在通过远程接口运行，无需本机安装 Paddle。检查没有输出真实凭据。七工具本身不受 PyTRIO 限制；图像处理可在 CPU 运行，模型采样和训练由 PyTRIO 远程执行。
 
 原代码在缺少超分权重时会返回原图；环境验收时必须明确识别这种情况，不能把未执行增强记成成功。OCR、搜索结果摘要若更换后端，需要记录差异并在 Base、SFT、RL 中统一使用。
 

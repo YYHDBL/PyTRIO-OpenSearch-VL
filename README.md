@@ -48,6 +48,7 @@ uv run python check_services.py --pytrio
 - `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 转换，保留作者 system 文本，并加入独立 tools 字段。验收方法与结果见 [SFT CPU 验收](docs/sft-audit.md)。
 - `train_sft.py`：PyTRIO LoRA SFT 入口草稿，未运行远程训练。
 - `agent_baseline.py`、`agent_tools.py`：固定评测集上的多轮评测，支持裁剪、Serper 文字搜索、SerpApi 图片搜索、Jina 网页读取、搜索缓存、逐题断点续跑和 token/工具调用上限。
+- `paddle_ocr.py`、`check_ocr.py`：飞桨异步版面解析适配与真实图片检查，使用固定的 PaddleOCR-VL-1.6。验证结果与后端差异见 [OCR 接入](docs/ocr.md)。
 - `judge_baseline.py`：沿用 OpenSearch-VL 的裁判提示词，通过 Anthropic Messages 接口调用固定的 GLM-5.3-Flash，记录逐题判定与总体、分来源成绩。该裁判与论文的 GPT-4o 有差异。
 - fatal-aware RL 尚待实现。
 
