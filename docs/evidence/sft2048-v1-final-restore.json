@@ -1,0 +1,6 @@
+{
+  "step": 512,
+  "before_loss": 0.4154335014904555,
+  "restored_loss": 0.4154335014904555,
+  "with_optimizer": true
+}

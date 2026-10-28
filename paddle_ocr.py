@@ -14,8 +14,14 @@ from urllib.parse import urlsplit
 import httpx
 from PIL import Image
 
+from service_io import save_http_response, write_private
+
 
 class OCRServiceError(RuntimeError):
+    pass
+
+
+class OCRConnectionError(OCRServiceError):
     pass
 
 
@@ -91,17 +97,26 @@ class PaddleOCRClient:
         cache_dir.mkdir(parents=True, exist_ok=True)
 
     def request(self, method: str, url: str, **kwargs) -> dict:
-        attempts = 3 if method == "GET" else 1
+        attempts = 3
         for attempt in range(attempts):
             try:
-                with httpx.Client(timeout=45, trust_env=False) as client:
+                with httpx.Client(timeout=45, trust_env=False,
+                                  proxy=os.environ.get("PADDLE_OCR_PROXY") or None) as client:
                     response = client.request(method, url, headers={"Authorization": "bearer " + self.token}, **kwargs)
-            except httpx.HTTPError as error:
+            except (httpx.ConnectError, httpx.ConnectTimeout):
                 if attempt + 1 < attempts:
                     time.sleep(2 ** attempt)
                     continue
+                raise OCRConnectionError("飞桨 OCR 连接未建立，请求未发送") from None
+            except httpx.HTTPError as error:
+                if method == "GET" and attempt + 1 < attempts:
+                    time.sleep(2 ** attempt)
+                    continue
                 raise OCRServiceError(f"飞桨 OCR {method} 请求失败: {type(error).__name__}") from None
-            if response.status_code in {429, 500, 502, 503, 504} and attempt + 1 < attempts:
+            evidence = self.cache_dir / "http"
+            evidence.mkdir(exist_ok=True)
+            save_http_response(evidence / f"{method}-{time.time_ns()}.json", response)
+            if method == "GET" and response.status_code in {429, 500, 502, 503, 504} and attempt + 1 < attempts:
                 time.sleep(2 ** attempt)
                 continue
             if response.status_code != 200:
@@ -145,8 +160,13 @@ class PaddleOCRClient:
                                 "WEBP": ("webp", "image/webp")}[image.format]
             # 若提交已被服务端接收但响应中断，保留标记，阻止自动重复收费。
             save_json(submitting, {"state": "submitting", "parameters": parameters, "at": time.time()})
-            data = self.request("POST", self.url, data={"model": self.model, "optionalPayload": json.dumps(options)},
-                                files={"file": ("image." + suffix, raw, mime)})
+            try:
+                data = self.request("POST", self.url, data={"model": self.model, "optionalPayload": json.dumps(options)},
+                                    files={"file": ("image." + suffix, raw, mime)})
+            except OCRConnectionError:
+                # 只有确定未发送的连接失败可以解除标记，其他失败保留以防重复提交。
+                submitting.unlink()
+                raise
             job_id = data.get("jobId")
             if not isinstance(job_id, str) or not job_id or any(c not in "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_" for c in job_id):
                 raise OCRServiceError("飞桨未返回有效任务 ID")
@@ -173,7 +193,8 @@ class PaddleOCRClient:
             time.sleep(min(5, max(0, self.timeout - (time.monotonic() - started))))
         # 下载链接可能属于对象存储，绝不向该域发送 OCR Token。
         try:
-            with httpx.Client(timeout=45, trust_env=False) as client:
+            with httpx.Client(timeout=45, trust_env=False,
+                              proxy=os.environ.get("PADDLE_OCR_PROXY") or None) as client:
                 with client.stream("GET", url) as response:
                     if response.status_code != 200:
                         raise OCRServiceError(f"OCR 结果下载 HTTP {response.status_code}")
@@ -184,6 +205,7 @@ class PaddleOCRClient:
                             raise OCRServiceError("OCR 文本结果超过 20 MiB")
         except httpx.HTTPError as error:
             raise OCRServiceError(f"OCR 结果下载失败: {type(error).__name__}") from None
+        write_private(self.cache_dir / f"{key}.raw.jsonl", bytes(content))
         result = normalize_results(content.decode("utf-8"))
         result["model"] = self.model
         save_json(completed, {"parameters": parameters, "result": result, "at": time.time()})

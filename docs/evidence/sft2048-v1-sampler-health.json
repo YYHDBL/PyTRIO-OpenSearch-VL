@@ -1,0 +1,7 @@
+{
+  "step": 8,
+  "training_sample_id": "sft2k-01447",
+  "input_tokens": 4366,
+  "output_tokens": 91,
+  "purpose": "training-data checkpoint loading check, not formal evaluation"
+}

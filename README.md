@@ -1,25 +1,29 @@
 # PyTRIO-OpenSearch-VL
 
+最新进展：[Base固定100题评测](docs/base-100-results.md) 已完成并核验，53/100正确；[2048条LoRA冷启动](docs/sft-2048.md) 已完成512次更新，最终Sampler/State均保存并验证，旧512模型保留。SFT正式评测与RL未启动，定时任务保持暂停。
+
 用 PyTRIO 做 OpenSearch-VL 核心方法的小规模复现：图片问答、工具调用、SFT 冷启动、fatal-aware RL 和固定评测。
+
+原[512条SFT](docs/sft.md)和扩大后的2048条SFT均已完成，分别保存于服务器 `outputs/sft-seven-v2/`、`outputs/sft-2048-v1/`。Base评测和评分在 `outputs/base-aligned-100-v1/`、`outputs/judge-base-aligned-100-v1/`，均完整结束，不重复启动。此前[十题smoke](docs/smoke-aligned-10-v1.md)完整、4/10正确；SFT正式100题评测尚未运行。评测配置见[运行前核对](docs/evaluation-alignment.md)。旧批次及未确认请求保留；服务直连，定时任务保持暂停，RL未启动。
 
 ## 实验范围
 
 | 项目 | 配置 |
 |---|---|
 | 基模 | Qwen3.5-4B，LoRA rank 32 |
-| SFT | 作者公开轨迹中筛选 512 条，1 epoch |
+| SFT | 当前2048条平衡轨迹，1 epoch；旧512条模型保留 |
 | RL | 128 道训练题，每题 4 条轨迹，共 512 条 rollout |
-| 工具 | 按作者七类能力准备，环境尚未完整验收 |
-| 评测 | 200 题冻结子集，比较 Base、SFT、RL |
+| 工具 | 作者七类能力、八个工具名，真实联合调用已通过 |
+| 评测 | 100 题冻结子集，比较 Base、SFT、RL；原 200 题保留 |
 | 预算 | 暂按 PyTRIO ¥500 上限安排，先小试实测消耗 |
 
-这是更换基模和训练栈、缩小规模后的方法复现。结果尚未产生，不能据此宣称复现论文成绩。
+这是更换基模和训练栈、缩小规模后的方法复现。正式 Base/SFT/RL 对比尚未完成，不能据此宣称复现论文成绩。
 
-当前付费运行已停止：此前 base-v1 使用自行改写的三工具提示词，SFT 数据则保留作者提示词，145 题结果只作诊断。正在按 [协议核对](docs/protocol-review.md) 修正，七工具环境未验收完成前不恢复正式评测或训练。
+七工具 SFT 已完成 512/512 CPU 审计及真实一轮训练；正式 Base 与评分的实时状态以服务器输出为准。SFT 的正式评测和 fatal-aware RL 尚未运行。此前三工具 `base-v1` 的 145 题只作诊断，程序拒绝续跑该目录。协议差异见 [协议核对](docs/protocol-review.md)。
 
 ## 数据与执行位置
 
-当前开发电脑只保存代码、依赖与私有凭据，**不下载数据集**。原始图片、轨迹、切分、训练调度和评测在后续指定的 CPU 服务器或远程执行环境处理，模型训练与推理由 PyTRIO GPU 执行。
+当前开发电脑只保存代码、依赖、聚合证据与私有凭据，**不下载数据集**。原始图片、轨迹、切分、训练调度和评测位于 CPU 服务器 `/data/jyh-yyh/PyTRIO-OpenSearch-VL`，模型训练与推理由 PyTRIO GPU 执行。
 
 CPU 服务器保存完整 SFT 和 RL 发布数据，合计下载量约 15.78 GB，随后再筛选实验子集。固定版本、下载命令和日志说明见 [docs/data.md](docs/data.md)。原作者代码仓库与本实验仓库分开放置，作为实现参考。
 
@@ -44,40 +48,43 @@ uv run python check_services.py --pytrio
 
 ## 当前实现
 
-- `select_experiment_data.py`：从服务器上的原始数据中生成固定的 512 条 SFT、128 条 RL 和 200 题评测数据。具体来源和筛选规则见 [docs/data.md](docs/data.md)。
+- `select_experiment_data.py`：生成原始固定切分；`select_seven_sft.py` 在不改动 200 题评测和 128 道 RL 题的前提下，重选七工具 SFT，输出 `data/selected-seven-v1/sft.jsonl`。具体来源和筛选规则见 [数据说明](docs/data.md)。
 - `protocol.py`、`templates/`：图文输入与 assistant-only SFT mask 转换，保留作者 system 文本，并加入独立 tools 字段。验收方法与结果见 [SFT CPU 验收](docs/sft-audit.md)。
-- `train_sft.py`：PyTRIO LoRA SFT 入口草稿，未运行远程训练。
-- `agent_baseline.py`、`agent_tools.py`：固定评测集上的多轮评测，支持裁剪、Serper 文字搜索、SerpApi 图片搜索、Jina 网页读取、搜索缓存、逐题断点续跑和 token/工具调用上限。
+- `train_sft.py`：已完成真实训练的 PyTRIO LoRA SFT 入口，512 条、1 epoch；离线检查、逐步日志、双权重保存及恢复保护见 [SFT 说明](docs/sft.md)。最终权重已验证，未据训练 loss 宣称任务准确率提升。
+- `agent_baseline.py`、`agent_tools.py`：作者完整 system/tools、七工具执行、搜索缓存、逐题断点及 token/调用上限。文字检索使用 DeepSeek Search/Fetch，图片检索使用豆包 Global visual，两者使用独立冻结的 Qwen3.8-27B 摘要。图像处理使用 PIL/OpenCV/EDSR，OCR 使用飞桨服务。
+- `deepseek_search.py`、`service_io.py`：国内搜索/抓取、原始回包留存、安全重试与用量记录。`check_service_stability.py` 在服务器独立目录检查真实服务，不代替正式评测。
+- `doubao_image.py`、`check_doubao_image.py`：豆包图搜图接入及真实检查，区分网页与图片来源，保留回包、缓存及用量。`bailian_image.py` 仅保留作历史诊断，评测不调用它。
 - `paddle_ocr.py`、`check_ocr.py`：飞桨异步版面解析适配与真实图片检查，使用固定的 PaddleOCR-VL-1.6。验证结果与后端差异见 [OCR 接入](docs/ocr.md)。
 - `judge_baseline.py`：沿用 OpenSearch-VL 的裁判提示词，通过 Anthropic Messages 接口调用固定的 GLM-5.3-Flash，记录逐题判定与总体、分来源成绩。该裁判与论文的 GPT-4o 有差异。
 - fatal-aware RL 尚待实现。
 
 ## 固定评测
 
-旧批次 `outputs/base-v1/` 已停止，程序会拒绝续跑。以下是既有接口形式；修正后的完整协议须在新目录重新验收再运行，这些命令会产生模型与搜索服务消耗：
+以下有限批次已按用户授权启动，先检查已有进程，不重复执行。正式运行使用独立新目录，不复用诊断批次或十题 smoke 的模型回答：
 
 ```sh
-.venv/bin/python agent_baseline.py --output-dir outputs/base-v1
-.venv/bin/python judge_baseline.py \
-  --results-dir outputs/base-v1 --output-dir outputs/judge-base-v1
+nohup ./run_baseline.sh > logs/base-aligned-100-v1-launch.log 2>&1 < /dev/null &
 ```
 
-默认使用 Qwen3.5-4B、temperature 0、seed 42，每题最多 6 轮工具交互，耗尽后追加一次最终作答，每轮最多生成 1536 token。连续 3 次工具错误终止；空回答、未完成回答计为无最终答案。工具接口失败、网页读取失败、达到轮数上限均保留记录。
+脚本显式读取 `data/selected-eval100-v1/eval.jsonl`，清除遗留代理环境，先生成 `outputs/base-aligned-100-v1/`，再按 expected=100 评分到 `outputs/judge-base-aligned-100-v1/`。生成日志为 `logs/base-aligned-100-v1.log`，评分日志为 `logs/judge-base-aligned-100-v1.log`，整段退出码为 `logs/base-aligned-100-v1.exit`。退出码 0 之外，还需检查恰好 100 个固定 ID 和评分摘要 `complete=true`。
 
-评测程序默认总输入和输出上限 500 万 token，图片搜索尝试上限 220 次、文字搜索尝试上限 1500 次。调用上限跨同一缓存目录累计；token 上限按本次输出目录累计。它们用于限制调用量，不等同于人民币账单上限。中断或未返回的模型请求保留 65536 token 预留；SDK 内部重试的真实费用以控制台为准。
+Qwen3.5-4B 使用 temperature 0、seed 42、最多 50 个 assistant 轮次。总窗口 65536 tokens，单轮最多生成 32768 tokens，实际按窗口剩余空间扣减；只使用 EOS 停止词。不追加强制最终回答，也不因连续三次模型参数错误提前终止评测。沿用作者完整轨迹答案抽取规则，没有显式最终回答不直接判错。容量证据、剩余差异及限制见 [评测配置](docs/evaluation-alignment.md)。
+
+正式脚本的主模型 token 上限 25M、摘要 8M、图搜请求尝试 800。未返回请求按实际输入加请求输出上限预留，不再固定预留 16384 tokens；未知旧消耗不能按零处理。达到预算停止整批并保留断点。预算不进入配置哈希，这些上限不等于人民币账单。主模型和摘要分别记录 token，豆包真实调用记录 `doubao-usage.jsonl`，裁判汇总 `doubao_image_search`，保留空结果与原始业务码。实际账单需独立核对，第三方费用不由 PyTRIO 代金券覆盖。
 
 代码、数据和参数的哈希写入 `config.json`。重新运行相同命令会跳过已完成题目并恢复中断轨迹；代码或配置变化时必须使用新输出目录。正式评测与流程检查使用不同目录，评测题面中不加入参考答案或发布包的 `image_caption`。
 
-`data/tool_cache/` 保存成功搜索与网页结果，跨 Base、SFT、RL 复用相同请求结果，减少搜索漂移和重复消耗。文字搜索返回前五项，尝试读取前两项正文，每页最多保留 5000 字符；正文读取失败会明确返回 `page_error`，仍保留搜索摘要。这与论文的专门网页摘要模型不同。
+`data/tool_cache/author-seven-v5/` 保存当前后端搜索、网页及摘要，跨阶段复用相同请求。优先使用搜索返回正文，缺失时调用 Fetch；只有目标页明确不可用时才注明使用搜索摘要，网络故障暂停。豆包提供来源网页和图片地址，二者分开保留；缺失来源时明确说明。OCR 缓存另存 `data/tool_cache/ocr-v1/`；原始回包权限 600，不提交 Git。
 
-从已校验并解压的原始数据生成切分；已有输出目录时脚本会报错，避免覆盖既有结果：
+现有切分已经生成，恢复运行时直接使用。首次在新的服务器准备数据时，可从已校验并解压的原始数据生成；已有输出目录时脚本拒绝覆盖：
 
 ```sh
 uv sync --frozen
 uv run python select_experiment_data.py
+uv run python select_seven_sft.py
 ```
 
-筛选时的字符数限制不等同于多模态 token 数。当前数据的长度和 mask 验收见报告；训练前仍须统一完整工具协议并复核 RL 参考答案质量。
+筛选时的字符数限制不等同于多模态 token 数。七工具 SFT 审计 512/512 通过、零超长，见 [验收报告](docs/sft-audit.md)；它不包含梯度与权重更新验证。网络故障、连接阶段重试及安全续跑见 [恢复记录](docs/ocr-network-recovery.md)。
 
 ## 来源
 

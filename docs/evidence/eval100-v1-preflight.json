@@ -1,0 +1,35 @@
+{
+  "model": "Qwen/Qwen3.5-4B",
+  "model_path": null,
+  "max_turns": 50,
+  "max_tokens": 32768,
+  "max_context": 65536,
+  "temperature": 0,
+  "seed": 42,
+  "evaluation_protocol": "author-inference-aligned-v1",
+  "generation_stop_tokens": [
+    "<|im_end|>"
+  ],
+  "answer_extraction_protocol": "OpenSearch-VL-1ac26e2-full-trajectory",
+  "context_limit_source": "server_sampling_capabilities",
+  "server_limits": {
+    "model_catalog_context": 32768,
+    "sampling_max_seq_len": 65536,
+    "sampling_max_tokens_per_request": 65536
+  },
+  "summary_model": "Qwen/Qwen3.8-27B",
+  "system_sha256": "d7223ce4641eab0671df67e8f8915d066832909cb54384593fc2d6f2658daf39",
+  "image_search_provider": "doubao-global-visual",
+  "image_search_endpoint": "https://open.feedcoopapi.com/search_api/global_search",
+  "image_search_parameters": {
+    "SearchType": "visual",
+    "DocCount": 10,
+    "MaxSnippetLength": 300
+  },
+  "tool_environment": "author-seven-paddle-vl16-doubao-deepseek-qwen38-v5",
+  "web_provider": "deepseek-search-fetch",
+  "network_route": "direct",
+  "data_sha256": "9f2f0e3d9117defccccff5a78eaa05099bdd78b3e489eb0540953900e1f5a6f1",
+  "code_sha256": "2fda91b10a8fa740010ccd1f8025f625485e5799c5cda357cedf762e452cd03c",
+  "sha256": "64dd649ae07d8575c297fb9b4e06aeb077b0bc91daa7fb958a01e34ed2d909c6"
+}

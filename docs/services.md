@@ -1,27 +1,19 @@
-# 服务申请与配置
+# 服务配置与用量
 
-核查日期：2026-10-26。先领取可用免费额度，按小试调用量再判断是否需要付费。
+当前实验已配置全部所需服务，真实凭据只保存在 Mac 与服务器项目根目录的私有 `.env`，权限 600。不要打印变量值或将其写入示例、日志、文档和 Git。恢复任务时直接读取现有配置，无需重新申请 Key。
 
-| 服务 | 用途 | 申请入口 | .env 变量 |
-|---|---|---|---|
-| PyTRIO | 模型训练、采样、checkpoint | [控制台](https://pytrio.com/dashboard)、[API Key](https://pytrio.com/keys) | `PYTRIO_API_KEY` |
-| Serper | 文字搜索 | [注册](https://serper.dev/signup) | `SERPER_API_KEY` |
-| SerpApi | Google Lens 全网以图搜图 | [注册](https://serpapi.com/users/sign_up)、[API Key 控制台](https://serpapi.com/manage-api-key) | `SERPAPI_API_KEY` |
-| Jina Reader，可选 | 网页正文读取 | [Reader 与 Key 入口](https://jina.ai/reader/) | `JINA_API_KEY` |
-| PaddleOCR | OCR 与版面解析 | [官方任务页](https://aistudio.baidu.com/paddleocr/task) | `PADDLE_OCR_JOB_URL`、`PADDLE_OCR_MODEL`、`PADDLE_OCR_TOKEN` |
+| 服务 | 用途 | 配置 |
+| --- | --- | --- |
+| [PyTRIO](https://pytrio.com/dashboard) | 4B 主模型采样、27B 独立摘要及后续训练 | PYTRIO_API_KEY |
+| [DeepSeek Search/Fetch](https://api-docs.deepseek.com/zh-cn/guides/search/) | 文字搜索与网页正文，服务器直连 | DEEPSEEK_API_KEY |
+| [豆包 Global 图搜图](https://docs.volcengine.com/docs/Networkedsearch/doubao-search-global-edition?lang=zh) | SearchType=visual，图片 URL 或纯 Base64，服务器直连 | DOUBAO_SEARCH_API_KEY |
+| [PaddleOCR](https://aistudio.baidu.com/paddleocr/task) | 异步 OCR/版面解析，PaddleOCR-VL-1.6 | PADDLE_OCR_JOB_URL、PADDLE_OCR_MODEL、PADDLE_OCR_TOKEN、PADDLE_OCR_PROXY |
+| [智谱](https://open.bigmodel.cn/) | GLM-5.3-Flash 答案裁判，Anthropic Messages 协议 | JUDGE_BASE_URL、JUDGE_API_KEY、JUDGE_MODEL、JUDGE_PROTOCOL |
 
-Serper 官网目前提供新账号 2,500 次免费搜索，无需信用卡。[官方说明](https://serper.dev/)
+当前图搜调用豆包 Global 的直接搜索接口，不再调用百炼辅助模型。SERPER_API_KEY、SERPAPI_API_KEY、JINA_API_KEY 和 DASHSCOPE_* 仅为历史配置。check_services.py 与正式入口均检查当前服务变量。作者的独立检索摘要仍由 PyTRIO Qwen3.8-27B 完成。
 
-SerpApi 免费档每月 250 次搜索、每小时最多 50 次；额度由同账号的各搜索 API 共用。这里只将它用于图片搜索。重复图片可按内容缓存，但新裁剪图会产生新的检索，因此免费额度不能保证覆盖整轮 RL 与三组评测。[官方价格](https://serpapi.com/pricing)
+当前所有服务均从 CPU 服务器直连；PADDLE_OCR_PROXY 已清空，新入口清除通用代理环境，不依赖 Mac 10081/1082 转发。豆包检查见 [图搜验收](doubao-image.md)，其他服务的 [v4 检查](services-stability.md) 保留为历史证据。不能照历史隧道记录重新启用代理或评测。
 
-SerpApi 提供上传图片取得 `image_id` 后调用 Lens 的接口，可用于原图和本地裁剪图，上传大小上限为 500 KB。接入时应核验图片上传、有效期与账号限制；当前不需要另行申请对象存储。[官方上传说明](https://serpapi.com/google-lens-upload-an-image)
+PyTRIO 代金券仅覆盖约定的 PyTRIO 消耗，豆包、GLM 等第三方用量单独记录。豆包 visual 单价与实际费用待控制台核对；各平台额度以实际账户为准，不把历史免费额度当作长期保证。
 
-Jina Reader 不带 Key 可使用基础读取，官网当前列出 20 次/分钟；新 Key 提供 10M 免费 token。读取能力不等于绕过目标网站访问限制。[官方说明](https://jina.ai/reader/)
-
-2026-10-27，飞桨配置为用户提供的异步 Jobs 接口和 `PaddleOCR-VL-1.6`，使用 Bearer Token。提交、轮询、结果 JSONL 解析与缓存已经真实图片验证；它与作者未公开的版面解析后端不能视为已确认同一版本。官方配额文档当前写明每用户每模型每日 20000 页，实际账户可用性仍需以平台为准。[配额说明](https://ai.baidu.com/ai-doc/AISTUDIO/Xmjclapam)、[接入说明](ocr.md)
-
-答案判定、网页摘要与搜索质量评分还需要冻结的模型。若已有 OpenAI 兼容模型接口，可提供 `JUDGE_BASE_URL`、`JUDGE_API_KEY` 和 `JUDGE_MODEL` 复用；否则后续评估 PyTRIO 内的独立冻结 sampler，不必现在额外注册付费模型账号。
-
-将真实密钥填在仓库根目录的私有 `.env`，不要填进 `.env.example`、README 或 GitHub issue。`.env` 已被忽略。只读检查用 `uv run python check_services.py --pytrio`，不会创建 sampler 或训练任务。
-
-数据准备与训练脚本还需一个 CPU 执行环境及工作目录。PyTRIO 负责 GPU 模型计算，不提供本项目数据整理与搜索调度的本地运行位置。确定远程执行位置后再在那里下载数据。
+主模型和摘要分别记录 tokens.jsonl、summary-tokens.jsonl；豆包真实调用记入 doubao-usage.jsonl，缓存命中排除，保留 RequestId、返回数量、原始业务码与空结果分类；DeepSeek 成功请求另有 deepseek-usage.jsonl；GLM usage 在逐题评分中。响应原文、状态码和请求 ID 私有留存，不保存认证头。客户端用量不等于账单；历史百炼检查和未确认提交也需独立核对。

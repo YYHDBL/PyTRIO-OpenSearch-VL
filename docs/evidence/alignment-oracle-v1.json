@@ -1,0 +1,14 @@
+{
+  "answer_extraction_cases": 34,
+  "all_match_upstream": true,
+  "judge_prompt_byte_match": true,
+  "upstream_eval_sha256": "fa100c114017ac9b5e6e99b3ed8e6a481ba52cbce2d37196356d823a07852ca1",
+  "old_source_snapshot_matches_launch": true,
+  "old_completed_count": 35,
+  "old_termination_counts": {
+    "no_final_answer": 4,
+    "final_answer": 30,
+    "context_limit": 1
+  },
+  "old_results_official_comparison": false
+}

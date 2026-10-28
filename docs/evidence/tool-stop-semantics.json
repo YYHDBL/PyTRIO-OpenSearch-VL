@@ -1,0 +1,9 @@
+{
+  "at": 1793114396.4575822,
+  "status": "completed",
+  "input_tokens": 35,
+  "output_tokens": 14,
+  "stop_reason": "</tool_call>",
+  "text": "<tool_call>{\"name\":\"text_search\",\"arguments\":{\"q\":\"query\"}}",
+  "purpose": "API stop semantics, no tool executed"
+}

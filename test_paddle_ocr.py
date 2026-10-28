@@ -2,12 +2,30 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import unittest
 
 
 class PaddleOcrTest(unittest.TestCase):
+    def test_invalid_explicit_proxy_fails_before_submission(self):
+        from paddle_ocr import OCRServiceError, PaddleOCRClient
+
+        client = PaddleOCRClient.__new__(PaddleOCRClient)
+        client.token = "test-only-token"
+        previous = os.environ.get("PADDLE_OCR_PROXY")
+        os.environ["PADDLE_OCR_PROXY"] = "invalid://127.0.0.1:0"
+        try:
+            with self.assertRaises((ValueError, OCRServiceError)) as raised:
+                client.request("POST", "https://127.0.0.1:0")
+            self.assertIsInstance(raised.exception, ValueError)
+        finally:
+            if previous is None:
+                os.environ.pop("PADDLE_OCR_PROXY", None)
+            else:
+                os.environ["PADDLE_OCR_PROXY"] = previous
+
     def test_unknown_submission_outcome_blocks_automatic_reupload(self):
         import paddle_ocr
 

@@ -1,0 +1,49 @@
+{
+  "samples": 2048,
+  "passed_mask_and_shift": 2048,
+  "errors": [],
+  "max_seq_len": 32768,
+  "overlength_count": 0,
+  "overlength_ids": [],
+  "lengths": {
+    "min": 4835,
+    "mean": 9977.7099609375,
+    "median": 9047.5,
+    "p90": 13898.4,
+    "p95": 16451.95,
+    "max": 27600
+  },
+  "totals": {
+    "input_tokens": 20434350,
+    "visual_tokens": 1146953,
+    "supervised_tokens": 1988460,
+    "masked_tokens": 18445890,
+    "image_count": 3110,
+    "assistant_eos": 8418
+  },
+  "cpu_audit_passed": true,
+  "remote_lengths_passed": true,
+  "remote_length_check": {
+    "checked_first_turns": 145,
+    "mismatches": [],
+    "method": "reuse earlier checks with identical tokenizer/processor, protocol and template; no new remote requests"
+  },
+  "data_sha256": "359b59edaa2961d193b7afa1ef592a5a57425ab58f7d7264b76991301a16569f",
+  "template_sha256": "ca71b1a8c7758b3a3cbe8256b66a3acefb692b4e9d909cac5edc679999a03873",
+  "protocol_sha256": "0c24359a52ed4cf6d0832722be462078ac82f2cfd209bf8959d6e8c710a703ae",
+  "model_files_sha256": {
+    "tokenizer_config.json": "316230d6a809701f4db5ea8f8fc862bc3a6f3229c937c174e674ff3ca0a64ac8",
+    "vocab.json": "ce99b4cb2983d118806ce0a8b777a35b093e2000a503ebde25853284c9dfa003",
+    "merges.txt": "a9d356d7bdf1ef4949e3e748e95b8e10ad9d4e2e838eddc38a0a7b6b94d1db8d",
+    "config.json": "ddc63e1c717afa86c865bb5e01313d89d72bb53b97ad4a8a03ba8510c0621670",
+    "preprocessor_config.json": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+    "tokenizer.json": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42"
+  },
+  "versions": {
+    "pytrio": "0.2.9",
+    "transformers": "5.20.2",
+    "numpy": "2.5.4",
+    "pillow": "13.0.0"
+  },
+  "scope": "new 2048 rows independently audited with audit_row; heldout 200/RL128 excluded; no GPU training"
+}

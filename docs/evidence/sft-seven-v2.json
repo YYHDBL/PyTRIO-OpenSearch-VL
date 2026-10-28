@@ -1,0 +1,62 @@
+{
+  "complete": true,
+  "samples": 512,
+  "epochs": 1,
+  "steps": 128,
+  "base_model": "Qwen/Qwen3.5-4B",
+  "lora_rank": 32,
+  "learning_rate": 2e-05,
+  "batch_size": 4,
+  "max_seq_len": 32768,
+  "training_input_tokens": 4626267,
+  "supervised_tokens": 420240,
+  "submitted_input_tokens_by_operation": {
+    "forward": 80280,
+    "sampler-health": 9472,
+    "save-sampler": 0,
+    "save-state": 0,
+    "update": 4626267
+  },
+  "reserved_tokens": 4716275,
+  "requests_by_operation": {
+    "forward": 8,
+    "update": 128,
+    "save-state": 5,
+    "save-sampler": 5,
+    "sampler-health": 2
+  },
+  "training_update_seconds_sum": 664.334,
+  "training_update_seconds_median": 5.14,
+  "weighted_training_nll": 0.5861328505069675,
+  "initial_diagnostic_nll": 0.5569896100802622,
+  "final_diagnostic_nll": 0.43256577616188985,
+  "diagnostic_relative_decrease": 0.2233862744772615,
+  "final_state_restore_nll": 0.43256577616188985,
+  "final_sampler_input_tokens": 4736,
+  "final_sampler_output_tokens": 128,
+  "checkpoints": [
+    8,
+    32,
+    64,
+    96,
+    128
+  ],
+  "both_weights_saved_and_verified": true,
+  "data_order_exact": true,
+  "duplicate_training_samples": 0,
+  "unfinished_operations": 0,
+  "exit_code": 0,
+  "data_sha256": "92913ce5a508a285b65599dc83c8b79bcb2924130dea66d8b43471e260eaca31",
+  "code_sha256": "17049ac18c6568b9693efb64f1736a8ddf1dfbfe4efee3e472c2b7d7692c1b0c",
+  "baseline_runtime_unchanged": true,
+  "baseline_completed_at_verification": 61,
+  "final_weights_private_record": "outputs/sft-seven-v2/sft_result.json",
+  "final_state_path_sha256": "538d0a3a5debc127dcd32a3585c7dc8b4564fbafbfeb9043ccd9deac810bdcca",
+  "final_sampler_path_sha256": "bed10781b2ee2397535e41448ebdd7a35505165027b302699a44c0184d327936",
+  "limitations": [
+    "NLL is measured on training data, not held-out task accuracy",
+    "actual monetary bill is not reconciled",
+    "SFT 100-question evaluation and RL were not started"
+  ],
+  "verified_at": 1793156403.8662744
+}

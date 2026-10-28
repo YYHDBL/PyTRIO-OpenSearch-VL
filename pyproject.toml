@@ -11,6 +11,7 @@ dependencies = [
     "ijson>=3.3",
     "pyarrow>=20",
     "httpx>=0.27,<1",
+    "opencv-contrib-python-headless>=4.10,<5",
 ]
 
 [project.optional-dependencies]

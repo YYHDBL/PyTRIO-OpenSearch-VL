@@ -1,0 +1,11 @@
+{
+  "steps": 8,
+  "samples_seen": 32,
+  "initial_loss": 0.5569896100802622,
+  "step8_loss": 0.49660458071449337,
+  "loss_delta": -0.06038502936576878,
+  "sampler_verified": true,
+  "state_with_optimizer_verified": true,
+  "continue_from_step": 9,
+  "repeated_batches": 0
+}

@@ -1,0 +1,77 @@
+{
+  "at": 1793111007.8328102,
+  "sample_count": 200,
+  "source_counts": {
+    "SimpleVQA": 40,
+    "InfoSeek": 40,
+    "FVQA": 20,
+    "VDR": 40,
+    "MMSearch": 20,
+    "LiveVQA": 20,
+    "BrowseComp-VL": 20
+  },
+  "data_sha256": "59629e3226f24a1ea5c2f2ea06be92e25489844d66fcec627347d7380a9119b3",
+  "file_sha256": {
+    "agent_baseline.py": "716d98f09e0839c5989586dd6e061b8a7974514a9bbcb5c5e10e8ea4c98c67b0",
+    "agent_tools.py": "6374ff97f45106ec3432d039464325898b90b989a11aa77ca587c9f2ee5cc007",
+    "protocol.py": "0c24359a52ed4cf6d0832722be462078ac82f2cfd209bf8959d6e8c710a703ae",
+    "paddle_ocr.py": "59dfd0828c8da4ca1f42d8f1f533433181800d37d93d455fabbe5d1b015bd21f",
+    "doubao_image.py": "64c6051fc014ec23354c9fda3082b1592b2732e0a95feabbe2060f6cae68b9ce",
+    "deepseek_search.py": "52186ffa93ed2e5507c63d426cbfea3c6c4afac8cf6571a869f7d63b11a31234",
+    "service_io.py": "bf43662fe871ee99635ccf0eb8428e7299395c1b7a79a94464d65d471e27e866",
+    "judge_baseline.py": "c1ca902a909e2e20025ff766f4a617577364b45fd411f5fef838ebbc27369388",
+    "run_baseline.sh": "b5e6656d01e30c4e32e8a5db2a1a344e22721a1cf53c930d038445f4140f620a"
+  },
+  "read_only_connectivity": [
+    {
+      "service": "deepseek",
+      "http_status": 401,
+      "business_code": null,
+      "seconds": 0.175,
+      "route": "direct",
+      "authenticated_test": false,
+      "note": "expected unauthenticated response; business function was tested separately"
+    },
+    {
+      "service": "doubao",
+      "http_status": 200,
+      "business_code": 700901,
+      "seconds": 0.324,
+      "route": "direct",
+      "authenticated_test": false,
+      "note": "expected unauthenticated response; business function was tested separately"
+    },
+    {
+      "service": "ocr",
+      "http_status": 405,
+      "business_code": null,
+      "seconds": 0.248,
+      "route": "direct",
+      "authenticated_test": false,
+      "note": "expected unauthenticated response; business function was tested separately"
+    },
+    {
+      "service": "judge",
+      "http_status": 401,
+      "business_code": null,
+      "seconds": 0.209,
+      "route": "direct",
+      "authenticated_test": false,
+      "note": "expected unauthenticated response; business function was tested separately"
+    }
+  ],
+  "previous_live_service_checks": {
+    "passed": 26,
+    "image_provider": "doubao-global-visual",
+    "image_checks": 3
+  },
+  "model": "Qwen/Qwen3.5-4B",
+  "summary_model": "Qwen/Qwen3.8-27B",
+  "judge_model": "GLM-5.3-Flash",
+  "network_route": "direct",
+  "budgets": {
+    "main_tokens": 25000000,
+    "summary_tokens": 8000000,
+    "image_requests": 800
+  }
+}

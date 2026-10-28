@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import os
 import unittest
 
 from PIL import Image
@@ -101,6 +102,160 @@ class BaselineTest(unittest.TestCase):
             (root / "STATUS.json").write_text('{"status":"halted_pending_protocol_review"}')
             with self.assertRaises(ValueError):
                 agent_baseline.assert_run_allowed(root)
+        finally:
+            shutil.rmtree(root)
+
+    def test_all_author_tool_names_are_accepted(self):
+        from agent_baseline import parse_action
+
+        for name in ("crop", "image_search", "text_search", "web_search", "layout_parsing",
+                     "sharpen", "perspective_correct", "super_resolution"):
+            action = parse_action('<tool_call>{"name":"' + name + '","arguments":{}}</tool_call>')
+            self.assertEqual(action["name"], name)
+
+    def test_author_system_includes_all_declared_tools_without_rewrite(self):
+        import json
+        import agent_baseline
+
+        self.assertTrue(hasattr(agent_baseline, "author_system"))
+        names = ("crop", "layout_parsing", "web_search", "image_search", "text_search",
+                 "perspective_correct", "super_resolution", "sharpen")
+        tools = [{"type": "function", "function": {"name": name}} for name in names]
+        row = {"system": "Author prompt.", "tools": json.dumps(tools)}
+        result = agent_baseline.author_system([row, row])
+        self.assertTrue(result.startswith(row["system"]))
+        self.assertTrue(all('"name": "' + name + '"' in result for name in names))
+        with self.assertRaises(ValueError):
+            agent_baseline.author_system([row, {**row, "system": "Different"}])
+
+    def test_model_images_keep_png_and_original_dimensions(self):
+        from agent_tools import model_image_bytes
+
+        raw = model_image_bytes(Image.new("RGB", (1600, 100)))
+        with Image.open(io.BytesIO(raw)) as opened:
+            self.assertEqual(opened.format, "PNG")
+            self.assertEqual(opened.size, (1600, 100))
+
+    def test_sharpen_and_perspective_are_real_image_operations(self):
+        from pathlib import Path
+        import shutil
+        import numpy as np
+        from agent_tools import ToolEnvironment, model_image_bytes
+
+        root = Path("outputs/test-image-enhancement")
+        self.assertFalse(root.exists())
+        try:
+            tools = ToolEnvironment(root)
+            pixels = np.zeros((128, 128, 3), dtype=np.uint8)
+            pixels[20:110, 20:110] = 130
+            images = {"img_1": model_image_bytes(Image.fromarray(pixels))}
+            _, sharpened = tools.execute({"name": "sharpen", "arguments": {"image": "img_1", "amount": 1.5}}, images)
+            with Image.open(io.BytesIO(sharpened)) as image:
+                self.assertEqual(image.size, (128, 128))
+                self.assertNotEqual(image.tobytes(), pixels.tobytes())
+            _, corrected = tools.execute({"name": "perspective_correct", "arguments": {"image": "img_1"}}, images)
+            with Image.open(io.BytesIO(corrected)) as image:
+                self.assertGreater(image.width * image.height, 0)
+            old_path = os.environ.get("SR_MODEL_PATH")
+            os.environ["SR_MODEL_PATH"] = str(root / "missing.pb")
+            try:
+                with self.assertRaises(FileNotFoundError):
+                    tools.execute({"name": "super_resolution", "arguments": {"image": "img_1"}}, images)
+            finally:
+                if old_path is None:
+                    os.environ.pop("SR_MODEL_PATH", None)
+                else:
+                    os.environ["SR_MODEL_PATH"] = old_path
+        finally:
+            shutil.rmtree(root)
+
+    def test_text_summary_prompt_matches_author_fields_and_content_limit(self):
+        import agent_tools
+
+        self.assertTrue(hasattr(agent_tools, "text_summary_prompt"))
+        prompt = agent_tools.text_summary_prompt("A" * 2001, "bridge", "Title")
+        self.assertIn('query: "bridge"', prompt)
+        self.assertIn("Webpage Title: Title", prompt)
+        self.assertIn("A" * 2000, prompt)
+        self.assertNotIn("A" * 2001, prompt)
+
+    def test_bailian_usage_ledger_records_live_billing_fields(self):
+        import json
+        from pathlib import Path
+        import shutil
+        import agent_tools
+
+        root = Path("outputs/test-bailian-usage")
+        shutil.rmtree(root, ignore_errors=True)
+        root.mkdir(parents=True)
+        try:
+            tools = agent_tools.ToolEnvironment(root / "cache", usage_dir=root)
+            result = {"matches": [], "calls": [], "response_model": "qwen3.8-27b",
+                      "usage": {"input_tokens": 9388, "output_tokens": 2147,
+                                "image_search_calls": 1, "observed_completed_calls": 1}}
+            tools.record_bailian_usage(result)
+            tools.record_bailian_usage(result)
+            rows = [json.loads(line) for line in (root / "bailian-usage.jsonl").open()]
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(rows[0]["input_tokens"], 9388)
+            self.assertEqual(rows[0]["output_tokens"], 2147)
+            self.assertEqual(rows[0]["image_search_calls"], 1)
+            self.assertEqual(rows[0]["kind"], "image_search")
+            self.assertEqual(rows[0]["response_model"], "qwen3.8-27b")
+        finally:
+            shutil.rmtree(root)
+        # 未配置 usage_dir 时不落盘，也不应抛错。
+        spare = Path("outputs/test-bailian-usage-2")
+        shutil.rmtree(spare, ignore_errors=True)
+        agent_tools.ToolEnvironment(spare).record_bailian_usage(result)
+        self.assertFalse((spare / "bailian-usage.jsonl").exists())
+        shutil.rmtree(spare)
+
+    def test_connect_phase_failures_retry_but_send_phase_failures_fail_fast(self):
+        # 连接未建立可安全重试；请求已发出的失败立即上抛，避免重复副作用。
+        from unittest import mock
+        import httpx as httpx_module
+        from pathlib import Path
+        import shutil
+        import agent_tools
+
+        root = Path("outputs/test-connect-retry")
+        shutil.rmtree(root, ignore_errors=True)
+        root.mkdir(parents=True)
+        try:
+            tools = agent_tools.ToolEnvironment(root)
+            calls = []
+
+            class ConnectThenSuccess:
+                def __init__(self, **kwargs):
+                    pass
+
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    return False
+
+                def request(self, method, url, **kwargs):
+                    calls.append(url)
+                    if len(calls) < 3:
+                        raise httpx_module.ConnectError("no route to host")
+                    return mock.Mock(status_code=200, json=lambda: {"ok": True})
+
+            with mock.patch.object(agent_tools.httpx, "Client", ConnectThenSuccess):
+                self.assertEqual(tools.request("POST", "https://example.org/api", direct=True), {"ok": True})
+            self.assertEqual(len(calls), 3)
+
+            class ReadTimeoutClient(ConnectThenSuccess):
+                def request(self, method, url, **kwargs):
+                    calls.append(url)
+                    raise httpx_module.ReadTimeout("response slow")
+
+            calls.clear()
+            with mock.patch.object(agent_tools.httpx, "Client", ReadTimeoutClient):
+                with self.assertRaises(agent_tools.ToolError):
+                    tools.request("POST", "https://example.org/api", direct=True)
+            self.assertEqual(len(calls), 1)
         finally:
             shutil.rmtree(root)
 

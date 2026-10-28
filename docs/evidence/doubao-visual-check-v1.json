@@ -1,0 +1,46 @@
+{
+  "provider": "doubao-global-visual",
+  "route": "direct",
+  "ready": true,
+  "checks": [
+    {
+      "case": "original_base64",
+      "seconds": 0.884,
+      "returned_documents": 10,
+      "source_pages": 10,
+      "request_id": "20261027215458175DBF8D1BD347DD5C85",
+      "cache_without_new_request": true,
+      "provider_error_code": 0,
+      "response_kind": "results"
+    },
+    {
+      "case": "public_url",
+      "seconds": 0.728,
+      "returned_documents": 10,
+      "source_pages": 10,
+      "request_id": "2026102721545828A586275BE289B6EF09",
+      "cache_without_new_request": true,
+      "provider_error_code": 0,
+      "response_kind": "results"
+    },
+    {
+      "case": "crop_base64",
+      "seconds": null,
+      "returned_documents": 0,
+      "source_pages": 0,
+      "request_id": "202610272154599AE9A70E4B7545D2D596",
+      "cache_without_new_request": true,
+      "provider_error_code": 500,
+      "response_kind": "empty_search"
+    }
+  ],
+  "completed_live_requests": 3,
+  "summary_model": "Qwen/Qwen3.8-27B",
+  "integrated_summary_characters": 1126,
+  "summary_cache_verified": true,
+  "baseline_question_count": 0,
+  "limits": [
+    "three-image connectivity and pipeline check, not recognition accuracy or long-duration SLA",
+    "visual unit price and actual charges not verified against account bill"
+  ]
+}

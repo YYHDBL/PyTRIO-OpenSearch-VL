@@ -1,0 +1,118 @@
+{
+  "at": 1793150593.040452,
+  "purpose": "10 question stability and latency smoke only; no 200-question launch or automation",
+  "sampling_seed": 42,
+  "selection_policy": "2 each SimpleVQA/InfoSeek/VDR and 1 each other source; exclude old 35 completed IDs and prior 3 smoke IDs",
+  "samples": [
+    {
+      "sample_id": "eval-0035",
+      "benchmark": "SimpleVQA"
+    },
+    {
+      "sample_id": "eval-0039",
+      "benchmark": "SimpleVQA"
+    },
+    {
+      "sample_id": "eval-0055",
+      "benchmark": "InfoSeek"
+    },
+    {
+      "sample_id": "eval-0057",
+      "benchmark": "InfoSeek"
+    },
+    {
+      "sample_id": "eval-0080",
+      "benchmark": "FVQA"
+    },
+    {
+      "sample_id": "eval-0128",
+      "benchmark": "VDR"
+    },
+    {
+      "sample_id": "eval-0138",
+      "benchmark": "VDR"
+    },
+    {
+      "sample_id": "eval-0144",
+      "benchmark": "MMSearch"
+    },
+    {
+      "sample_id": "eval-0167",
+      "benchmark": "LiveVQA"
+    },
+    {
+      "sample_id": "eval-0183",
+      "benchmark": "BrowseComp-VL"
+    }
+  ],
+  "runtime_sha256": {
+    "agent_baseline.py": "05d516fe338dc68aaa9fc0aecb6e739e416a3489bafec1a89d90cfe95d304f3a",
+    "agent_tools.py": "8a7c02694fd8fdf96022197b782222f29e7e18ea43fcfa7eb0fdd302d3ff95c6",
+    "protocol.py": "0c24359a52ed4cf6d0832722be462078ac82f2cfd209bf8959d6e8c710a703ae",
+    "paddle_ocr.py": "59dfd0828c8da4ca1f42d8f1f533433181800d37d93d455fabbe5d1b015bd21f",
+    "doubao_image.py": "64c6051fc014ec23354c9fda3082b1592b2732e0a95feabbe2060f6cae68b9ce",
+    "deepseek_search.py": "52186ffa93ed2e5507c63d426cbfea3c6c4afac8cf6571a869f7d63b11a31234",
+    "service_io.py": "ee9fc3c40f95a94d959389617a4916551ecf881ec4a155f6896d270310f1d268",
+    "answer_extraction.py": "4b95ab0e4731239396499d902e967c064c83c1e22eb570e0ea45a1fa82825702",
+    "judge_baseline.py": "e819a151258ee47cf6a47f1b875bd3c4d25fa69d293f33344b1583574c23dc0c",
+    "templates/qwen3_5_opensearch.jinja": "ca71b1a8c7758b3a3cbe8256b66a3acefb692b4e9d909cac5edc679999a03873"
+  },
+  "command": [
+    ".venv/bin/python",
+    "-u",
+    "agent_baseline.py",
+    "--output-dir",
+    "outputs/smoke-aligned-10-v1",
+    "--max-context",
+    "65536",
+    "--max-tokens",
+    "32768",
+    "--max-turns",
+    "50",
+    "--token-budget",
+    "2500000",
+    "--summary-token-budget",
+    "800000",
+    "--image-request-budget",
+    "100",
+    "--sample-id",
+    "eval-0035",
+    "--sample-id",
+    "eval-0039",
+    "--sample-id",
+    "eval-0055",
+    "--sample-id",
+    "eval-0057",
+    "--sample-id",
+    "eval-0080",
+    "--sample-id",
+    "eval-0128",
+    "--sample-id",
+    "eval-0138",
+    "--sample-id",
+    "eval-0144",
+    "--sample-id",
+    "eval-0167",
+    "--sample-id",
+    "eval-0183"
+  ],
+  "judge_command": [
+    ".venv/bin/python",
+    "-u",
+    "judge_baseline.py",
+    "--results-dir",
+    "outputs/smoke-aligned-10-v1",
+    "--output-dir",
+    "outputs/judge-smoke-aligned-10-v1",
+    "--expected",
+    "10"
+  ],
+  "network_route": "direct",
+  "budgets": {
+    "main_tokens": 2500000,
+    "summary_tokens": 800000,
+    "image_requests": 100
+  },
+  "tool_cache_policy": "reuse identical facts and distinguish live requests from hits",
+  "launcher_pid": 354482
+}

@@ -1,0 +1,61 @@
+{
+  "complete": true,
+  "samples": 2048,
+  "steps": 512,
+  "epochs": 1,
+  "lora_rank": 32,
+  "base_model": "Qwen/Qwen3.5-4B",
+  "learning_rate": 2e-05,
+  "batch_size": 4,
+  "training_input_tokens": 20434350,
+  "supervised_tokens": 1988460,
+  "update_seconds_sum": 2856.672,
+  "update_seconds_median": 5.435,
+  "launch_to_exit_seconds": 3258.974,
+  "initial_diagnostic_nll": 0.5675619955836659,
+  "final_diagnostic_nll": 0.4154335014904555,
+  "diagnostic_relative_decrease": 0.26803854958041273,
+  "final_restored_diagnostic_nll": 0.4154335014904555,
+  "final_sampler_input_tokens": 4366,
+  "final_sampler_output_tokens": 113,
+  "requests_by_operation": {
+    "forward": 8,
+    "update": 512,
+    "save-state": 5,
+    "save-sampler": 5,
+    "sampler-health": 2
+  },
+  "reserved_tokens": 20530658,
+  "input_tokens_by_operation": {
+    "forward": 87320,
+    "sampler-health": 8732,
+    "save-sampler": 0,
+    "save-state": 0,
+    "update": 20434350
+  },
+  "all_checkpoint_pairs_saved": true,
+  "checkpoints": [
+    8,
+    128,
+    256,
+    384,
+    512
+  ],
+  "data_order_verified": true,
+  "duplicate_training_samples": 0,
+  "unfinished_operations": 0,
+  "exit_code": 0,
+  "frozen_data_unchanged": true,
+  "old_512_model_preserved": true,
+  "data_sha256": "359b59edaa2961d193b7afa1ef592a5a57425ab58f7d7264b76991301a16569f",
+  "runtime_hashes_match_launch": true,
+  "final_weights_private_record": "outputs/sft-2048-v1/sft_result.json",
+  "sampler_path_sha256": "07acc741ea68cbf94d56b689d1340852d37eb95f8e14dd039180957833c2c6bb",
+  "state_path_sha256": "989d241fb5c06442c202a8410b58de69b0108b0dce67db464d62c490aae7a6de",
+  "limitations": [
+    "training-sample NLL is not heldout accuracy",
+    "actual monetary bill has not been reconciled",
+    "SFT 100-question evaluation and RL have not been started"
+  ],
+  "verified_at": 1793166550.284901
+}

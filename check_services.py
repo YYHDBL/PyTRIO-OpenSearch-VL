@@ -13,8 +13,8 @@ def main() -> None:
     parser.add_argument("--pytrio", action="store_true", help="只读查询当前账号的支持模型")
     args = parser.parse_args()
     load_dotenv(Path(__file__).parent / ".env", override=False)
-    required = ("PYTRIO_API_KEY", "SERPER_API_KEY", "SERPAPI_API_KEY")
-    for key in (*required, "JINA_API_KEY", "PADDLE_OCR_JOB_URL", "PADDLE_OCR_MODEL", "PADDLE_OCR_TOKEN"):
+    required = ("PYTRIO_API_KEY", "DEEPSEEK_API_KEY", "DOUBAO_SEARCH_API_KEY")
+    for key in (*required, "PADDLE_OCR_JOB_URL", "PADDLE_OCR_MODEL", "PADDLE_OCR_TOKEN", "JUDGE_API_KEY"):
         state = "已配置" if os.environ.get(key, "").strip() else "未配置"
         print(f"{key}: {state}")
     if args.pytrio:

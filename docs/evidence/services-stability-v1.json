@@ -1,0 +1,317 @@
+{
+  "started_at": 1793106469.517944,
+  "finished_at": 1793106844.3533976,
+  "rounds": 3,
+  "checks": [
+    {
+      "name": "crop",
+      "ok": true,
+      "seconds": 0.001,
+      "detail": {
+        "size": [
+          48,
+          48
+        ],
+        "message": "Image cropped successfully. New image ID: img_2."
+      }
+    },
+    {
+      "name": "sharpen",
+      "ok": true,
+      "seconds": 0.002,
+      "detail": {
+        "size": [
+          64,
+          64
+        ],
+        "message": "Image sharpened successfully. New image ID: img_3."
+      }
+    },
+    {
+      "name": "perspective_correct",
+      "ok": true,
+      "seconds": 0.001,
+      "detail": {
+        "size": [
+          64,
+          64
+        ],
+        "message": "No quadrilateral detected; image was not transformed. New image ID: img_4."
+      }
+    },
+    {
+      "name": "super_resolution",
+      "ok": true,
+      "seconds": 1.906,
+      "detail": {
+        "size": [
+          256,
+          256
+        ],
+        "message": "Image enhanced by EDSR x4 successfully. New image ID: img_5."
+      }
+    },
+    {
+      "name": "deepseek_search_0",
+      "ok": true,
+      "seconds": 0.401,
+      "detail": {
+        "results": 3,
+        "with_full_text": 3
+      }
+    },
+    {
+      "name": "deepseek_fetch_0",
+      "ok": true,
+      "seconds": 0.169,
+      "detail": {
+        "url": "https://docs.python.org/3/library/json.html",
+        "content_characters": 27182
+      }
+    },
+    {
+      "name": "deepseek_search_1",
+      "ok": true,
+      "seconds": 0.368,
+      "detail": {
+        "results": 3,
+        "with_full_text": 3
+      }
+    },
+    {
+      "name": "deepseek_fetch_1",
+      "ok": true,
+      "seconds": 0.139,
+      "detail": {
+        "url": "https://www.python.org/about/",
+        "content_characters": 1620
+      }
+    },
+    {
+      "name": "deepseek_search_2",
+      "ok": true,
+      "seconds": 0.368,
+      "detail": {
+        "results": 3,
+        "with_full_text": 3
+      }
+    },
+    {
+      "name": "deepseek_fetch_2",
+      "ok": true,
+      "seconds": 0.184,
+      "detail": {
+        "url": "https://www.gov.uk/",
+        "content_characters": 2820
+      }
+    },
+    {
+      "name": "fetch_unavailable_page",
+      "ok": true,
+      "seconds": 0.654,
+      "detail": {
+        "unavailable_page_is_explicit": true
+      }
+    },
+    {
+      "name": "paddle_ocr_0",
+      "ok": true,
+      "seconds": 22.167,
+      "detail": {
+        "characters": 499,
+        "resume_without_resubmission": true,
+        "cache_without_resubmission": true,
+        "job_submissions": 1
+      }
+    },
+    {
+      "name": "paddle_ocr_1",
+      "ok": true,
+      "seconds": 53.175,
+      "detail": {
+        "characters": 501,
+        "resume_without_resubmission": true,
+        "cache_without_resubmission": true,
+        "job_submissions": 1
+      }
+    },
+    {
+      "name": "paddle_ocr_2",
+      "ok": true,
+      "seconds": 37.395,
+      "detail": {
+        "characters": 499,
+        "resume_without_resubmission": true,
+        "cache_without_resubmission": true,
+        "job_submissions": 1
+      }
+    },
+    {
+      "name": "bailian_image_search_0",
+      "ok": true,
+      "seconds": 85.365,
+      "detail": {
+        "matches": 10,
+        "usage": {
+          "input_tokens": 665,
+          "output_tokens": 49,
+          "image_search_calls": 1,
+          "observed_completed_calls": 1
+        },
+        "response_id": "resp_f157b5e8-03c0-97a9-85c8-ec91412b455b",
+        "cache_without_new_usage": true
+      }
+    },
+    {
+      "name": "bailian_image_search_1",
+      "ok": true,
+      "seconds": 49.707,
+      "detail": {
+        "matches": 10,
+        "usage": {
+          "input_tokens": 807,
+          "output_tokens": 49,
+          "image_search_calls": 1,
+          "observed_completed_calls": 1
+        },
+        "response_id": "resp_62df8f09-a48a-9b5b-85a4-f664f7b333ab",
+        "cache_without_new_usage": true
+      }
+    },
+    {
+      "name": "bailian_image_search_2",
+      "ok": true,
+      "seconds": 31.991,
+      "detail": {
+        "matches": 0,
+        "usage": {
+          "input_tokens": 538,
+          "output_tokens": 49,
+          "image_search_calls": 1,
+          "observed_completed_calls": 1
+        },
+        "response_id": "resp_e5c3ed9b-fe47-9d2e-b761-a03d53af8959",
+        "cache_without_new_usage": true
+      }
+    },
+    {
+      "name": "pytrio_authentication",
+      "ok": true,
+      "seconds": 0.723,
+      "detail": {
+        "authenticated_directly": true
+      }
+    },
+    {
+      "name": "integrated_text_and_alias",
+      "ok": true,
+      "seconds": 1.889,
+      "detail": {
+        "summary_characters": 360,
+        "alias_matches": true,
+        "cache_verified": true
+      }
+    },
+    {
+      "name": "integrated_image_summary",
+      "ok": true,
+      "seconds": 80.452,
+      "detail": {
+        "summary_characters": 1967
+      }
+    },
+    {
+      "name": "pytrio_multimodal_0",
+      "ok": true,
+      "seconds": 0.35,
+      "detail": {
+        "input_tokens": 97,
+        "output_tokens": 6,
+        "image_token_alignment": true
+      }
+    },
+    {
+      "name": "pytrio_multimodal_1",
+      "ok": true,
+      "seconds": 0.16,
+      "detail": {
+        "input_tokens": 97,
+        "output_tokens": 6,
+        "image_token_alignment": true
+      }
+    },
+    {
+      "name": "pytrio_multimodal_2",
+      "ok": true,
+      "seconds": 0.152,
+      "detail": {
+        "input_tokens": 97,
+        "output_tokens": 6,
+        "image_token_alignment": true
+      }
+    },
+    {
+      "name": "glm_judge_0",
+      "ok": true,
+      "seconds": 1.666,
+      "detail": {
+        "correct": true,
+        "usage": {
+          "input_tokens": 190,
+          "output_tokens": 22,
+          "cache_read_input_tokens": 0,
+          "server_tool_use": {
+            "web_search_requests": 0
+          },
+          "service_tier": "standard"
+        },
+        "cache_verified": true
+      }
+    },
+    {
+      "name": "glm_judge_1",
+      "ok": true,
+      "seconds": 1.669,
+      "detail": {
+        "correct": true,
+        "usage": {
+          "input_tokens": 190,
+          "output_tokens": 28,
+          "cache_read_input_tokens": 0,
+          "server_tool_use": {
+            "web_search_requests": 0
+          },
+          "service_tier": "standard"
+        },
+        "cache_verified": true
+      }
+    },
+    {
+      "name": "glm_judge_2",
+      "ok": true,
+      "seconds": 1.781,
+      "detail": {
+        "correct": true,
+        "usage": {
+          "input_tokens": 190,
+          "output_tokens": 29,
+          "cache_read_input_tokens": 0,
+          "server_tool_use": {
+            "web_search_requests": 0
+          },
+          "service_tier": "standard"
+        },
+        "cache_verified": true
+      }
+    }
+  ],
+  "passed": 26,
+  "failed": [],
+  "ready": true,
+  "route": "direct; proxy variables removed; OCR proxy disabled",
+  "baseline_question_count": 0,
+  "limitations": [
+    "small live batch, not a long-duration availability guarantee",
+    "site-specific fetch failures remain explicit; client usage is not an actual bill"
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "at": 1793097302.7752416,
+  "sample_ids": [
+    "eval-0000",
+    "eval-0100",
+    "eval-0190"
+  ],
+  "complete": true,
+  "correct": 2,
+  "termination_counts": {
+    "final_answer": 2,
+    "context_limit": 1
+  },
+  "judge_requests": 2,
+  "judge_cache_replay_added_requests": false,
+  "main_token_ledger_matches_summary": true,
+  "summary_token_ledger_matches_summary": true,
+  "bailian_live_requests": 0,
+  "judge_usage": {
+    "input_tokens": 642,
+    "output_tokens": 86,
+    "cache_read_input_tokens": 0,
+    "cache_creation_input_tokens": 0
+  },
+  "note": "client usage is not an actual account bill; smoke is not the formal 200-question score"
+}

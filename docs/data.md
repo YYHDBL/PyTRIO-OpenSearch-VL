@@ -1,6 +1,6 @@
 # 远端完整数据与参考源码
 
-完整原始数据保存在 CPU 服务器，开发电脑不下载数据集。实验采用 512 条 SFT、128 道 RL 题和 200 题评测；完整原始数据用于筛选、去重和核验。
+完整原始数据保存在 CPU 服务器，开发电脑不下载数据集。实验采用 512 条 SFT、128 道 RL 题和 100 题评测；完整原始数据用于筛选、去重和核验。原 200 题候选池完整保留，不转入训练。
 
 ## 数据版本
 
@@ -36,7 +36,11 @@ SFT 与 RL 的发布文件已逐一与官方版本的大小、Git blob 或 LFS S
 
 评测从 [Vision-DeepResearch-Eval](https://huggingface.co/datasets/Osilly/Vision-DeepResearch-Eval) 固定版本 `deeaf45779a3bbd407d8f0ccb9b4831fc78e81c9` 的已发布子集抽样，种子 42：SimpleVQA、InfoSeek、VDR 各 40 题，FVQA、MMSearch、LiveVQA、BrowseComp-VL 各 20 题；BrowseComp-VL 中 Level 1 为 6 题，Level 2 为 14 题。来源文件、行号、原始 ID 和图片哈希均保存在记录中。
 
-SFT 从七个作者数据来源分别抽取 74、73、73、73、73、73、73 条，仅保留实际调用 crop、image_search、text_search 的轨迹，保留全部图片，要求对话中的图片占位符与图片数一致、对话文本不超过 32000 字符。字符限制只是初筛；训练前必须检查实际图文 token 数与 mask。
+2026-10-28，按用户要求从上述冻结候选池再固定 100 题，保存至 `data/selected-eval100-v1/eval.jsonl`：SimpleVQA、InfoSeek、VDR 各 20，另外四项各 10；BrowseComp-VL Level 1/2 为 3/7。使用共享 Python random.Random(42)，按 benchmark 名排序，组内按原 sample_id 排序后 sample；BrowseComp-VL 按 source_file 分别抽 3/7，最终按原 sample_id 排序。不读取或依据 smoke 正确性、耗时或工具次数筛题，保留原 ID、题面、答案和图片路径。原 200 题及训练集文件不改，图片哈希再次核验；剩余候选不加入训练。
+
+新 100 题 SHA-256 为 `9f2f0e3d9117defccccff5a78eaa05099bdd78b3e489eb0540953900e1f5a6f1`。选择算法、全部 ID、配比及父集哈希见服务器同目录 manifest.json 与 [聚合清单](evidence/eval100-v1-manifest.json)。Base/SFT/RL 必须使用同一份新 100 题；没有进一步逐题型均匀分层，不代表原论文全量 benchmark。
+
+七工具 SFT 使用 `data/selected-seven-v1/sft.jsonl`，由 `select_seven_sft.py` 在冻结 eval/RL 之外重新筛选。七个来源分别取 74、73、73、73、73、73、73 条，保留完整图片及作者 system/tools；图片占位符与图片数一致，对话不超过 32000 字符。选集实际包含 crop 58、image_search 470、layout_parsing 41、perspective_correct 2、sharpen 4、super_resolution 9、text_search 543、web_search 2 次调用。八个工具名均覆盖，稀有工具样本较少。字符限制只是初筛，后续图文 token 和 mask 审计已 512/512 通过，详见 [验收报告](sft-audit.md)。旧 `data/selected/sft.jsonl` 是仅筛三类实际动作的历史版本，不用于新的七工具 SFT 训练。
 
 RL 排除空参考答案、超过 500 字符的答案和明显未完成的思考语句；各来源至少 5 题，其余按候选数量分配。上述规则不能保证参考答案的事实正确性。
 

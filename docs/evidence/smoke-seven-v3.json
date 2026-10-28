@@ -1,0 +1,44 @@
+{
+  "expected": 3,
+  "generated": 3,
+  "scored": 3,
+  "complete": true,
+  "correct": 2,
+  "pass_at_1": 0.6666666666666666,
+  "macro_pass_at_1": 0.6666666666666666,
+  "per_benchmark": {
+    "BrowseComp-VL": {
+      "correct": 0,
+      "count": 1,
+      "pass_at_1": 0.0
+    },
+    "SimpleVQA": {
+      "correct": 1,
+      "count": 1,
+      "pass_at_1": 1.0
+    },
+    "VDR": {
+      "correct": 1,
+      "count": 1,
+      "pass_at_1": 1.0
+    }
+  },
+  "termination_counts": {
+    "final_answer": 2,
+    "context_limit": 1
+  },
+  "input_tokens": 166432,
+  "output_tokens": 5623,
+  "tool_calls": 16,
+  "tool_errors": 0,
+  "judge": "GLM-5.3-Flash",
+  "limitations": [
+    "GLM judge replaces the paper's GPT-4o judge",
+    "custom 200-question subset",
+    "token counters do not replace actual account bills"
+  ],
+  "summary_model": "Qwen/Qwen3.8-27B",
+  "summary_model_input_tokens": 39164,
+  "summary_model_output_tokens": 5140,
+  "summary_model_unfinished_requests": 0
+}

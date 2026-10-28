@@ -124,7 +124,7 @@ def audit_row(row: dict, tokenizer, processor, image_root: Path) -> dict:
 
 
 def compare_remote_lengths(tokenizer, processor, baseline_dir: Path, eval_path: Path) -> dict:
-    from agent_baseline import SYSTEM, sample_prompt
+    from agent_baseline import LEGACY_SYSTEM, sample_prompt
     from agent_tools import model_image_bytes
 
     evaluation = {row["sample_id"]: row for row in map(json.loads, eval_path.open())}
@@ -137,7 +137,7 @@ def compare_remote_lengths(tokenizer, processor, baseline_dir: Path, eval_path: 
         with Image.open(row["images"][0]) as image:
             width, height = image.size
             raw = model_image_bytes(image)
-        turns = [["system", SYSTEM, None], ["user", f"Image img_1 ({width} x {height} pixels). {row['question']}\n",
+        turns = [["system", LEGACY_SYSTEM, None], ["user", f"Image img_1 ({width} x {height} pixels). {row['question']}\n",
                                             base64.b64encode(raw).decode("ascii")]]
         prompt = sample_prompt(tokenizer, turns)
         visual = processor.get_number_of_image_patches(height, width, images_kwargs={}) // int(processor.merge_size) ** 2

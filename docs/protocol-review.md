@@ -1,5 +1,7 @@
 # 作者协议与当前实现核对
 
+当前配置见 [运行前核对](evaluation-alignment.md)：旧 v5 的 35 题已停止且仅作诊断，新评测未启动。文字检索使用 DeepSeek Search/Fetch，图搜为豆包 Global visual；独立摘要为 Qwen3.8-27B。定时任务保持暂停。
+
 参考代码固定在 `shawn0728/OpenSearch-VL@1ac26e2c35a3e813e022813c88888db457d88f7d`。作者推理提示词见 [prompts.py](https://github.com/shawn0728/OpenSearch-VL/blob/1ac26e2c35a3e813e022813c88888db457d88f7d/opensearch_vl/opensearch_infer/prompts.py)，工具定义见 [tools.py](https://github.com/shawn0728/OpenSearch-VL/blob/1ac26e2c35a3e813e022813c88888db457d88f7d/opensearch_vl/opensearch_infer/tools.py)。
 
 ## 核实结果
@@ -27,19 +29,19 @@
 | 能力 | 原实现依赖 | 当前准备情况 |
 |---|---|---|
 | 裁剪 | PIL | 真实调用已验证 |
-| 图片搜索 | Lens/图像服务及结果摘要 | SerpApi 上传与搜索已验证，作者 Qwen 摘要未接入 |
-| 文字搜索 | Serper、Jina、独立 Qwen 摘要 | 搜索与网页读取已验证，作者 Qwen 摘要未接入 |
-| 锐化 | OpenCV 高斯模糊与加权运算 | 原代码可参考，当前环境尚未安装 OpenCV |
-| 透视校正 | OpenCV 轮廓检测与透视变换 | 原代码可参考，当前环境尚未安装 OpenCV |
-| 超分辨率 | OpenCV dnn_superres、EDSR 权重 | 当前未配置权重，也未安装 OpenCV contrib |
+| 图片搜索 | Lens/图像服务及结果摘要 | 豆包 Global visual，URL/纯 Base64、来源网页和独立 Qwen 摘要已验证，不再调用百炼或 SerpApi |
+| 文字搜索 | Serper、Jina、独立 Qwen 摘要 | DeepSeek Search/Fetch，保留作者摘要提示词及独立 Qwen3.8-27B |
+| 锐化 | OpenCV 高斯模糊与加权运算 | 已安装 OpenCV contrib，作者算法真实调用通过 |
+| 透视校正 | OpenCV 轮廓检测与透视变换 | 已接入；联合检查图片未找到四边形，明确返回原图未变更 |
+| 超分辨率 | OpenCV dnn_superres、EDSR 权重 | 权重已校验，真实执行 64×64 → 256×256；已移除额外输入像素限制，大图 CPU 执行仍受耗时与资源边界影响 |
 | OCR/版面解析 | 版面解析接口及认证 | 已接入用户提供的 PaddleOCR-VL-1.6 异步接口，通过真实图片与缓存检查；作者服务版本未确认 |
 
-服务器检查未发现当前虚拟环境中的 cv2、paddleocr、paddle 或 torch，也没有 tesseract。OCR 现在通过远程接口运行，无需本机安装 Paddle。检查没有输出真实凭据。七工具本身不受 PyTRIO 限制；图像处理可在 CPU 运行，模型采样和训练由 PyTRIO 远程执行。
+OCR 通过远程接口运行，无需本机安装 Paddle；CPU 使用 OpenCV contrib 处理图像，语言模型采样和训练由 PyTRIO 远程执行。联合检查证据位于服务器 `outputs/seven-tool-check/summary.json`，包含真实多图 SFT 与评测模板的整段 token 一致性检查（样本 sft-0339，13344 tokens）。
 
-原代码在缺少超分权重时会返回原图；环境验收时必须明确识别这种情况，不能把未执行增强记成成功。OCR、搜索结果摘要若更换后端，需要记录差异并在 Base、SFT、RL 中统一使用。
+当前实现缺少或损坏 EDSR 权重会报错，不把原图当作超分成功。工具观察使用作者 JSON 动作协议及 SFT 的 tool_response 模板，图片保留实际尺寸和坐标。文字检索最多五项，优先使用返回正文，缺失时 Fetch；明确不可抓取时标记摘要片段，网络失败暂停。豆包结果保留真实来源网页；缺失来源时明确标记，不编造溯源。
 
 ## 修正原则
 
-优先按作者七工具准备；作者提示词、工具定义、动作文本、图文顺序与观测格式作为可核验文件保存。当前 CPU 长度与 mask 验收不意味着七工具环境已经就绪。确认完整执行协议后，重新验收 SFT、在独立目录重跑 Base，再比较 SFT 和 RL。固定 200 题评测集保留；若重新筛选覆盖七工具的 SFT，使用新的清单和版本，保留原文件。
+七工具 SFT 已重选到 `data/selected-seven-v1/`，覆盖八个工具名并完成 512/512 CPU 审计，冻结的 eval/RL 不变。新的 Base 使用公开 SFT 完整 system/tools，temperature 0、seed 42、最多 50 个 assistant 轮次。采样总窗口 65536，单轮生成上限 32768，按剩余空间扣减；只使用 EOS 停止词。不使用旧六轮限制、强制最终作答或评测时连续三错提前终止。答案从完整轨迹按作者规则抽取，裁判提示词一致。配置、数据、代码与提示词哈希随运行保存。
 
-当前没有恢复付费评测或启动训练。
+与论文的差异明确保留：4B 基模与 LoRA、受 PyTRIO 服务限制的 64k 采样窗口、Qwen3.8-27B 替代作者 32B 摘要模型、飞桨 OCR、DeepSeek 搜索/抓取、豆包图搜、GLM 替代 GPT-4o，以及自定义 100 题子集。发布 SFT 与参考推理 prompt 的字符差异、tool_response 与 observation 封装差异也应保留说明。Base/SFT/RL 评测应共享同版条件。作者公开代码默认 MAX_TURNS=50，与当前设置一致；论文各实验实际启动参数未全部确认，不能声称所有设置完全相同。SFT 训练已完成并验证双权重，Base 正式评测仍在进行；SFT 正式评测和 RL 未启动。历史恢复见 [连接记录](ocr-network-recovery.md)。

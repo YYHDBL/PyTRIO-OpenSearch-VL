@@ -1,0 +1,19 @@
+{
+  "checks": [
+    {
+      "service": "deepseek_fetch",
+      "seconds": 5.499,
+      "content_characters": 27182,
+      "fresh_request": true
+    },
+    {
+      "service": "paddle_ocr",
+      "seconds": 0.975,
+      "text_characters": 499,
+      "pages": 1,
+      "fresh_request": true,
+      "cache_repeat_no_new_submission": true
+    }
+  ],
+  "purpose": "supplemental service checks; not extra benchmark questions"
+}

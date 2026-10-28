@@ -1,0 +1,319 @@
+{
+  "ready": true,
+  "expected_ids": [
+    "eval-0035",
+    "eval-0039",
+    "eval-0055",
+    "eval-0057",
+    "eval-0080",
+    "eval-0128",
+    "eval-0138",
+    "eval-0144",
+    "eval-0167",
+    "eval-0183"
+  ],
+  "correct": 4,
+  "pass_at_1": 0.4,
+  "macro_pass_at_1": 0.42857142857142855,
+  "per_benchmark": {
+    "BrowseComp-VL": {
+      "correct": 0,
+      "count": 1,
+      "pass_at_1": 0.0
+    },
+    "FVQA": {
+      "correct": 1,
+      "count": 1,
+      "pass_at_1": 1.0
+    },
+    "InfoSeek": {
+      "correct": 1,
+      "count": 2,
+      "pass_at_1": 0.5
+    },
+    "LiveVQA": {
+      "correct": 0,
+      "count": 1,
+      "pass_at_1": 0.0
+    },
+    "MMSearch": {
+      "correct": 1,
+      "count": 1,
+      "pass_at_1": 1.0
+    },
+    "SimpleVQA": {
+      "correct": 1,
+      "count": 2,
+      "pass_at_1": 0.5
+    },
+    "VDR": {
+      "correct": 0,
+      "count": 2,
+      "pass_at_1": 0.0
+    }
+  },
+  "termination_counts": {
+    "final_answer": 6,
+    "no_final_answer": 3,
+    "turn_limit": 1
+  },
+  "total_tool_calls": 64,
+  "total_tool_errors": 0,
+  "generation_question_seconds_sum": 1197.92,
+  "generation_question_seconds_median": 35.55,
+  "launch_to_exit_seconds": 1238.779,
+  "ledgers": {
+    "tokens": {
+      "requests": 73,
+      "input_tokens": 1769644,
+      "output_tokens": 116516,
+      "total_tokens": 1886160,
+      "unfinished_requests": 0
+    },
+    "summary-tokens": {
+      "requests": 73,
+      "input_tokens": 44817,
+      "output_tokens": 8356,
+      "total_tokens": 53173,
+      "unfinished_requests": 0
+    }
+  },
+  "live_http": {
+    "deepseek_search": {
+      "requests": 14,
+      "http_statuses": {
+        "200": 14
+      },
+      "measured_requests": 14,
+      "median_seconds": 0.397223,
+      "mean_seconds": 0.449407,
+      "min_seconds": 0.334758,
+      "max_seconds": 1.104202
+    },
+    "deepseek_fetch": {
+      "requests": 0,
+      "http_statuses": {},
+      "measured_requests": 0,
+      "median_seconds": null,
+      "mean_seconds": null,
+      "min_seconds": null,
+      "max_seconds": null
+    },
+    "doubao_image": {
+      "requests": 5,
+      "http_statuses": {
+        "200": 5
+      },
+      "measured_requests": 5,
+      "median_seconds": 0.889144,
+      "mean_seconds": 0.858239,
+      "min_seconds": 0.67218,
+      "max_seconds": 0.982661
+    },
+    "glm_judge": {
+      "requests": 10,
+      "http_statuses": {
+        "200": 10
+      },
+      "measured_requests": 10,
+      "median_seconds": 2.747202,
+      "mean_seconds": 3.326963,
+      "min_seconds": 2.105578,
+      "max_seconds": 5.823886
+    }
+  },
+  "supplemental_service_checks": [
+    {
+      "service": "deepseek_fetch",
+      "seconds": 5.499,
+      "content_characters": 27182,
+      "fresh_request": true
+    },
+    {
+      "service": "paddle_ocr",
+      "seconds": 0.975,
+      "text_characters": 499,
+      "pages": 1,
+      "fresh_request": true,
+      "cache_repeat_no_new_submission": true
+    }
+  ],
+  "tool_stats_this_session": {
+    "text_search": 14,
+    "image_search": 5,
+    "reader": 0,
+    "layout_parsing": 0,
+    "cache_hit": 265
+  },
+  "samples": [
+    {
+      "sample_id": "eval-0035",
+      "benchmark": "SimpleVQA",
+      "correct": true,
+      "termination": "final_answer",
+      "seconds": 27.09,
+      "turns": 4,
+      "tool_calls": 3,
+      "tool_errors": 0,
+      "max_input_tokens": 6416,
+      "max_output_tokens": 371,
+      "generation_length_stops": 0,
+      "unique_text_queries": 2,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 372
+    },
+    {
+      "sample_id": "eval-0039",
+      "benchmark": "SimpleVQA",
+      "correct": false,
+      "termination": "final_answer",
+      "seconds": 27.46,
+      "turns": 3,
+      "tool_calls": 2,
+      "tool_errors": 0,
+      "max_input_tokens": 6258,
+      "max_output_tokens": 201,
+      "generation_length_stops": 0,
+      "unique_text_queries": 1,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 532
+    },
+    {
+      "sample_id": "eval-0055",
+      "benchmark": "InfoSeek",
+      "correct": true,
+      "termination": "final_answer",
+      "seconds": 27.17,
+      "turns": 3,
+      "tool_calls": 2,
+      "tool_errors": 0,
+      "max_input_tokens": 5788,
+      "max_output_tokens": 319,
+      "generation_length_stops": 0,
+      "unique_text_queries": 1,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 1004
+    },
+    {
+      "sample_id": "eval-0057",
+      "benchmark": "InfoSeek",
+      "correct": false,
+      "termination": "no_final_answer",
+      "seconds": 289.67,
+      "turns": 3,
+      "tool_calls": 2,
+      "tool_errors": 0,
+      "max_input_tokens": 6021,
+      "max_output_tokens": 32768,
+      "generation_length_stops": 1,
+      "unique_text_queries": 1,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 2000
+    },
+    {
+      "sample_id": "eval-0080",
+      "benchmark": "FVQA",
+      "correct": true,
+      "termination": "final_answer",
+      "seconds": 38.8,
+      "turns": 3,
+      "tool_calls": 2,
+      "tool_errors": 0,
+      "max_input_tokens": 6789,
+      "max_output_tokens": 760,
+      "generation_length_stops": 0,
+      "unique_text_queries": 1,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 1142
+    },
+    {
+      "sample_id": "eval-0128",
+      "benchmark": "VDR",
+      "correct": false,
+      "termination": "no_final_answer",
+      "seconds": 262.8,
+      "turns": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "max_input_tokens": 5126,
+      "max_output_tokens": 32768,
+      "generation_length_stops": 1,
+      "unique_text_queries": 0,
+      "max_same_query_calls": 0,
+      "evaluation_response_characters": 2000
+    },
+    {
+      "sample_id": "eval-0138",
+      "benchmark": "VDR",
+      "correct": false,
+      "termination": "turn_limit",
+      "seconds": 212.15,
+      "turns": 50,
+      "tool_calls": 50,
+      "tool_errors": 0,
+      "max_input_tokens": 61541,
+      "max_output_tokens": 308,
+      "generation_length_stops": 0,
+      "unique_text_queries": 5,
+      "max_same_query_calls": 45,
+      "evaluation_response_characters": 2000
+    },
+    {
+      "sample_id": "eval-0144",
+      "benchmark": "MMSearch",
+      "correct": true,
+      "termination": "final_answer",
+      "seconds": 16.48,
+      "turns": 2,
+      "tool_calls": 1,
+      "tool_errors": 0,
+      "max_input_tokens": 8004,
+      "max_output_tokens": 361,
+      "generation_length_stops": 0,
+      "unique_text_queries": 1,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 315
+    },
+    {
+      "sample_id": "eval-0167",
+      "benchmark": "LiveVQA",
+      "correct": false,
+      "termination": "final_answer",
+      "seconds": 32.3,
+      "turns": 3,
+      "tool_calls": 2,
+      "tool_errors": 0,
+      "max_input_tokens": 7572,
+      "max_output_tokens": 389,
+      "generation_length_stops": 0,
+      "unique_text_queries": 2,
+      "max_same_query_calls": 1,
+      "evaluation_response_characters": 912
+    },
+    {
+      "sample_id": "eval-0183",
+      "benchmark": "BrowseComp-VL",
+      "correct": false,
+      "termination": "no_final_answer",
+      "seconds": 264.0,
+      "turns": 1,
+      "tool_calls": 0,
+      "tool_errors": 0,
+      "max_input_tokens": 5728,
+      "max_output_tokens": 32768,
+      "generation_length_stops": 1,
+      "unique_text_queries": 0,
+      "max_same_query_calls": 0,
+      "evaluation_response_characters": 2000
+    }
+  ],
+  "exit_code": 0,
+  "summary_complete": true,
+  "runtime_hashes_match_launch": true,
+  "limitations": [
+    "10-question smoke is not a statistically reliable accuracy estimate or long-term stability guarantee",
+    "cached and live API calls are distinguished; supplemental OCR uses a previously tested screenshot",
+    "token and request counters do not replace account bills",
+    "full 200-question evaluation and SFT/RL were not started"
+  ]
+}

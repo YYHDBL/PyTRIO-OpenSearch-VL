@@ -1,0 +1,81 @@
+{
+  "seed": 42,
+  "samples": 2048,
+  "data_sha256": "359b59edaa2961d193b7afa1ef592a5a57425ab58f7d7264b76991301a16569f",
+  "source_counts": {
+    "livevqa": 307,
+    "palace": 152,
+    "wiki_zh": 410,
+    "webqa": 410,
+    "wiki_art": 154,
+    "wiki_en": 410,
+    "fvqa": 205
+  },
+  "source_revision": "2c1c460af4fa15bd63210cbf426a96664b959944",
+  "source_files_sha256": {
+    "fvqa": "71cea17526a232c7cb91d4e68d4da6ef1249fda669b0adf42df11c7f948f71dd",
+    "livevqa": "410eb192e4db7af43d71c3cb7379b8bd372a4c1a87421a1b40be5dc086152657",
+    "palace": "3f2ba5574e2e0f3e1e815023ae09b2a0574bef7696613b2bbab7ba8ed9e1298f",
+    "webqa": "b922293d16296106ffb8f32c11203ccf669d8d4c007c50c2dbf08fdfc5dbdd6c",
+    "wiki_art": "6c50fb9b970918ab5d1470c6f75d8c583e7dd284cbaeae9b8a16349a7ea31d1b",
+    "wiki_en": "a22a44c6a04d79d6dfd0064c89d8a792045278eed70a8e27c14b7c5e2f4850e3",
+    "wiki_zh": "eacdd6aaaa63f6ea9d513a3fa310178489a947d56def326020df2e0a4e9a4b65"
+  },
+  "source_targets_soft": {
+    "wiki_en": 410,
+    "wiki_zh": 410,
+    "webqa": 410,
+    "livevqa": 307,
+    "fvqa": 205,
+    "wiki_art": 154,
+    "palace": 152
+  },
+  "source_maximum": 512,
+  "family_counts": {
+    "enhancement": 205,
+    "retrieval": 1228,
+    "perception": 615
+  },
+  "round_bins": {
+    "medium": 819,
+    "long": 205,
+    "short": 1024
+  },
+  "tool_trajectory_presence": {
+    "sharpen": 60,
+    "perspective_correct": 8,
+    "layout_parsing": 400,
+    "image_search": 1837,
+    "text_search": 1956,
+    "super_resolution": 164,
+    "crop": 636,
+    "web_search": 7
+  },
+  "tool_call_counts": {
+    "perspective_correct": 8,
+    "sharpen": 60,
+    "layout_parsing": 480,
+    "image_search": 1900,
+    "text_search": 2921,
+    "super_resolution": 164,
+    "crop": 830,
+    "web_search": 7
+  },
+  "rejections": {
+    "empty_or_heldout_question": 2868,
+    "structure_completion_repetition_or_backend_compatibility": 2178,
+    "heldout_or_repeated_image_bytes": 112
+  },
+  "frozen_files": {
+    "data/selected/eval.jsonl": "59629e3226f24a1ea5c2f2ea06be92e25489844d66fcec627347d7380a9119b3",
+    "data/selected/rl_train.jsonl": "fe38a4057291e98e633de4d8f917d04431f2baeb66c13c3a8344ccab86459af2"
+  },
+  "selection_seconds": 439.22963857650757,
+  "policy": "no duplicate trajectories or image bytes; no repeated-action padding; rare tools prioritized; exact CPU token cap 32768; no character cutoff; original system/tools unchanged",
+  "limitations": [
+    "rare tools remain limited by real available examples",
+    "byte hashes miss recompressed copies",
+    "published answer quality not independently re-judged",
+    "source/round targets are soft and actual counts are reported"
+  ]
+}

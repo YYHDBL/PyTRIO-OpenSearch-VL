@@ -10,6 +10,16 @@ import numpy as np
 
 
 class SftAuditTest(unittest.TestCase):
+    def test_tool_filter_accepts_seven_tool_actions_and_rejects_unknown_actions(self):
+        import select_experiment_data
+        from agent_tools import SUPPORTED_TOOLS
+
+        self.assertTrue(hasattr(select_experiment_data, "supported_calls"))
+        for name in SUPPORTED_TOOLS:
+            self.assertTrue(select_experiment_data.supported_calls([json.dumps({"name": name, "arguments": {}})], SUPPORTED_TOOLS))
+        self.assertFalse(select_experiment_data.supported_calls([json.dumps({"name": "unknown", "arguments": {}})], SUPPORTED_TOOLS))
+        self.assertFalse(select_experiment_data.supported_calls([], SUPPORTED_TOOLS))
+
     def test_separate_tool_schema_is_included_without_rewriting_system(self):
         from protocol import build_messages
 

@@ -1,0 +1,125 @@
+{
+  "complete": true,
+  "fixed_ids_exactly_once": true,
+  "generated": 100,
+  "scored": 100,
+  "correct": 53,
+  "micro_pass_at_1": 0.53,
+  "macro_pass_at_1": 0.55,
+  "per_benchmark": {
+    "BrowseComp-VL": {
+      "correct": 5,
+      "count": 10,
+      "pass_at_1": 0.5
+    },
+    "FVQA": {
+      "correct": 7,
+      "count": 10,
+      "pass_at_1": 0.7
+    },
+    "InfoSeek": {
+      "correct": 8,
+      "count": 20,
+      "pass_at_1": 0.4
+    },
+    "LiveVQA": {
+      "correct": 6,
+      "count": 10,
+      "pass_at_1": 0.6
+    },
+    "MMSearch": {
+      "correct": 6,
+      "count": 10,
+      "pass_at_1": 0.6
+    },
+    "SimpleVQA": {
+      "correct": 17,
+      "count": 20,
+      "pass_at_1": 0.85
+    },
+    "VDR": {
+      "correct": 4,
+      "count": 20,
+      "pass_at_1": 0.2
+    }
+  },
+  "termination_counts": {
+    "final_answer": 82,
+    "turn_limit": 9,
+    "no_final_answer": 8,
+    "context_limit": 1
+  },
+  "tool_calls": 743,
+  "model_tool_errors": 39,
+  "tool_error_observation_counts": {
+    "ValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 15,
+    "ValueError: 裁剪区域超出图片边界": 24
+  },
+  "model_usage": {
+    "tokens": {
+      "requests": 833,
+      "input": 16435392,
+      "output": 440864,
+      "tokens": 16876256,
+      "pending": 0
+    },
+    "summary-tokens": {
+      "requests": 1175,
+      "input": 721814,
+      "output": 117942,
+      "tokens": 839756,
+      "pending": 0
+    }
+  },
+  "deepseek_usage": {
+    "live_requests": 226,
+    "billable_search_requests": 226,
+    "billable_fetch_requests": 0,
+    "note": "successful nonempty responses only; cache hits excluded; reconcile actual bills"
+  },
+  "doubao_usage": {
+    "completed_live_requests": 52,
+    "with_results": 47,
+    "empty_responses": 5,
+    "provider_nonzero_codes": 5,
+    "returned_documents": 441,
+    "note": "cache hits excluded; visual pricing and actual charges require account verification"
+  },
+  "judge_http_responses": 103,
+  "judge_usage_all_responses_including_discarded": {
+    "input_tokens": 45178,
+    "output_tokens": 5567
+  },
+  "discarded_judge_response": {
+    "count": 1,
+    "reason": "contradictory correct:yes/no fields",
+    "usage": {
+      "input_tokens": 424,
+      "output_tokens": 209,
+      "cache_read_input_tokens": 0,
+      "server_tool_use": {
+        "web_search_requests": 0
+      },
+      "service_tier": "standard"
+    },
+    "record": "outputs/baseline-recovery-aligned-100-v1/judge-contradiction.json"
+  },
+  "generation_seconds_sum": 8149.42,
+  "generation_seconds_median": 28.045,
+  "generation_seconds_max": 728.59,
+  "initial_launch_to_generation_end_seconds": 8167.793,
+  "cache_rerun_added_judge_requests": 0,
+  "five_ledgers_unchanged_by_cache_rerun": true,
+  "all_100_answers_unchanged_by_recovery": true,
+  "first_50_scores_unchanged_by_recovery": true,
+  "model_and_provider_ledgers_unchanged_by_recovery": true,
+  "source_hashes_match_launch": true,
+  "exit_code": 0,
+  "sft_formal_evaluation_started": false,
+  "limitations": [
+    "custom 100-question subset and GLM judge differ from paper",
+    "monetary bills not reconciled; prior batches and one older unknown request kept separately",
+    "reported generation duration excludes judging and later recovery wait"
+  ],
+  "verified_at": 1793166730.2631924
+}

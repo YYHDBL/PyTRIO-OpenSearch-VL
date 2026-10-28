@@ -1,0 +1,41 @@
+{
+  "at": 1793154761.2485623,
+  "scope": "512 SFT trajectories, 1 epoch, 128 updates; first 8 updates include sampler/state checks and optimizer-state restore before update 9; no repeated training batches, no RL or new evaluation launch",
+  "train_source_sha256": "f0cec71abcccf267aa07c59c41ea1e4f51eebd027d362cf8cc3f91ec833e2dae",
+  "data_sha256": "92913ce5a508a285b65599dc83c8b79bcb2924130dea66d8b43471e260eaca31",
+  "baseline_runtime_unchanged": true,
+  "token_reservation_budget": 6000000,
+  "checkpoint_steps": [
+    8,
+    32,
+    64,
+    96,
+    128
+  ],
+  "command": [
+    ".venv/bin/python",
+    "-u",
+    "train_sft.py",
+    "--data",
+    "data/selected-seven-v1/sft.jsonl",
+    "--model-dir",
+    "/data/jyh-yyh/.cache/modelscope/models/Qwen--Qwen3.5-4B/snapshots/master",
+    "--image-root",
+    "data/source/sft",
+    "--output-dir",
+    "outputs/sft-seven-v1",
+    "--rank",
+    "32",
+    "--epochs",
+    "1",
+    "--batch-size",
+    "4",
+    "--max-seq-len",
+    "32768",
+    "--learning-rate",
+    "2e-5",
+    "--token-budget",
+    "6000000"
+  ],
+  "launcher_pid": 474234
+}

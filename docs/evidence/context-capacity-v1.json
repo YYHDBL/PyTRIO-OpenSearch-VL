@@ -1,0 +1,81 @@
+{
+  "model": "Qwen/Qwen3.5-4B",
+  "advertised_model_context": 32768,
+  "advertised_sampling_seq_len": 65536,
+  "checks": [
+    {
+      "case": "declared_32k_output",
+      "input_tokens_requested": 256,
+      "max_new_tokens_requested": 32768,
+      "vision": false,
+      "at": 1793113480.3811114,
+      "status": "accepted",
+      "purpose": "API capacity, not benchmark",
+      "input_tokens": 256,
+      "output_tokens": 2,
+      "seconds": 0.315,
+      "sequence_fields": [
+        "stop_reason",
+        "tokens",
+        "text",
+        "logprobs"
+      ]
+    },
+    {
+      "case": "input_over_32k",
+      "input_tokens_requested": 33000,
+      "max_new_tokens_requested": 8,
+      "vision": false,
+      "at": 1793113480.7005694,
+      "status": "accepted",
+      "purpose": "API capacity, not benchmark",
+      "input_tokens": 33000,
+      "output_tokens": 2,
+      "seconds": 1.975,
+      "sequence_fields": [
+        "stop_reason",
+        "tokens",
+        "text",
+        "logprobs"
+      ]
+    },
+    {
+      "case": "vision_32k_plus_32k",
+      "input_tokens_requested": 32000,
+      "max_new_tokens_requested": 32768,
+      "vision": true,
+      "at": 1793113482.7777734,
+      "status": "accepted",
+      "purpose": "API capacity, not benchmark",
+      "input_tokens": 32000,
+      "output_tokens": 2,
+      "seconds": 1.936,
+      "sequence_fields": [
+        "stop_reason",
+        "tokens",
+        "text",
+        "logprobs"
+      ]
+    },
+    {
+      "case": "input_65k",
+      "input_tokens_requested": 65000,
+      "max_new_tokens_requested": 8,
+      "vision": false,
+      "at": 1793113484.7184799,
+      "status": "accepted",
+      "purpose": "API capacity, not benchmark",
+      "input_tokens": 65000,
+      "output_tokens": 2,
+      "seconds": 4.644,
+      "sequence_fields": [
+        "stop_reason",
+        "tokens",
+        "text",
+        "logprobs"
+      ]
+    }
+  ],
+  "ready": true,
+  "benchmark_questions": 0
+}

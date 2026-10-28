@@ -50,6 +50,17 @@ BAD_ANSWER = re.compile(
 ALLOWED_TOOLS = {"crop", "image_search", "text_search"}
 
 
+def supported_calls(calls: list[str], allowed_tools: set[str]) -> bool:
+    if not calls:
+        return False
+    try:
+        actions = [json.loads(call) for call in calls]
+    except (ValueError, TypeError):
+        return False
+    return all(isinstance(action, dict) and action.get("name") in allowed_tools
+               and isinstance(action.get("arguments"), dict) for action in actions)
+
+
 def key(text: str) -> str:
     return " ".join(unicodedata.normalize("NFKC", text).replace("<image>", " ").casefold().split())
 
@@ -188,7 +199,8 @@ def rl_data(rng: random.Random, questions: set[str], images: set[str]) -> list[d
     return selected
 
 
-def sft_data(rng: random.Random, questions: set[str], images: set[str]) -> list[dict]:
+def sft_data(rng: random.Random, questions: set[str], images: set[str],
+             allowed_tools: set[str] = ALLOWED_TOOLS) -> list[dict]:
     selected = []
     blocked_questions = questions.copy()
     sft_questions: set[str] = set()
@@ -207,13 +219,7 @@ def sft_data(rng: random.Random, questions: set[str], images: set[str]) -> list[
                 if not key(question) or sum(len(t.get("value", "")) for t in turns) > 32000:
                     continue
                 calls = [m for t in turns if t.get("from") == "gpt" for m in CALL.findall(t.get("value", ""))]
-                if not calls:
-                    continue
-                try:
-                    tools = {json.loads(call)["name"] for call in calls}
-                except (ValueError, KeyError, TypeError):
-                    continue
-                if not tools <= ALLOWED_TOOLS:
+                if not supported_calls(calls, allowed_tools):
                     continue
                 candidates.append((index, question, refs))
         rng.shuffle(candidates)
