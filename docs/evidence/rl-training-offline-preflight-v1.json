@@ -1,0 +1,22 @@
+{
+  "pytrio": "0.2.9",
+  "torch": "2.14.1+cpu",
+  "preflight": {
+    "preflight": true,
+    "network_requests": 0,
+    "updates": 0,
+    "questions": 128,
+    "planned_groups": 128,
+    "aggregation": "seq-mean-token-sum"
+  },
+  "execute_blocked_while_diagnostic_incomplete": true,
+  "training_directory_created": false,
+  "remote_training_requests": 0,
+  "tests_passed": 14,
+  "runtime_sha256": {
+    "train_rl.py": "f94d3a49791cbcd53807b8e63bf09d055249852b39e56fa56b4ca4f7a7e1ba32",
+    "rl_rollout.py": "daadf3699baf5d7272e6a7dd1e52dddd15b900175ae08c22f968d069791839b2",
+    "rl_loss.py": "fa926d8c6c8c5e8f0e2ea01bcc57dfa5191e55d45a08f4949b5ad25e262f926f",
+    "rl_prepare.py": "a4eac99b13b940bd83996079bb70f51731b801ca643b9fecc3b3c887df4f31e6"
+  }
+}

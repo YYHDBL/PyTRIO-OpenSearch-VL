@@ -2,6 +2,8 @@
 
 2026-10-29：[RL训练前难度诊断](docs/rl-diagnostic.md)正在运行，固定SFT模型对128道训练题各采样4条、32k窗口、Flash奖励裁判；只诊断，不更新权重或自动筛题。实时进度以服务器输出为准。[SFT评测](docs/sft-eval100.md)已有99题评分，GLM判定50题正确；相同99题的Base为53题正确，另1题服务故障保留，不能宣称100题完整评测。[LoRA冷启动](docs/sft-2048.md)已完成512次更新，两类权重均验证。旧512模型保留，定时任务保持暂停。
 
+[作者RL流程的PyTRIO适配](docs/rl-training-preparation.md)已接入独立训练入口train_rl.py，默认零网络预检，包含原始采样token/logprob、RLOO、fatal mask、PPO custom loss和State/Sampler保存恢复。本地71项、服务器相关14项离线测试通过；真实远端RL更新尚未实测，按用户要求等诊断结束后进行。
+
 用 PyTRIO 做 OpenSearch-VL 核心方法的小规模复现：图片问答、工具调用、SFT 冷启动、fatal-aware RL 和固定评测。
 
 原[512条SFT](docs/sft.md)和扩大后的2048条SFT均已完成，分别保存于服务器 `outputs/sft-seven-v2/`、`outputs/sft-2048-v1/`。Base评测和评分在 `outputs/base-aligned-100-v1/`、`outputs/judge-base-aligned-100-v1/`，均完整结束，不重复启动。此前[十题smoke](docs/smoke-aligned-10-v1.md)完整、4/10正确；当前SFT评测输出为 `outputs/sft2048-aligned-100-v2/`。评测配置见[运行前核对](docs/evaluation-alignment.md)。旧批次及未确认请求保留；服务直连，定时任务保持暂停，RL未启动。
@@ -56,7 +58,7 @@ uv run python check_services.py --pytrio
 - `doubao_image.py`、`check_doubao_image.py`：豆包图搜图接入及真实检查，区分网页与图片来源，保留回包、缓存及用量。`bailian_image.py` 仅保留作历史诊断，评测不调用它。
 - `paddle_ocr.py`、`check_ocr.py`：飞桨异步版面解析适配与真实图片检查，使用固定的 PaddleOCR-VL-1.6。验证结果与后端差异见 [OCR 接入](docs/ocr.md)。
 - `judge_baseline.py`：沿用 OpenSearch-VL 的裁判提示词，通过 Anthropic Messages 接口调用固定的 GLM-5.3-Flash，记录逐题判定与总体、分来源成绩。该裁判与论文的 GPT-4o 有差异。
-- fatal-aware RL 尚待实现。
+- `train_rl.py`、`rl_rollout.py`、`rl_prepare.py`、`rl_loss.py`：fatal-aware RL的PyTRIO适配，默认离线预检，真实训练链路待实测。
 
 ## 固定评测
 

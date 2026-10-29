@@ -65,6 +65,8 @@ agent_baseline.py的model_path分支已修复为同时传base_model/model_path�
 
 大图问题仍待解决。原PNG图搜413pending保留；一次隔离的同像素无损WebP请求返回502，其pending及原始回包在 `outputs/sft-eval-recovery-v2/doubao-lossless-probe`。正式代码未使用WebP，不重试这条诊断未知请求，不自动压缩/缩放、换后端或给模型提示。该题未恢复，其他99题已生成并按用户授权评分，summary.complete=false。恢复耗时会进入断点题elapsed_seconds，不能直接将该数值作为纯推理延迟比较。
 
-RL参数更新尚未实现/启动。用户确认尽量沿用论文及作者代码，4B+LoRA、Flash两类裁判、32k训练轨迹为已确认替换；训练rollout也限制32k，不静默截断已有历史，正式评测仍64k。当前只做难度诊断。后续仍需核对并实现old logprob、observation/fatal mask、RLOO/组内优势及单侧裁剪，不能把诊断脚本称为已完成RL训练实现。
+RL训练适配代码已接入独立的train_rl.py、rl_rollout.py、rl_loss.py、rl_prepare.py，见[适配说明](rl-training-preparation.md)。默认零网络预检，真实执行需显式--execute并要求诊断完整结束及选题文件；没有启动参数更新或远端训练实测。当前71项本地、14项服务器相关离线测试通过。作者RLOO及PPO/dual clip算法已有离线验证，loss聚合的正文/运行配置差异由必填--aggregation明确选择；正式运行前仍需确认配置和费用，不能把离线通过当作远端已验证。
+
+用户要求等诊断结束后再实测，当前只让既有诊断继续。运行诊断引用的源码保持原哈希；新增训练文件独立，不修改诊断配置或断点。RL使用SFT State初始化权重并重建优化器，RL恢复才载入RL优化器；32k训练rollout、Flash裁判、4B+LoRA为已确认替换，正式评测仍64k。
 
 定时任务保持PAUSED。旧三工具 `base-v1` 145题、百炼故障及中间批次均只作诊断；旧 `base-seven-v5` 35题和一条未确认主模型请求保留，禁止清除后自动重发。旧smoke分数不能混入正式比较。任务费用未完成人民币账单核对，发布内容必须使用真实截图和实际结果，不伪造提升或支出。
