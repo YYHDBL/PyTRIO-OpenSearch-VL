@@ -19,9 +19,31 @@ from judge_baseline import parse_judge_response
 from rl_diagnostic import author_prompts, judge_request, parse_score, reward_parts, trajectory_summary
 from rl_loss import make_ppo_loss
 from rl_prepare import build_trajectory_datums, rloo_advantages
-from rl_rollout import load_prompt, run_rollout
+from rl_rollout import dump_prompt, load_prompt, run_rollout
 from service_io import write_json
 from train_sft import remote_operation
+
+
+def validate_selection(selected, available, smoke):
+    if not isinstance(selected, list) or not all(isinstance(k, str) for k in selected):
+        raise ValueError("选题必须为字符串ID数组")
+    if len(selected) != len(set(selected)) or not set(selected) <= set(available):
+        raise ValueError("选题ID必须唯一且属于冻结RL128题")
+    if (smoke and len(selected) != 2) or (not smoke and len(selected) < 4):
+        raise ValueError("smoke限2题且仅一批，正式训练至少4题")
+
+
+def count_optimizer_updates(operations):
+    return sum(item["operation"] == "update" for item in operations)
+
+
+def actor_metadata_from_response(response, meta):
+    values = response["loss_fn_outputs"][0]["logprobs"]["data"]
+    start = meta["start"]
+    old = values[start:start + len(meta["old"])]
+    if len(old) != len(meta["old"]) or not np.isfinite(old).all():
+        raise ValueError("训练前Actor old logprob无效，停止更新")
+    return {**meta, "sampling_old": list(meta["old"]), "old": old}
 
 
 def score_rollout(record, row, judging, judge_config, prompts):
@@ -82,6 +104,7 @@ def main():
                         help="作者启动配置为sum，论文正文公式为mean；必须明确指定")
     parser.add_argument("--execute", action="store_true", help="显式允许远端采样和训练；默认只预检")
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--smoke", action="store_true", help="独立2题、最多一次更新，不受整轮筛题完成限制")
     parser.add_argument("--token-budget", type=int, default=25_000_000)
     args = parser.parse_args()
     load_dotenv(ROOT / ".env")
@@ -90,8 +113,9 @@ def main():
         raise ValueError("冻结RL数据发生变化")
     all_rows = {r["sample_id"]: r for r in map(json.loads, data_path.read_text().splitlines())}
     selected = json.loads(args.selected_ids.read_text())
-    if not isinstance(selected, list) or len(selected) < 4 or len(selected) != len(set(selected)) or not set(selected) <= set(all_rows):
-        raise ValueError("选题ID必须唯一且全部属于冻结RL128题")
+    validate_selection(selected, all_rows, args.smoke)
+    if args.smoke:
+        args.token_budget = min(args.token_budget, 1_000_000)
     rows = [all_rows[k] for k in selected]
     trained = json.loads((ROOT / "outputs/sft-2048-v1/sft_result.json").read_text())
     if not trained["complete"] or trained["steps"] != 512 or "sampler_weights" in trained["state_path"]:
@@ -100,6 +124,7 @@ def main():
     system = author_system([json.loads(x) for x in (ROOT / "data/selected-seven-2048-v1/sft.jsonl").read_text().splitlines()])
     config = {"base_model": "Qwen/Qwen3.5-4B", "initial_state": trained["state_path"], "selected": selected,
               "aggregation": args.aggregation, "advantage": "author-rloo", "group_size": 4,
+              "smoke": args.smoke,
               "questions_per_step": 4, "epochs": 1, "lr": 1e-6, "clip_low": 0.2, "clip_high": 0.28,
               "dual_clip": 3.0, "kl_loss": False, "temperature": 0.7, "context": 32768,
               "adam": {"learning_rate": 1e-6, "beta1": 0.9, "beta2": 0.999, "eps": 1e-8,
@@ -116,7 +141,7 @@ def main():
                           "questions": len(rows), "planned_groups": len(rows), "aggregation": args.aggregation}))
         return
     diagnostic = json.loads((ROOT / "outputs/rl-diagnostic-128x4-v1/status.json").read_text())
-    if not diagnostic["complete"]:
+    if not diagnostic["complete"] and not args.smoke:
         raise ValueError("筛题诊断尚未完整结束，禁止启动RL")
     for k in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"]:
         os.environ.pop(k, None)
@@ -139,7 +164,8 @@ def main():
             raise ValueError("训练服务当前不能接收32k样本")
         if args.resume:
             pair = json.loads((args.output_dir / "latest-checkpoint.json").read_text())
-            updates = [json.loads(f.read_text())["step"] for f in (args.output_dir / "operations").glob("*-update-*.json")]
+            updates = [v["step"] for f in (args.output_dir / "operations").glob("*.json")
+                       if (v := json.loads(f.read_text()))["operation"] == "update"]
             if pair["config_sha256"] != config["sha256"] or max(updates, default=pair["step"]) > pair["step"]:
                 raise ValueError("有更新超出checkpoint，不恢复旧权重重复训练")
             training = service.create_training_client_from_state_with_optimizer(pair["state_path"])
@@ -150,7 +176,7 @@ def main():
         tokenizer = sampler.get_tokenizer()
         processor = AutoImageProcessor.from_pretrained(tokenizer.name_or_path, use_fast=False)
         budget = TokenBudget(args.output_dir / "tokens.jsonl", args.token_budget)
-        summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", 8_000_000)
+        summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", 250_000 if args.smoke else 8_000_000)
         summary_sampler = service.create_sampling_client(base_model="Qwen/Qwen3.8-27B")
         summary_tokenizer = summary_sampler.get_tokenizer()
         current = {"id": ""}
@@ -188,6 +214,16 @@ def main():
                 metadata.extend(ms)
                 denominator += count
             if any(m["advantage"] != 0 for m in metadata):
+                # 沿用作者更新前Actor重算old_log_probs，原始采样值仍保留用于审计。
+                actor_metadata = []
+                for datum, meta in zip(datums, metadata, strict=True):
+                    response = remote_operation(args.output_dir, "old-actor", step,
+                        lambda d=datum: training.forward([d], loss_fn="cross_entropy").result().model_dump(mode="json"),
+                        input_tokens=len(datum.model_input), token_budget=args.token_budget)
+                    actor_metadata.append(actor_metadata_from_response(response, meta))
+                write_json(directory / "actor-old-logprobs.json", {"metadata": actor_metadata,
+                           "policy_id": pair["sampler_path"], "computed_before_optimizer_update": True})
+                metadata = actor_metadata
                 for datum, meta in zip(datums, metadata, strict=True):
                     remote_operation(args.output_dir, "backward", step,
                         lambda d=datum, m=meta: training.forward_backward_custom([d],
@@ -196,10 +232,24 @@ def main():
                 remote_operation(args.output_dir, "update", step,
                     lambda: training.optim_step(trio.AdamParams(**config["adam"])).result().model_dump(mode="json"),
                     token_budget=args.token_budget)
+                if args.smoke:
+                    probe = datums[0]
+                    reference = remote_operation(args.output_dir, "live-after-update", step,
+                        lambda: training.forward([probe], loss_fn="cross_entropy").result().model_dump(mode="json"),
+                        input_tokens=len(probe.model_input), token_budget=args.token_budget)
+                    write_json(args.output_dir / "live-after-update.json", {
+                        "model_input": dump_prompt(probe.model_input),
+                        "targets": probe.loss_fn_inputs["target_tokens"].data,
+                        "logprobs": reference["loss_fn_outputs"][0]["logprobs"]["data"]})
             pair = save_pair(training, args.output_dir, step, config, args.token_budget)
             sampler = service.create_sampling_client(base_model=config["base_model"], model_path=pair["sampler_path"])
             print(json.dumps({"step": step, "groups": len(rows[offset:offset + 4]), "datums": len(datums)}), flush=True)
-        write_json(args.output_dir / "result.json", {"complete": True, "checkpoint": pair})
+        updates = count_optimizer_updates([json.loads(f.read_text()) for f in
+                                          (args.output_dir / "operations").glob("*.json")])
+        if args.smoke and updates != 1:
+            raise RuntimeError("smoke未完成恰好一次参数更新，不能宣称通过")
+        write_json(args.output_dir / "result.json", {"complete": True, "checkpoint": pair,
+                                                    "optimizer_updates": updates, "smoke": args.smoke})
 
 
 if __name__ == "__main__":

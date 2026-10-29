@@ -1,0 +1,34 @@
+{
+  "task_ids": [
+    "rl-0002",
+    "rl-0003"
+  ],
+  "rollouts": 8,
+  "backwards": 27,
+  "optimizer_updates": 1,
+  "both_checkpoints_saved": true,
+  "exit_code": 0,
+  "reload_check": {
+    "weight_effect_observed": true,
+    "before_after_max_difference": 0.09046792984008789,
+    "state_sampler_max_difference": 0.11024641990661621,
+    "state_sampler_match": false,
+    "cross_backend_absolute_tolerance": 0.05,
+    "tokens": 32,
+    "optimizer_updates": 1,
+    "additional_updates": 0,
+    "state_with_optimizer_loaded": true,
+    "sampler_loaded": true,
+    "passed": false
+  },
+  "actor_old_calibration": {
+    "actor_old_vs_custom_forward_max_difference": 0.0,
+    "optimizer_updates": 0,
+    "original_sampler_logprobs_preserved": true,
+    "isolated_initial_state_clone": true,
+    "passed": true,
+    "purpose": "check Actor old recomputation on fixed real multimodal completion; no optimizer update"
+  },
+  "full_corrected_smoke_rerun": false,
+  "formal_training_started": false
+}

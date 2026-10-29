@@ -1,0 +1,63 @@
+{
+  "task_ids": [
+    "rl-0002",
+    "rl-0003"
+  ],
+  "rollouts": 8,
+  "backwards": 16,
+  "optimizer_updates": 1,
+  "original_script_exit_code": 1,
+  "finalization_recovered_from_ledger": true,
+  "additional_updates_for_recovery": 0,
+  "actor_consistency": {
+    "datums": 16,
+    "active_advantage_datums": 14,
+    "active_actor_old_vs_custom_forward_max_difference": 0.0,
+    "zero_advantage_datums": [
+      {
+        "index": 6,
+        "reported_logprobs_all_zero": true,
+        "loss": 0.0
+      },
+      {
+        "index": 7,
+        "reported_logprobs_all_zero": true,
+        "loss": 0.0
+      }
+    ],
+    "optimizer_calls": 1,
+    "actor_recomputation_completed_before_backward": true,
+    "original_sampling_logprobs_retained": true
+  },
+  "verification": {
+    "weight_effect_observed": true,
+    "before_after_max_difference": 0.11215972900390625,
+    "state_sampler_max_difference": 0.03574138879776001,
+    "state_sampler_match": true,
+    "cross_backend_absolute_tolerance": 0.05,
+    "tokens": 32,
+    "optimizer_updates": 1,
+    "additional_updates": 0,
+    "state_with_optimizer_loaded": true,
+    "sampler_loaded": true,
+    "state_save_restore": {
+      "live_vs_restored_max_difference": 0.0,
+      "absolute_tolerance": 0.001,
+      "passed": true
+    },
+    "passed": true
+  },
+  "launch_code_sha256": {
+    "train_rl.py": "5d32d8986d8105ecbea919dcb062f0b3a3ab34081401d558b57353e6f21c3780",
+    "rl_rollout.py": "daadf3699baf5d7272e6a7dd1e52dddd15b900175ae08c22f968d069791839b2",
+    "rl_loss.py": "fa926d8c6c8c5e8f0e2ea01bcc57dfa5191e55d45a08f4949b5ad25e262f926f",
+    "rl_prepare.py": "a4eac99b13b940bd83996079bb70f51731b801ca643b9fecc3b3c887df4f31e6",
+    "run_rl_smoke.sh": "1ee7e404565c752c8b2e8985e9100addb94df833cb463fa212b451db244fc531"
+  },
+  "current_code_sha256": {
+    "train_rl.py": "1bccf448dddb8981bcd98c587da8faeeea8244c7285e9356a54f81b6716c3007",
+    "verify_rl_smoke.py": "ce3e90f6eac4e52bba83b57aca0746c1ad212eb7c22eba848cdc46bef3019cca"
+  },
+  "formal_training_started": false,
+  "at": 1793258945.2361012
+}

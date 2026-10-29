@@ -65,8 +65,12 @@ agent_baseline.py的model_path分支已修复为同时传base_model/model_path�
 
 大图问题仍待解决。原PNG图搜413pending保留；一次隔离的同像素无损WebP请求返回502，其pending及原始回包在 `outputs/sft-eval-recovery-v2/doubao-lossless-probe`。正式代码未使用WebP，不重试这条诊断未知请求，不自动压缩/缩放、换后端或给模型提示。该题未恢复，其他99题已生成并按用户授权评分，summary.complete=false。恢复耗时会进入断点题elapsed_seconds，不能直接将该数值作为纯推理延迟比较。
 
-RL训练适配代码已接入独立的train_rl.py、rl_rollout.py、rl_loss.py、rl_prepare.py，见[适配说明](rl-training-preparation.md)。默认零网络预检，真实执行需显式--execute并要求诊断完整结束及选题文件；没有启动参数更新或远端训练实测。当前71项本地、14项服务器相关离线测试通过。作者RLOO及PPO/dual clip算法已有离线验证，loss聚合的正文/运行配置差异由必填--aggregation明确选择；正式运行前仍需确认配置和费用，不能把离线通过当作远端已验证。
+RL训练适配代码已接入独立的train_rl.py、rl_rollout.py、rl_loss.py、rl_prepare.py，见[适配说明](rl-training-preparation.md)。正式训练默认零网络预检，真实执行需显式--execute并要求诊断完整结束及选题文件；用户另行明确授权独立两题smoke，不等诊断完成。当前76项本地、19项服务器相关离线测试通过。作者RLOO及PPO/dual clip算法已有离线验证，loss聚合的正文/运行配置差异由必填--aggregation明确选择；正式运行前仍需确认配置和费用。
 
-用户要求等诊断结束后再实测，当前只让既有诊断继续。运行诊断引用的源码保持原哈希；新增训练文件独立，不修改诊断配置或断点。RL使用SFT State初始化权重并重建优化器，RL恢复才载入RL优化器；32k训练rollout、Flash裁判、4B+LoRA为已确认替换，正式评测仍64k。
+首轮独立smoke位于outputs/rl-smoke-2x4-v1，8条/27次backward/1次optimizer，双权重保存且脚本退出0，但重载核验State/Sampler最大logprob差0.11024642超过固定0.05，未全部通过。原源码在其source-snapshot。适配已补齐作者更新前Actor.compute_log_prob，原始rollout logprob单独保留。修正版outputs/rl-smoke-2x4-v2已结束，8条/16个Datum/恰好1次optimizer；14个非零优势样本Actor旧概率与custom前向最大差0，2个零优势样本返回占位不用于数值比较。live保存前与重载State最大差0（阈值0.001），32tokens的State/Sampler最大差0.03574139（阈值0.05），核验summary.passed=true。不重复启动这两轮，不改写v1。
+
+v2末尾文件名glob把live-after-update也计为optimizer，脚本原退出1。操作账本确认只有1次update、双checkpoint完整、无pending后恢复result.json，未重新训练或更新，保留原退出码，依据在finalization-recovery.json。当前代码按operation类型计数，已有回归测试；v2真实执行源码在source-snapshot，不能改写旧config哈希冒充已运行最新修复。当前正式RL尚未启动；真实32k图文backward、完整梯度数值校验和最终选题预算仍需处理。
+
+运行诊断引用的源码保持原哈希；新增训练文件独立，不修改诊断配置或断点。RL使用SFT State初始化权重并重建优化器，RL恢复才载入RL优化器；32k训练rollout、Flash裁判、4B+LoRA为已确认替换，正式评测仍64k。核验SDK0.2.9 compute_logprobs不支持图片且在提交前拒绝，现用Sampler图文短采样及State前向同tokens核验；本地拒绝的旧pending已按证据归档，未知服务请求仍不可盲目重发。
 
 定时任务保持PAUSED。旧三工具 `base-v1` 145题、百炼故障及中间批次均只作诊断；旧 `base-seven-v5` 35题和一条未确认主模型请求保留，禁止清除后自动重发。旧smoke分数不能混入正式比较。任务费用未完成人民币账单核对，发布内容必须使用真实截图和实际结果，不伪造提升或支出。

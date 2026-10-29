@@ -2,7 +2,7 @@
 
 2026-10-29：[RL训练前难度诊断](docs/rl-diagnostic.md)正在运行，固定SFT模型对128道训练题各采样4条、32k窗口、Flash奖励裁判；只诊断，不更新权重或自动筛题。实时进度以服务器输出为准。[SFT评测](docs/sft-eval100.md)已有99题评分，GLM判定50题正确；相同99题的Base为53题正确，另1题服务故障保留，不能宣称100题完整评测。[LoRA冷启动](docs/sft-2048.md)已完成512次更新，两类权重均验证。旧512模型保留，定时任务保持暂停。
 
-[作者RL流程的PyTRIO适配](docs/rl-training-preparation.md)已接入独立训练入口train_rl.py，默认零网络预检，包含原始采样token/logprob、RLOO、fatal mask、PPO custom loss和State/Sampler保存恢复。本地71项、服务器相关14项离线测试通过；真实远端RL更新尚未实测，按用户要求等诊断结束后进行。
+[作者RL流程的PyTRIO适配](docs/rl-training-preparation.md)已完成独立两题×4条smoke，验证一次真实更新、Actor旧概率重算、双权重保存及重载；正式训练未启动。首轮跨backend数值检查失败保留；修正版State保存恢复差为0，32tokens的State/Sampler最大logprob差0.0357，满足原定0.05容差。本轮末尾计数错误已按账本恢复结果，未重复更新，原退出码保留。详情及限制见适配说明。
 
 用 PyTRIO 做 OpenSearch-VL 核心方法的小规模复现：图片问答、工具调用、SFT 冷启动、fatal-aware RL 和固定评测。
 
