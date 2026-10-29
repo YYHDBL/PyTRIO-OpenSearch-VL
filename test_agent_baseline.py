@@ -1,4 +1,6 @@
 import importlib.util
+import ast
+import inspect
 import io
 import os
 import unittest
@@ -7,6 +9,87 @@ from PIL import Image
 
 
 class BaselineTest(unittest.TestCase):
+    def test_service_failure_defers_one_question_without_feedback_or_stopping_batch(self):
+        import base64
+        import copy
+        import hashlib
+        import json
+        from pathlib import Path
+        import shutil
+        import agent_baseline
+        from agent_tools import ToolEnvironment, model_image_bytes
+        from doubao_image import ENDPOINT
+
+        self.assertTrue(hasattr(agent_baseline, "run_questions"))
+        root = Path("outputs/test-question-isolation")
+        self.assertFalse(root.exists())
+        root.mkdir(parents=True)
+        previous_key = os.environ.get("DOUBAO_SEARCH_API_KEY")
+        os.environ["DOUBAO_SEARCH_API_KEY"] = "unused-offline-pending-check"
+        try:
+            raw = model_image_bytes(Image.new("RGB", (8, 8)))
+            state = {"config_sha256": "config", "phase": "tool", "termination": "", "answer": "",
+                     "turns": [["assistant", '<tool_call>{"name":"image_search","arguments":{"url":"img_1"}}</tool_call>', None]],
+                     "images": {"img_1": base64.b64encode(raw).decode()},
+                     "trace": [{"action": {"name": "image_search", "arguments": {"url": "img_1"}}}]}
+            original = copy.deepcopy(state)
+            agent_baseline.write_json(root / "blocked.partial.json", state)
+            parameters = {"image_sha256": hashlib.sha256(raw).hexdigest(), "endpoint": ENDPOINT,
+                          "SearchType": "visual", "DocCount": 10, "MaxSnippetLength": 300}
+            key = hashlib.sha256(json.dumps(parameters, sort_keys=True).encode()).hexdigest()
+            tools = ToolEnvironment(root / "cache")
+            pending = tools.cache_dir / "doubao-image-v1" / f"{key}.pending.json"
+            pending.parent.mkdir(parents=True)
+            pending.write_text('{"state":"uncertain"}')
+            pending_bytes = pending.read_bytes()
+            agent_baseline.write_json(root / "ready.json", {"sample_id": "ready", "benchmark": "test",
+                "config_sha256": "config", "termination": "final_answer", "trace": [], "elapsed_seconds": 1})
+
+            def run_one(row):
+                return agent_baseline.run_question(row, None, None, None, tools, None, root,
+                                                   {"sha256": "config"}, "")
+
+            status = agent_baseline.run_questions([{"sample_id": "blocked"}, {"sample_id": "ready"}], run_one, root)
+            self.assertFalse(status["complete"])
+            self.assertEqual(status["completed_ids"], ["ready"])
+            self.assertEqual([r["sample_id"] for r in status["deferred"]], ["blocked"])
+            retained = json.loads((root / "blocked.partial.json").read_text())
+            self.assertEqual(retained["turns"], original["turns"])
+            self.assertEqual(retained["images"], original["images"])
+            self.assertNotIn("observation", retained["trace"][-1])
+            self.assertEqual(pending.read_bytes(), pending_bytes)
+            self.assertFalse(tools.ledger.exists())
+            complete = agent_baseline.run_questions([{"sample_id": "ready"}], run_one, root)
+            self.assertTrue(complete["complete"])
+            self.assertEqual(complete["completed_ids"], ["ready"])
+            tools.image_limit = 0
+            with self.assertRaises(agent_baseline.BudgetExhausted):
+                agent_baseline.run_questions([{"sample_id": "budget"}],
+                                            lambda row: tools.charge("image_search"), root)
+        finally:
+            if previous_key is None:
+                os.environ.pop("DOUBAO_SEARCH_API_KEY", None)
+            else:
+                os.environ["DOUBAO_SEARCH_API_KEY"] = previous_key
+            shutil.rmtree(root)
+
+    def test_sampler_arguments_bind_to_installed_sdk_for_base_and_checkpoint(self):
+        from pathlib import Path
+        from types import SimpleNamespace
+        import pytrio as trio
+        import agent_baseline
+
+        tree = ast.parse(Path(agent_baseline.__file__).read_text())
+        assignment = next(node for node in ast.walk(tree) if isinstance(node, ast.Assign)
+                          and any(isinstance(t, ast.Name) and t.id == "kwargs" for t in node.targets))
+        expression = compile(ast.Expression(assignment.value), "sampler-arguments", "eval")
+        for path in (None, "trio://training-run/sampler_weights/final"):
+            arguments = eval(expression, {"args": SimpleNamespace(model="Qwen/Qwen3.5-4B", model_path=path)})
+            try:
+                inspect.signature(trio.ServiceClient.create_sampling_client).bind(None, **arguments)
+            except TypeError as error:
+                self.fail(f"评测入口未满足实际 SDK 的 sampler 参数契约：{error}")
+
     def test_tool_calls_and_final_answers_are_distinguished(self):
         self.assertIsNotNone(importlib.util.find_spec("agent_baseline"))
         from agent_baseline import parse_action

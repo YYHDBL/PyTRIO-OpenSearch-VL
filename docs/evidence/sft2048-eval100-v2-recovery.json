@@ -1,0 +1,47 @@
+{
+  "at": 1793169814.3797317,
+  "source": "outputs/sft2048-aligned-100-v1",
+  "destination": "outputs/sft2048-aligned-100-v2",
+  "config_changed": [
+    "code_sha256",
+    "sha256"
+  ],
+  "protocol_changed": false,
+  "model_visible_feedback_added": false,
+  "images_or_encoding_changed": false,
+  "migrated": {
+    "eval-0002.json": {
+      "before": "43f834c494404d1e8488895776dd5acc7ff46e249d77385edd60402e44ff6a67",
+      "after": "3620771cbbfc46a3948cb5fec19e5712d18b7d65589b30b9ed8da4d018f182f6"
+    },
+    "eval-0006.partial.json": {
+      "before": "61b8f5fd894886167ffccd345f3d0dff09f779addcfe75045550656b5ca13d25",
+      "after": "6df1dcc3b2202451154de2209093c5683472a2328e24d4e4723eb98af0662115"
+    },
+    "eval-0005.json": {
+      "before": "4d002f3d1c79aeb2223264c37ef7fd45ad238d1544751327fc142215f2eb66ea",
+      "after": "7a6f440c3249c6be14100f6f19aff745f41945f300c0193f5a99fc5a51f07493"
+    }
+  },
+  "ledger_hashes": {
+    "tokens.jsonl": "5df99dfbf1dd2cbf6fc1915109d435ab462c31cf2a96c87e1219e4d865aa67c0",
+    "summary-tokens.jsonl": "5d590bda3407f30f8a8ee418e2525db19535162ea8111d8774b087e18d1922c8",
+    "deepseek-usage.jsonl": "2b2b8a2392fb77eaa7b58244e6adba915b0a0b3321cb249835726b23c3b5f863"
+  },
+  "original_pending_retained": true,
+  "known_413_request_repeated": false,
+  "isolated_lossless_probe": {
+    "http_status": 502,
+    "elapsed_seconds": 1.169826,
+    "pending_retained": true,
+    "original_artifacts": "outputs/sft-eval-recovery-v2/doubao-lossless-probe",
+    "charged_amount": "unknown",
+    "automatic_retry": false
+  },
+  "validation": {
+    "tests": 57,
+    "actual_pending_isolation_without_network": true,
+    "budget_exhaustion_still_stops": true
+  },
+  "complete": false
+}

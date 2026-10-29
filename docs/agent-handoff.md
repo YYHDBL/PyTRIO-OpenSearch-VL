@@ -1,6 +1,8 @@
 # PyTRIO × OpenSearch-VL 接手说明
 
-更新日期：2026-10-28。Base固定100题生成及评分已完整完成：53/100正确、macro55%、complete=true、退出码0。2048条LoRA冷启动也完成512次更新，Sampler和State均保存并通过真实加载验证。当前无训练/评测进程需要继续，禁止重复启动已完成作业。SFT正式100题评测和RL尚未启动；定时任务保持PAUSED，不得自行恢复或创建。
+更新日期：2026-10-29。当前有限任务为[RL训练前难度诊断](rl-diagnostic.md)：输出 `outputs/rl-diagnostic-128x4-v1`，初始launcher PID2744777，以实时PID为准。固定SFT模型、128题×4条、32k、temperature0.7、七工具、Flash两类奖励裁判；没有参数更新或自动筛题。日志和退出码见诊断说明，不重复启动。已有一条 `rl-0004-r1` 因飞桨HTTP400/任务提交队列已满保留断点，不当作模型答错。定时任务保持PAUSED，不得自行恢复或创建。
+
+SFT输出 `outputs/sft2048-aligned-100-v2`、评分 `outputs/judge-sft2048-aligned-100-v2`：99题生成和评分完成，SFT50/99，同题Base53/99；第100题eval-0006因大图图搜HTTP413保留，summary.complete=false。生成脚本退出2是缺题状态，不能当作仍在运行；评分由用户另行授权已完成。详情见[SFT评测说明](sft-eval100.md)。Base完整53/100、2048条SFT完整512步及两类权重均保留。
 
 先读 [Base结果](base-100-results.md)、[2048条SFT结果](sft-2048.md)、[评测配置](evaluation-alignment.md)。实时文件、进程和最新用户指令优先于文档；历史网络恢复方法仅见 [恢复记录](ocr-network-recovery.md)，不要恢复已被国内直连替代的Mac代理。
 
@@ -59,8 +61,10 @@ Base主模型输入16435392/输出440864 tokens，摘要输入721814/输出11794
 
 ## 后续工作边界
 
-SFT正式100题评测尚未启动。当前 `agent_baseline.py` 的model_path分支只传model_path，而SDK0.2.9的ServiceClient.create_sampling_client还要求base_model；正式checkpoint评测前须修正为同时传base_model/model_path、验证签名并用独立输出目录，保持其余协议一致。不要直接运行未修正分支，也不要改写已完成Base记录的执行源码哈希来掩盖差异。
+agent_baseline.py的model_path分支已修复为同时传base_model/model_path；同一最终Sampler真实训练样本图文检查成功。当前本地60项测试通过。SFT v1到v2仅代码与派生哈希变更，已生成前缀和账本保留。Base原源码在 `outputs/base-aligned-100-v1/source-snapshot`，SFT v1在其source-snapshot，v2在 `outputs/sft2048-aligned-100-v2/source-snapshot-v2`。当前诊断仅增加可选随机采样、长度和连续三错终止设置，Base/SFT默认采样参数不变；生成和裁判均保护未确认提交。用户已明确要求将当前代码推送GitHub，运行未完成如实记录，不改运行代码来凑结果。
 
-RL尚未实现/启动。需按作者核对fatal连续三错起点、后续assistant mask、失败组统计及单侧优势等；不能把普通GRPO称为fatal-aware复现。训练服务最大单样本32768，采样服务65536；长RL轨迹如何训练尚需解决，不能静默截断或把64k采样能力等同64k训练能力。
+大图问题仍待解决。原PNG图搜413pending保留；一次隔离的同像素无损WebP请求返回502，其pending及原始回包在 `outputs/sft-eval-recovery-v2/doubao-lossless-probe`。正式代码未使用WebP，不重试这条诊断未知请求，不自动压缩/缩放、换后端或给模型提示。该题未恢复，其他99题已生成并按用户授权评分，summary.complete=false。恢复耗时会进入断点题elapsed_seconds，不能直接将该数值作为纯推理延迟比较。
+
+RL参数更新尚未实现/启动。用户确认尽量沿用论文及作者代码，4B+LoRA、Flash两类裁判、32k训练轨迹为已确认替换；训练rollout也限制32k，不静默截断已有历史，正式评测仍64k。当前只做难度诊断。后续仍需核对并实现old logprob、observation/fatal mask、RLOO/组内优势及单侧裁剪，不能把诊断脚本称为已完成RL训练实现。
 
 定时任务保持PAUSED。旧三工具 `base-v1` 145题、百炼故障及中间批次均只作诊断；旧 `base-seven-v5` 35题和一条未确认主模型请求保留，禁止清除后自动重发。旧smoke分数不能混入正式比较。任务费用未完成人民币账单核对，发布内容必须使用真实截图和实际结果，不伪造提升或支出。

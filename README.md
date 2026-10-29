@@ -1,10 +1,10 @@
 # PyTRIO-OpenSearch-VL
 
-最新进展：[Base固定100题评测](docs/base-100-results.md) 已完成并核验，53/100正确；[2048条LoRA冷启动](docs/sft-2048.md) 已完成512次更新，最终Sampler/State均保存并验证，旧512模型保留。SFT正式评测与RL未启动，定时任务保持暂停。
+2026-10-29：[RL训练前难度诊断](docs/rl-diagnostic.md)正在运行，固定SFT模型对128道训练题各采样4条、32k窗口、Flash奖励裁判；只诊断，不更新权重或自动筛题。实时进度以服务器输出为准。[SFT评测](docs/sft-eval100.md)已有99题评分，GLM判定50题正确；相同99题的Base为53题正确，另1题服务故障保留，不能宣称100题完整评测。[LoRA冷启动](docs/sft-2048.md)已完成512次更新，两类权重均验证。旧512模型保留，定时任务保持暂停。
 
 用 PyTRIO 做 OpenSearch-VL 核心方法的小规模复现：图片问答、工具调用、SFT 冷启动、fatal-aware RL 和固定评测。
 
-原[512条SFT](docs/sft.md)和扩大后的2048条SFT均已完成，分别保存于服务器 `outputs/sft-seven-v2/`、`outputs/sft-2048-v1/`。Base评测和评分在 `outputs/base-aligned-100-v1/`、`outputs/judge-base-aligned-100-v1/`，均完整结束，不重复启动。此前[十题smoke](docs/smoke-aligned-10-v1.md)完整、4/10正确；SFT正式100题评测尚未运行。评测配置见[运行前核对](docs/evaluation-alignment.md)。旧批次及未确认请求保留；服务直连，定时任务保持暂停，RL未启动。
+原[512条SFT](docs/sft.md)和扩大后的2048条SFT均已完成，分别保存于服务器 `outputs/sft-seven-v2/`、`outputs/sft-2048-v1/`。Base评测和评分在 `outputs/base-aligned-100-v1/`、`outputs/judge-base-aligned-100-v1/`，均完整结束，不重复启动。此前[十题smoke](docs/smoke-aligned-10-v1.md)完整、4/10正确；当前SFT评测输出为 `outputs/sft2048-aligned-100-v2/`。评测配置见[运行前核对](docs/evaluation-alignment.md)。旧批次及未确认请求保留；服务直连，定时任务保持暂停，RL未启动。
 
 ## 实验范围
 
@@ -19,7 +19,7 @@
 
 这是更换基模和训练栈、缩小规模后的方法复现。正式 Base/SFT/RL 对比尚未完成，不能据此宣称复现论文成绩。
 
-七工具 SFT 已完成 512/512 CPU 审计及真实一轮训练；正式 Base 与评分的实时状态以服务器输出为准。SFT 的正式评测和 fatal-aware RL 尚未运行。此前三工具 `base-v1` 的 145 题只作诊断，程序拒绝续跑该目录。协议差异见 [协议核对](docs/protocol-review.md)。
+七工具 SFT 已完成2048/2048 CPU审计及真实一轮训练；正式SFT评测的实时状态以服务器输出为准，fatal-aware RL尚未运行。此前三工具 `base-v1` 的145题只作诊断，程序拒绝续跑该目录。协议差异见[协议核对](docs/protocol-review.md)。
 
 ## 数据与执行位置
 

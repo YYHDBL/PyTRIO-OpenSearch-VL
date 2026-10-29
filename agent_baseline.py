@@ -151,6 +151,8 @@ class TokenBudget:
         return entry
 
     def sample(self, sampler, prompt, sample_id: str, params):
+        if any(r["sample_id"] == sample_id and "tokens" not in r for r in self.rows):
+            raise ToolError("该轨迹已有未确认模型请求，保留断点，不重复提交")
         entry = self.reserve_request(sample_id, len(prompt), params.max_tokens)
         result = sampler.sample(prompt=prompt, sampling_params=params, num_samples=1).result()
         entry["input_tokens"] = result.input_tokens
@@ -166,6 +168,12 @@ def generation_budget(input_tokens: int, context_limit: int, max_new_tokens: int
     if input_tokens < 0 or context_limit < 1 or max_new_tokens < 1:
         raise ValueError("上下文和生成长度必须有效")
     return max(0, min(max_new_tokens, context_limit - input_tokens))
+
+
+def sampling_parameters(config: dict, available: int, row: dict):
+    return trio.SamplingParams(max_tokens=available, temperature=config.get("temperature", 0),
+                              seed=row.get("sampling_seed", config.get("seed", 42)),
+                              top_p=config.get("top_p", 1.0), stop=config["generation_stop_tokens"])
 
 
 def run_question(row, sampler, tokenizer, processor, tools, budget, output: Path, config: dict, system: str) -> dict:
@@ -209,6 +217,9 @@ def run_question(row, sampler, tokenizer, processor, tools, budget, output: Path
                                    base64.b64encode(crop).decode("ascii") if crop else None])
             state["phase"] = "sample"
             write_json(checkpoint, state)
+        if config.get("fatal_error_threshold") and state["consecutive_errors"] >= config["fatal_error_threshold"]:
+            state["termination"] = "fatal_error"
+            break
         if len(state["trace"]) >= config["max_turns"]:
             state["termination"] = "turn_limit"
             break
@@ -220,8 +231,7 @@ def run_question(row, sampler, tokenizer, processor, tools, budget, output: Path
             state["limit_details"] = {"input_tokens": len(prompt), "max_context": config["max_context"],
                                       "source": config.get("context_limit_source", "configured_limit")}
             break
-        params = trio.SamplingParams(max_tokens=available, temperature=0, seed=42,
-                                     stop=config["generation_stop_tokens"])
+        params = sampling_parameters(config, available, row)
         result = budget.sample(sampler, prompt, row["sample_id"], params)
         if result.input_tokens != len(prompt):
             raise ValueError("本地与远端图文输入 token 长度不一致")
@@ -245,6 +255,8 @@ def run_question(row, sampler, tokenizer, processor, tools, budget, output: Path
         elif not trace.get("tool_error"):
             state["answer"] = final_answer(text)
             state["termination"] = "final_answer" if state["answer"] else "no_final_answer"
+        if config.get("diagnostic") and result.sequences[0].stop_reason == "length":
+            state["termination"] = "length_limit"
         write_json(checkpoint, state)
     record = {"sample_id": row["sample_id"], "benchmark": row["benchmark"], "source_id": row["source_id"],
               "model": config["model"], "model_path": config["model_path"], "config_sha256": config["sha256"],
@@ -256,6 +268,28 @@ def run_question(row, sampler, tokenizer, processor, tools, budget, output: Path
     write_json(path, record)
     checkpoint.unlink()
     return record
+
+
+def run_questions(rows: list[dict], run_one, output: Path) -> dict:
+    status = {"expected": len(rows), "completed_ids": [], "deferred": [], "complete": False}
+    for row in rows:
+        try:
+            record = run_one(row)
+        except ToolError as error:
+            # 服务错误只挂起当前题，不进入模型上下文，也不形成错误答案。
+            failure = {"sample_id": row["sample_id"], "service_error": str(error)}
+            status["deferred"].append(failure)
+            print(json.dumps({"deferred": failure}, ensure_ascii=False), flush=True)
+        else:
+            status["completed_ids"].append(record["sample_id"])
+            print(json.dumps({"sample_id": record["sample_id"], "benchmark": record["benchmark"],
+                              "termination": record["termination"], "turns": len(record["trace"]),
+                              "tool_calls": sum("action" in turn for turn in record["trace"]),
+                              "seconds": record["elapsed_seconds"]}), flush=True)
+        write_json(output / "generation-status.json", status)
+    status["complete"] = not status["deferred"] and len(status["completed_ids"]) == len(rows)
+    write_json(output / "generation-status.json", status)
+    return status
 
 
 def main() -> None:
@@ -350,7 +384,7 @@ def main() -> None:
         if args.preflight_only:
             print(json.dumps({"status": "preflight_passed", "samples": len(rows), "config": config}, ensure_ascii=False), flush=True)
             return
-        kwargs = {"model_path": args.model_path} if args.model_path else {"base_model": args.model}
+        kwargs = {"base_model": args.model, **({"model_path": args.model_path} if args.model_path else {})}
         sampler = service.create_sampling_client(**kwargs)
         tokenizer = sampler.get_tokenizer()
         processor = AutoImageProcessor.from_pretrained(tokenizer.name_or_path, use_fast=False)
@@ -376,14 +410,14 @@ def main() -> None:
         write_json(args.output_dir / "service-limits.json", {"image_search_provider": "doubao-global-visual",
                                                              "image_request_budget": args.image_request_budget,
                                                              "note": "record live API calls and reconcile actual account billing"})
-        for row in rows:
+        def run_one(row):
             current_sample["id"] = row["sample_id"]
-            record = run_question(row, sampler, tokenizer, processor, tools, budget, args.output_dir, config, system)
-            print(json.dumps({"sample_id": record["sample_id"], "benchmark": record["benchmark"],
-                              "termination": record["termination"], "turns": len(record["trace"]),
-                              "tool_calls": sum("action" in turn for turn in record["trace"]),
-                              "seconds": record["elapsed_seconds"]}), flush=True)
-        print(json.dumps({"completed": len(rows), "tools_this_session": tools.stats}), flush=True)
+            return run_question(row, sampler, tokenizer, processor, tools, budget, args.output_dir, config, system)
+        status = run_questions(rows, run_one, args.output_dir)
+        print(json.dumps({"completed": len(status["completed_ids"]), "deferred": len(status["deferred"]),
+                          "tools_this_session": tools.stats}), flush=True)
+        if not status["complete"]:
+            raise SystemExit(2)
 
 
 if __name__ == "__main__":

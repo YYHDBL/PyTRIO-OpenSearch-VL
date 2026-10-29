@@ -1,0 +1,26 @@
+{
+  "at": 1793169969.4872913,
+  "launcher_pid": 936798,
+  "config_sha256": "b5aa47f0d290cc4b641061f5737d4b104ed52979cc8b09f3028993ae6757f90f",
+  "runtime_sha256": {
+    "agent_baseline.py": "4d01e11078c6fde476ebae6eff8602dca92c44b9c6d735d86b88da909c365878",
+    "agent_tools.py": "8a7c02694fd8fdf96022197b782222f29e7e18ea43fcfa7eb0fdd302d3ff95c6",
+    "protocol.py": "0c24359a52ed4cf6d0832722be462078ac82f2cfd209bf8959d6e8c710a703ae",
+    "paddle_ocr.py": "59dfd0828c8da4ca1f42d8f1f533433181800d37d93d455fabbe5d1b015bd21f",
+    "doubao_image.py": "64c6051fc014ec23354c9fda3082b1592b2732e0a95feabbe2060f6cae68b9ce",
+    "deepseek_search.py": "52186ffa93ed2e5507c63d426cbfea3c6c4afac8cf6571a869f7d63b11a31234",
+    "service_io.py": "ee9fc3c40f95a94d959389617a4916551ecf881ec4a155f6896d270310f1d268",
+    "answer_extraction.py": "4b95ab0e4731239396499d902e967c064c83c1e22eb570e0ea45a1fa82825702",
+    "run_sft_eval.sh": "84f8f67e3d05378990679de68dc531a4220163d713ccbdf86180fcd55b03b4d2"
+  },
+  "tests_passed": 57,
+  "scope": "resume SFT100 with per-question service isolation; no model-visible feedback, image transformation, RL or automation",
+  "deferred_expected": [
+    "eval-0006"
+  ],
+  "budgets": {
+    "main_tokens": 25000000,
+    "summary_tokens": 8000000,
+    "image_attempts": 800
+  }
+}

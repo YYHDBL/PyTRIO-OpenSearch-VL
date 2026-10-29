@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "training_sample_id": "sft2k-01447",
+  "input_tokens": 4366,
+  "output_tokens": 16,
+  "sampler_path_sha256": "07acc741ea68cbf94d56b689d1340852d37eb95f8e14dd039180957833c2c6bb",
+  "scope": "load and multimodal token count check on training sample; not benchmark scoring"
+}

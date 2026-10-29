@@ -1,0 +1,15 @@
+{
+  "preflight_passed": true,
+  "samples": 100,
+  "changed_config_keys": [
+    "code_sha256",
+    "model_path",
+    "sha256"
+  ],
+  "sampler_checkpoint_sha256": "07acc741ea68cbf94d56b689d1340852d37eb95f8e14dd039180957833c2c6bb",
+  "same_data": true,
+  "same_prompt": true,
+  "same_generation_and_services": true,
+  "code_change": "only supply required base_model alongside saved sampler path",
+  "base_source_snapshot": "outputs/base-aligned-100-v1/source-snapshot"
+}
