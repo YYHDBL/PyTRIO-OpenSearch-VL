@@ -39,6 +39,10 @@ JUDGE_PROMPT = (
 )
 
 
+class JudgeServiceError(RuntimeError):
+    pass
+
+
 def parse_judge_response(text: str) -> bool:
     matches = re.findall(r"^\s*correct:\s*(yes|no)\s*$", text, flags=re.I | re.M)
     if len(matches) != 1:
@@ -59,7 +63,7 @@ def judge_record(record: dict, output: Path, config: dict) -> dict:
     responses_dir.mkdir(exist_ok=True)
     pending = pending_dir / (record["sample_id"] + ".json")
     if pending.exists():
-        raise RuntimeError("先前裁判请求结果未确认，请先检查原始回包，避免重复计费")
+        raise JudgeServiceError("先前裁判请求结果未确认，请先检查原始回包，避免重复计费")
     report_text = evaluation_response(record)
     result = {"sample_id": record["sample_id"], "benchmark": record["benchmark"],
               "judge_model": config["model"], "judge_config_sha256": config["sha256"],
@@ -85,28 +89,52 @@ def judge_record(record: dict, output: Path, config: dict) -> dict:
             except (httpx.ConnectError, httpx.ConnectTimeout) as exc:
                 pending.unlink()
                 if attempt == 2:
-                    raise RuntimeError(f"裁判网络失败: {type(exc).__name__}") from None
+                    raise JudgeServiceError(f"裁判网络失败: {type(exc).__name__}") from None
                 time.sleep(2 ** attempt)
                 continue
             except httpx.HTTPError as exc:
-                raise RuntimeError(f"裁判请求结果未确认: {type(exc).__name__}；提交标记已保留") from None
+                raise JudgeServiceError(f"裁判请求结果未确认: {type(exc).__name__}；提交标记已保留") from None
             save_http_response(responses_dir / f"{request_id}-{time.time_ns()}.json", response)
+            if response.status_code == 429 and str(response.json().get("error", {}).get("code")) == "1308":
+                pending.unlink()
+                raise RuntimeError("裁判账户窗口额度耗尽，暂停评分并保留已完成结果")
             if response.status_code == 429 and attempt < 2:
                 pending.unlink()
                 time.sleep(2 ** attempt)
                 continue
             if response.status_code != 200:
-                raise RuntimeError(f"裁判请求 HTTP {response.status_code}")
+                raise JudgeServiceError(f"裁判请求 HTTP {response.status_code}")
             body = response.json()
             raw = "\n".join(block.get("text", "") for block in body.get("content", []) if block.get("type") == "text")
             if body.get("stop_reason") != "end_turn":
-                raise RuntimeError("裁判输出未正常结束")
-            result.update(correct=parse_judge_response(raw), raw_judge=raw, usage=body.get("usage", {}),
+                raise JudgeServiceError("裁判输出未正常结束")
+            try:
+                correct = parse_judge_response(raw)
+            except ValueError:
+                raise JudgeServiceError("裁判格式无效，原始回包与pending保留") from None
+            result.update(correct=correct, raw_judge=raw, usage=body.get("usage", {}),
                           response_model=body.get("model"))
             break
     write_json(path, result)
     pending.unlink(missing_ok=True)
     return result
+
+
+def judge_records(records, output, config, continue_on_error=False):
+    scores, deferred = [], []
+    for record in records:
+        try:
+            score = judge_record(record, output, config)
+        except JudgeServiceError as error:
+            if not continue_on_error:
+                raise
+            deferred.append({"sample_id": record["sample_id"], "service_error": str(error)})
+            write_json(output / "scoring-status.json", {"deferred": deferred, "scored": len(scores)})
+            print(json.dumps({"deferred_score": record["sample_id"], "error": str(error)}, ensure_ascii=False), flush=True)
+        else:
+            scores.append(score)
+            print(json.dumps({"sample_id": record["sample_id"], "correct": score["correct"]}), flush=True)
+    return scores, deferred
 
 
 def summarize(records: list[dict], scores: list[dict], expected: int) -> dict:
@@ -137,6 +165,7 @@ def main() -> None:
     parser.add_argument("--results-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--expected", type=int, default=200)
+    parser.add_argument("--continue-on-error", action="store_true", help="单题服务错误挂起，继续评分其他题")
     args = parser.parse_args()
     load_dotenv(ROOT / ".env")
     if os.environ.get("JUDGE_PROTOCOL") != "anthropic":
@@ -154,11 +183,22 @@ def main() -> None:
     write_json(config_path, config)
     records = [json.loads(path.read_text()) for path in sorted(args.results_dir.glob("eval-*.json"))
                if not path.name.endswith(".partial.json")]
-    scores = []
-    for record in records:
-        scores.append(judge_record(record, args.output_dir, config))
-        print(json.dumps({"sample_id": record["sample_id"], "correct": scores[-1]["correct"]}), flush=True)
+    scores, deferred = judge_records(records, args.output_dir, config, args.continue_on_error)
     summary = summarize(records, scores, args.expected)
+    summary["deferred_scores"] = deferred
+    generation_config = args.results_dir / "config.json"
+    if generation_config.exists():
+        generation_settings = json.loads(generation_config.read_text())
+        if "summary_provider" in generation_settings:
+            summary["summary_provider"] = generation_settings["summary_provider"]
+            summary["limitations"].append("temporary summary deployment differs from historical Base/SFT")
+    local_summary_tokens = args.results_dir / "local-summary-tokens.jsonl"
+    if local_summary_tokens.exists():
+        rows = [json.loads(line) for line in local_summary_tokens.read_text().splitlines()]
+        summary["local_summary_usage"] = {"requests": len(rows),
+            "input_tokens": sum(r.get("input_tokens", 0) for r in rows),
+            "output_tokens": sum(r.get("output_tokens", 0) for r in rows),
+            "unfinished_requests": sum("tokens" not in r and r.get("request_outcome") not in {"not_sent", "rejected"} for r in rows)}
     summary_tokens = args.results_dir / "summary-tokens.jsonl"
     if summary_tokens.exists():
         requests = [json.loads(line) for line in summary_tokens.open()]
@@ -197,6 +237,8 @@ def main() -> None:
             "note": "cache hits excluded; visual pricing and actual charges require account verification"}
     write_json(args.output_dir / "summary.json", summary)
     print(json.dumps(summary, ensure_ascii=False), flush=True)
+    if args.continue_on_error and not summary["complete"]:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

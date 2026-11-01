@@ -1,0 +1,74 @@
+{
+  "seed": 20261030,
+  "diagnostic_config_sha256": "55f7f3e5cc664c554063a701d79da1497189135d5046e88f312768a764e8642b",
+  "source_data_sha256": "fe38a4057291e98e633de4d8f917d04431f2baeb66c13c3a8344ccab86459af2",
+  "eligible": 122,
+  "unique": 116,
+  "train": 100,
+  "validation": 16,
+  "reserve_ids": [],
+  "excluded": {
+    "rl-0008": "服务异常，四条诊断评分不完整",
+    "rl-0036": "服务异常，四条诊断评分不完整",
+    "rl-0060": "服务异常，四条诊断评分不完整",
+    "rl-0077": "四条组合奖励相同，无组内优势信号",
+    "rl-0124": "服务异常，四条诊断评分不完整",
+    "rl-0125": "服务异常，四条诊断评分不完整",
+    "rl-0092": "候选池内重复题面或相同图片",
+    "rl-0093": "候选池内重复题面或相同图片",
+    "rl-0096": "候选池内重复题面或相同图片",
+    "rl-0098": "候选池内重复题面或相同图片",
+    "rl-0126": "候选池内重复题面或相同图片",
+    "rl-0127": "候选池内重复题面或相同图片"
+  },
+  "validation_excludes_smoke_tasks": true,
+  "no_question_or_image_overlap": true,
+  "validation_used_for_update": false,
+  "validation_has_prior_diagnostic_results": true,
+  "network_requests": 0,
+  "updates": 0,
+  "validation_missing_source": "wikiart；去重后仅剩一道，保留给训练",
+  "distribution": {
+    "train": {
+      "sources": {
+        "demo_1k": 39,
+        "WebQA": 17,
+        "new_fvqa": 4,
+        "wiki_en": 4,
+        "wiki_zh": 15,
+        "new_livevqa": 13,
+        "palace": 7,
+        "wikiart": 1
+      },
+      "correct_count": {
+        "0": 19,
+        "1": 5,
+        "2": 14,
+        "3": 12,
+        "4": 50
+      }
+    },
+    "validation": {
+      "sources": {
+        "demo_1k": 6,
+        "WebQA": 3,
+        "palace": 1,
+        "new_fvqa": 1,
+        "new_livevqa": 2,
+        "wiki_zh": 2,
+        "wiki_en": 1
+      },
+      "correct_count": {
+        "0": 4,
+        "2": 4,
+        "3": 2,
+        "4": 6
+      }
+    }
+  },
+  "split_sha256": {
+    "train": "2a7acfe9c7fbfd63c47b5853a137423c7b27038a8252091964ec577f7ea78c5d",
+    "validation": "e5b01ab1c31f77e35eab99c31e7e25cea5deb3ffad39198d74b9d2732af5cb39"
+  },
+  "diagnostic_based_actor_plus_backward_token_estimate": 39494934
+}

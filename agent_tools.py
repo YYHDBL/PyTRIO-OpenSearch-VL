@@ -80,10 +80,11 @@ def validate_public_url(url: str) -> None:
 class ToolEnvironment:
     def __init__(self, cache_dir: Path, image_limit: int = 400, text_limit: int = 1500,
                  summarizer=None, summary_model: str = "", ocr_cache_dir: Path | None = None,
-                 usage_dir: Path | None = None):
+                 usage_dir: Path | None = None, request_ledger: Path | None = None):
         self.cache_dir = cache_dir
         cache_dir.mkdir(parents=True, exist_ok=True)
-        self.ledger = cache_dir / "requests.jsonl"
+        # 缓存可跨实验复用，正式RL的调用预算由独立持久账本控制。
+        self.ledger = request_ledger if request_ledger is not None else cache_dir / "requests.jsonl"
         self.image_limit = image_limit
         self.text_limit = text_limit
         self.super_resolution = None

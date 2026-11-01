@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 
 import pytrio as trio
+from pytrio.errors.actor import ActorError
 from dotenv import load_dotenv
 from PIL import Image
 from transformers import AutoImageProcessor
@@ -22,6 +23,7 @@ from agent_tools import BudgetExhausted, SUPPORTED_TOOLS, ToolEnvironment, ToolE
 from doubao_image import ENDPOINT as IMAGE_SEARCH_ENDPOINT
 from answer_extraction import evaluation_response
 from protocol import IMAGE_MARKER, system_with_tools
+from local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
 
 
 ROOT = Path(__file__).resolve().parent
@@ -133,6 +135,20 @@ class TokenBudget:
         self.path, self.limit = path, limit
         self.rows = [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
+    def has_unconfirmed(self, sample_id):
+        return any(r["sample_id"] == sample_id and "tokens" not in r
+                   and r.get("request_outcome") != "rejected" for r in self.rows)
+
+    def record_rejection(self, entry, error):
+        if error.status_code != 400:
+            raise ValueError("只能记录服务明确返回的HTTP400拒绝，不能释放未知请求")
+        # 仍按原预留量计入预算，不将未知实际费用伪装为零token。
+        entry["request_outcome"] = "rejected"
+        entry["error"] = error.diagnostic_fields()
+        partial = self.path.with_suffix(".writing")
+        partial.write_text("".join(json.dumps(r) + "\n" for r in self.rows))
+        partial.replace(self.path)
+
     def reserve_request(self, sample_id: str, prompt_tokens: int, max_new_tokens: int) -> dict:
         # 按实际输入和请求输出上限预留，不能用旧的固定 16k 低估长窗口请求。
         if type(prompt_tokens) is not int or type(max_new_tokens) is not int or prompt_tokens < 0 or max_new_tokens < 1:
@@ -151,10 +167,15 @@ class TokenBudget:
         return entry
 
     def sample(self, sampler, prompt, sample_id: str, params):
-        if any(r["sample_id"] == sample_id and "tokens" not in r for r in self.rows):
+        if self.has_unconfirmed(sample_id):
             raise ToolError("该轨迹已有未确认模型请求，保留断点，不重复提交")
         entry = self.reserve_request(sample_id, len(prompt), params.max_tokens)
-        result = sampler.sample(prompt=prompt, sampling_params=params, num_samples=1).result()
+        try:
+            result = sampler.sample(prompt=prompt, sampling_params=params, num_samples=1).result()
+        except ActorError as error:
+            if error.status_code == 400:
+                self.record_rejection(entry, error)
+            raise
         entry["input_tokens"] = result.input_tokens
         entry["output_tokens"] = len(result.sequences[0].tokens)
         entry["tokens"] = entry["input_tokens"] + entry["output_tokens"]
@@ -162,6 +183,10 @@ class TokenBudget:
         partial.write_text("".join(json.dumps(r) + "\n" for r in self.rows))
         partial.replace(self.path)
         return result
+
+
+class SummaryServiceError(RuntimeError):
+    pass
 
 
 def generation_budget(input_tokens: int, context_limit: int, max_new_tokens: int) -> int:
@@ -275,7 +300,7 @@ def run_questions(rows: list[dict], run_one, output: Path) -> dict:
     for row in rows:
         try:
             record = run_one(row)
-        except ToolError as error:
+        except (ToolError, ActorError) as error:
             # 服务错误只挂起当前题，不进入模型上下文，也不形成错误答案。
             failure = {"sample_id": row["sample_id"], "service_error": str(error)}
             status["deferred"].append(failure)
@@ -307,6 +332,7 @@ def main() -> None:
     parser.add_argument("--token-budget", type=int, default=10_000_000)
     parser.add_argument("--summary-token-budget", type=int, default=5_000_000)
     parser.add_argument("--image-request-budget", type=int, default=400)
+    parser.add_argument("--summary-backend", choices=["pytrio", "local"], default="pytrio")
     args = parser.parse_args()
     assert_run_allowed(args.output_dir)
     load_dotenv(ROOT / ".env")
@@ -368,6 +394,10 @@ def main() -> None:
                                                  + (ROOT / "deepseek_search.py").read_bytes()
                                                  + (ROOT / "service_io.py").read_bytes()
                                                  + (ROOT / "answer_extraction.py").read_bytes()).hexdigest()}
+        if args.summary_backend == "local":
+            config["summary_provider"] = local_summary_configuration()
+            config["summary_model"] = config["summary_provider"]["model"]
+            config["local_summary_code_sha256"] = hashlib.sha256((ROOT / "local_summary.py").read_bytes()).hexdigest()
         config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
         config_path = args.output_dir / "config.json"
         if config_path.exists() and json.loads(config_path.read_text()) != config:
@@ -388,25 +418,37 @@ def main() -> None:
         sampler = service.create_sampling_client(**kwargs)
         tokenizer = sampler.get_tokenizer()
         processor = AutoImageProcessor.from_pretrained(tokenizer.name_or_path, use_fast=False)
-        summary_sampler = service.create_sampling_client(base_model=config["summary_model"])
-        summary_tokenizer = summary_sampler.get_tokenizer()
         budget = TokenBudget(args.output_dir / "tokens.jsonl", args.token_budget)
-        summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", args.summary_token_budget)
         current_sample = {"id": ""}
-        def summarize(prompt: str) -> str:
-            messages = [{"role": "user", "content": prompt}]
-            ids = summary_tokenizer.apply_chat_template(messages, tokenize=True, return_dict=False,
-                                                         add_generation_prompt=True, enable_thinking=False)
-            response = summary_budget.sample(summary_sampler, trio.ModelInput.from_ints(ids), current_sample["id"],
-                                             trio.SamplingParams(max_tokens=1024, temperature=0.3, top_p=0.95, top_k=20, seed=42))
-            text = response.sequences[0].text.strip()
-            if not text:
-                raise ToolError("摘要模型没有返回内容")
-            return text
+        if args.summary_backend == "local":
+            local_summary = LocalSummaryClient(args.output_dir, config["summary_provider"],
+                os.environ["LOCAL_SUMMARY_API_KEY"], args.summary_token_budget)
+            summary_cache_model = cache_identity(config["summary_provider"])
+            def summarize(prompt):
+                return local_summary.complete(prompt, current_sample["id"])
+        else:
+            summary_sampler = service.create_sampling_client(base_model=config["summary_model"])
+            summary_tokenizer = summary_sampler.get_tokenizer()
+            summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", args.summary_token_budget)
+            summary_cache_model = config["summary_model"]
+            def summarize(prompt: str) -> str:
+                messages = [{"role": "user", "content": prompt}]
+                ids = summary_tokenizer.apply_chat_template(messages, tokenize=True, return_dict=False,
+                                                             add_generation_prompt=True, enable_thinking=False)
+                try:
+                    response = summary_budget.sample(summary_sampler, trio.ModelInput.from_ints(ids), current_sample["id"],
+                                                     trio.SamplingParams(max_tokens=1024, temperature=0.3, top_p=0.95, top_k=20, seed=42))
+                except (ActorError, ToolError) as error:
+                    raise SummaryServiceError(f"公共摘要服务失败，保留断点并停止评测: {error}") from error
+                text = response.sequences[0].text.strip()
+                if not text:
+                    raise ToolError("摘要模型没有返回内容")
+                return text
         cache_dir = ROOT / "data/tool_cache/author-seven-v5"
         tools = ToolEnvironment(cache_dir, image_limit=args.image_request_budget,
-                                summarizer=summarize, summary_model=config["summary_model"],
-                                ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir)
+                                summarizer=summarize, summary_model=summary_cache_model,
+                                ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir,
+                                request_ledger=args.output_dir / "tool-requests.jsonl")
         write_json(args.output_dir / "service-limits.json", {"image_search_provider": "doubao-global-visual",
                                                              "image_request_budget": args.image_request_budget,
                                                              "note": "record live API calls and reconcile actual account billing"})

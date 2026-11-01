@@ -1,6 +1,7 @@
 """从公开完整轨迹选择 2048 条，并在冻结前完成逐条图文 CPU 审计。"""
 
 from collections import Counter, deque
+import argparse
 import hashlib
 from importlib.metadata import version
 import json
@@ -71,6 +72,9 @@ def trajectory_features(row: dict) -> dict | None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--model-dir", type=Path, required=True, help="已验证的 tokenizer / processor 目录")
+    args = parser.parse_args()
     output = ROOT / "data/selected-seven-2048-v1"
     audit_output = ROOT / "outputs/sft-audit-2048-v1"
     if output.exists() or audit_output.exists():
@@ -87,7 +91,7 @@ def main() -> None:
     blocked_questions = {normalized_question(r["question"]) for r in held}
     blocked_images = {h for r in held for h in r["image_sha256"]}
     prior = json.loads((ROOT / "outputs/sft-audit-seven-v1/summary.json").read_text())
-    model = Path("/data/jyh-yyh/.cache/modelscope/models/Qwen--Qwen3.5-4B/snapshots/master")
+    model = args.model_dir
     model_hashes = {n: hashlib.sha256((model / n).read_bytes()).hexdigest() for n in prior["model_files_sha256"]}
     if model_hashes != prior["model_files_sha256"]:
         raise ValueError("tokenizer/processor 与已有真实输入验证不一致")

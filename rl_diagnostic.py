@@ -14,12 +14,24 @@ import time
 import httpx
 import pytrio as trio
 from dotenv import load_dotenv
+from pytrio.errors.actor import ActorError
 from transformers import AutoImageProcessor
 
-from agent_baseline import ROOT, TokenBudget, author_system, run_question
+from agent_baseline import ROOT, TokenBudget, SummaryServiceError, author_system, run_question
 from agent_tools import BudgetExhausted, ToolEnvironment, ToolError
 from judge_baseline import parse_judge_response
 from service_io import save_http_response, write_json
+from local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
+
+
+class JudgeQuotaExhausted(RuntimeError):
+    pass
+
+
+def raise_on_judge_quota(body):
+    error = body.get("error", {})
+    if str(error.get("code")) == "1308":
+        raise JudgeQuotaExhausted(error.get("message", "裁判账户使用额度耗尽，保留当前组等待恢复"))
 
 
 def reward_parts(record):
@@ -47,6 +59,15 @@ def group_summary(scores):
             "correct_count": sum(s["accuracy"] for s in scores),
             "equal_rewards": len(scores) == 4 and len({s["reward"] for s in scores}) == 1,
             "rewards": [s["reward"] for s in scores]}
+
+
+def selected_indexed_rows(rows, selected):
+    if selected is not None:
+        if (not isinstance(selected, list) or not selected or not all(isinstance(k, str) for k in selected)
+                or len(set(selected)) != len(selected) or not set(selected) <= {r["sample_id"] for r in rows}):
+            raise ValueError("验证ID必须非空、唯一且属于冻结题池")
+    return [(index, row) for index, row in enumerate(rows)
+            if selected is None or row["sample_id"] in selected]
 
 
 def trajectory_summary(steps):
@@ -105,6 +126,8 @@ def judge_request(prompt, identifier, root, config, parser):
         save_http_response(root / f"{identifier}-{time.time_ns()}.http.json", response)
         if response.status_code == 429:
             pending.unlink()
+            # 账户窗口额度耗尽影响全部题；停止并保留断点，不能连续跳过剩余训练组。
+            raise_on_judge_quota(response.json())
             if attempt == 2:
                 raise ToolError("诊断裁判限流，当前轨迹评分挂起")
             time.sleep(30 * (attempt + 1))
@@ -147,6 +170,9 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--author-root", type=Path, default=ROOT.parent / "OpenSearch-VL")
     parser.add_argument("--preflight-only", action="store_true")
+    parser.add_argument("--selected-ids", type=Path, help="只评测指定冻结ID，保留原始题目索引和采样种子")
+    parser.add_argument("--model-path", help="待评测Sampler；省略时使用原SFT最终Sampler")
+    parser.add_argument("--summary-backend", choices=["pytrio", "local"], default="pytrio")
     args = parser.parse_args()
     load_dotenv(ROOT / ".env")
     for k in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"):
@@ -161,13 +187,18 @@ def main():
         rows = [json.loads(x) for x in data.read_text().splitlines()]
         if len(rows) != 128 or len({r["sample_id"] for r in rows}) != 128:
             raise ValueError("RL题目数量或ID重复")
+        selected = json.loads(args.selected_ids.read_text()) if args.selected_ids else None
+        indexed_rows = selected_indexed_rows(rows, selected)
         trained = json.loads((ROOT / "outputs/sft-2048-v1/sft_result.json").read_text())
         if not trained["complete"] or trained["steps"] != 512 or "/sampler_weights/" not in trained["sampler_path"]:
             raise ValueError("最终SFT Sampler不完整")
         accuracy_prompt, query_prompt = author_prompts(args.author_root)
         system = author_system([json.loads(x) for x in (ROOT / "data/selected-seven-2048-v1/sft.jsonl").read_text().splitlines()])
         judge_config = {"model": os.environ["JUDGE_MODEL"], "url": os.environ["JUDGE_BASE_URL"].rstrip("/") + "/v1/messages"}
-        config = {"model": "Qwen/Qwen3.5-4B", "model_path": trained["sampler_path"], "temperature": 0.7,
+        model_path = args.model_path or trained["sampler_path"]
+        if "/sampler_weights/" not in model_path:
+            raise ValueError("验证推理必须使用Sampler权重")
+        config = {"model": "Qwen/Qwen3.5-4B", "model_path": model_path, "temperature": 0.7,
                   "top_p": 1.0, "seed": 42, "seed_rule": "42 + question_index * 4 + replica",
                   "max_context": 32768, "max_tokens": 32768, "max_turns": 50, "fatal_error_threshold": 3,
                   "diagnostic": True, "generation_stop_tokens": ["<|im_end|>"], "group_size": 4,
@@ -176,13 +207,18 @@ def main():
                   "accuracy_prompt": accuracy_prompt, "query_prompt": query_prompt,
                   "code_sha256": {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in
                                   ["rl_diagnostic.py", "agent_baseline.py", "agent_tools.py", "doubao_image.py", "deepseek_search.py", "paddle_ocr.py", "service_io.py", "protocol.py"]}}
+        if selected is not None:
+            config["selected_ids"] = [row["sample_id"] for _, row in indexed_rows]
+        if args.summary_backend == "local":
+            config["summary_provider"] = local_summary_configuration()
+            config["code_sha256"]["local_summary.py"] = hashlib.sha256((ROOT / "local_summary.py").read_bytes()).hexdigest()
         config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
         cp = args.output_dir / "config.json"
         if cp.exists() and json.loads(cp.read_text()) != config:
             raise ValueError("诊断目录配置不同")
         write_json(cp, config)
         if args.preflight_only:
-            print(json.dumps({"preflight": True, "questions": 128, "rollouts": 512, "config_sha256": config["sha256"]}))
+            print(json.dumps({"preflight": True, "questions": len(indexed_rows), "rollouts": 4 * len(indexed_rows), "config_sha256": config["sha256"]}))
             return
         service = trio.ServiceClient(api_key=os.environ["PYTRIO_API_KEY"])
         capability = next(m for m in service.get_server_capabilities().supported_models if m.model_name == config["model"])
@@ -192,28 +228,40 @@ def main():
         sampler = service.create_sampling_client(base_model=config["model"], model_path=config["model_path"])
         tokenizer = sampler.get_tokenizer()
         processor = AutoImageProcessor.from_pretrained(tokenizer.name_or_path, use_fast=False)
-        summary_sampler = service.create_sampling_client(base_model="Qwen/Qwen3.8-27B")
-        summary_tokenizer = summary_sampler.get_tokenizer()
         budget = TokenBudget(args.output_dir / "tokens.jsonl", 25_000_000)
-        summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", 8_000_000)
         current = {"id": ""}
-        def summarize(prompt):
-            ids = summary_tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=True,
-                return_dict=False, add_generation_prompt=True, enable_thinking=False)
-            result = summary_budget.sample(summary_sampler, trio.ModelInput.from_ints(ids), current["id"],
-                trio.SamplingParams(max_tokens=1024, temperature=0.3, top_p=0.95, top_k=20, seed=42))
-            if not result.sequences[0].text.strip():
-                raise ToolError("摘要为空")
-            return result.sequences[0].text.strip()
+        if args.summary_backend == "local":
+            local_summary = LocalSummaryClient(args.output_dir, config["summary_provider"],
+                os.environ["LOCAL_SUMMARY_API_KEY"], 8_000_000)
+            summary_cache_model = cache_identity(config["summary_provider"])
+            def summarize(prompt):
+                return local_summary.complete(prompt, current["id"])
+        else:
+            summary_sampler = service.create_sampling_client(base_model="Qwen/Qwen3.8-27B")
+            summary_tokenizer = summary_sampler.get_tokenizer()
+            summary_budget = TokenBudget(args.output_dir / "summary-tokens.jsonl", 8_000_000)
+            summary_cache_model = "Qwen/Qwen3.8-27B"
+            def summarize(prompt):
+                ids = summary_tokenizer.apply_chat_template([{"role": "user", "content": prompt}], tokenize=True,
+                    return_dict=False, add_generation_prompt=True, enable_thinking=False)
+                try:
+                    result = summary_budget.sample(summary_sampler, trio.ModelInput.from_ints(ids), current["id"],
+                        trio.SamplingParams(max_tokens=1024, temperature=0.3, top_p=0.95, top_k=20, seed=42))
+                except (ActorError, ToolError) as error:
+                    raise SummaryServiceError(f"公共摘要服务失败，保留断点并停止评测: {error}") from error
+                if not result.sequences[0].text.strip():
+                    raise ToolError("摘要为空")
+                return result.sequences[0].text.strip()
         tools = ToolEnvironment(ROOT / "data/tool_cache/author-seven-v5", image_limit=800, summarizer=summarize,
-            summary_model="Qwen/Qwen3.8-27B", ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir)
+            summary_model=summary_cache_model, ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir,
+            request_ledger=args.output_dir / "tool-requests.jsonl")
         generation = args.output_dir / "rollouts"
         judging = args.output_dir / "judges"
         generation.mkdir(exist_ok=True)
         judging.mkdir(exist_ok=True)
         status = {"complete": False, "groups": {}, "deferred": {}, "no_weight_updates": True}
         try:
-            for index, row in enumerate(rows):
+            for index, row in indexed_rows:
                 scores = []
                 for replica in range(4):
                     identifier = f"{row['sample_id']}-r{replica}"
@@ -236,14 +284,14 @@ def main():
                         scores.append(score)
                         print(json.dumps({"id": identifier, "accuracy": accuracy, "reward": score["reward"],
                                           "termination": record["termination"]}), flush=True)
-                    except ToolError as error:
+                    except (ToolError, ActorError) as error:
                         status["deferred"][identifier] = str(error)
                         print(json.dumps({"deferred": identifier, "error": str(error)}, ensure_ascii=False), flush=True)
                     status["groups"][row["sample_id"]] = group_summary(scores)
                     write_json(args.output_dir / "status.json", status)
         except BudgetExhausted as error:
             status["budget_stop"] = str(error)
-        status["complete"] = len(status["groups"]) == 128 and all(g["complete"] for g in status["groups"].values())
+        status["complete"] = len(status["groups"]) == len(indexed_rows) and all(g["complete"] for g in status["groups"].values())
         write_json(args.output_dir / "status.json", status)
         if not status["complete"]:
             raise SystemExit(2)

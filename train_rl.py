@@ -7,10 +7,12 @@ import inspect
 import json
 import os
 from pathlib import Path
+import time
 
 import numpy as np
 import pytrio as trio
 from dotenv import load_dotenv
+from pytrio.errors.actor import ActorError
 from transformers import AutoImageProcessor
 
 from agent_baseline import ROOT, TokenBudget, author_system
@@ -35,6 +37,42 @@ def validate_selection(selected, available, smoke):
 
 def count_optimizer_updates(operations):
     return sum(item["operation"] == "update" for item in operations)
+
+
+def validate_diagnostic_selection(selected, diagnostic):
+    for identifier in selected:
+        group = diagnostic["groups"].get(identifier, {})
+        if not group.get("complete") or group.get("scored") != 4:
+            raise ValueError(f"选中的题目诊断未完成四条评分: {identifier}")
+        if any(key.startswith(identifier + "-r") for key in diagnostic.get("deferred", {})):
+            raise ValueError(f"选中的题目仍有服务异常: {identifier}")
+
+
+def collect_group(question_id, policy_id, directory, collect_one):
+    skipped = directory / f"{question_id}.skipped.json"
+    if skipped.exists():
+        if json.loads(skipped.read_text())["policy_id"] != policy_id:
+            raise ValueError("跳过记录属于不同策略，不能混用")
+        return None
+    records, scores = [], []
+    try:
+        for replica in range(4):
+            record, score = collect_one(replica)
+            records.append(record)
+            scores.append(score)
+            write_json(directory / f"{question_id}-r{replica}.score.json", score)
+            print(json.dumps({"rollout": f"{question_id}-r{replica}", "reward": score["reward"],
+                              "accuracy": score["accuracy"], "termination": record["termination"]}), flush=True)
+    except (ToolError, ActorError) as error:
+        # 未完成的整组不进入优势计算；保留已发送请求和真实轨迹，继续其他题。
+        failure = {"question_id": question_id, "policy_id": policy_id, "at": time.time(),
+                   "completed_rollouts": len(scores), "error_type": type(error).__name__,
+                   "reason": str(error), "request_id": getattr(error, "request_id", ""),
+                   "status_code": getattr(error, "status_code", None), "used_for_update": False}
+        write_json(skipped, failure)
+        print(json.dumps({"skipped_group": question_id, "reason": failure["reason"]}, ensure_ascii=False), flush=True)
+        return None
+    return records, scores
 
 
 def actor_metadata_from_response(response, meta):
@@ -100,12 +138,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--selected-ids", type=Path, required=True, help="用户确认的RL题目ID JSON数组")
+    parser.add_argument("--validation-ids", type=Path, help="独立验证题目ID JSON数组，不用于参数更新")
     parser.add_argument("--aggregation", choices=["seq-mean-token-sum", "seq-mean-token-mean"], required=True,
                         help="作者启动配置为sum，论文正文公式为mean；必须明确指定")
     parser.add_argument("--execute", action="store_true", help="显式允许远端采样和训练；默认只预检")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--smoke", action="store_true", help="独立2题、最多一次更新，不受整轮筛题完成限制")
     parser.add_argument("--token-budget", type=int, default=25_000_000)
+    parser.add_argument("--training-token-budget", type=int, default=50_000_000,
+                        help="Actor前向、custom backward及保存操作的独立token保护")
     args = parser.parse_args()
     load_dotenv(ROOT / ".env")
     data_path = ROOT / "data/selected/rl_train.jsonl"
@@ -114,8 +155,20 @@ def main():
     all_rows = {r["sample_id"]: r for r in map(json.loads, data_path.read_text().splitlines())}
     selected = json.loads(args.selected_ids.read_text())
     validate_selection(selected, all_rows, args.smoke)
+    validation = json.loads(args.validation_ids.read_text()) if args.validation_ids else []
+    if not args.smoke:
+        if (not isinstance(validation, list) or not validation or not all(isinstance(k, str) for k in validation)
+                or len(validation) != len(set(validation)) or not set(validation) <= set(all_rows)):
+            raise ValueError("正式训练需要唯一且属于冻结题池的独立验证ID")
+        if set(selected) & set(validation):
+            raise ValueError("训练题与验证题不能重叠")
+        diagnostic = json.loads((ROOT / "outputs/rl-diagnostic-128x4-v1/status.json").read_text())
+        validate_diagnostic_selection(selected + validation, diagnostic)
     if args.smoke:
         args.token_budget = min(args.token_budget, 1_000_000)
+        args.training_token_budget = min(args.training_token_budget, 1_000_000)
+    if min(args.token_budget, args.training_token_budget) < 1:
+        raise ValueError("采样和训练token保护必须为正")
     rows = [all_rows[k] for k in selected]
     trained = json.loads((ROOT / "outputs/sft-2048-v1/sft_result.json").read_text())
     if not trained["complete"] or trained["steps"] != 512 or "sampler_weights" in trained["state_path"]:
@@ -123,6 +176,8 @@ def main():
     prompts = author_prompts(ROOT.parent / "OpenSearch-VL")
     system = author_system([json.loads(x) for x in (ROOT / "data/selected-seven-2048-v1/sft.jsonl").read_text().splitlines()])
     config = {"base_model": "Qwen/Qwen3.5-4B", "initial_state": trained["state_path"], "selected": selected,
+              "validation": validation, "service_error_policy": "skip-whole-group-keep-pending",
+              "tool_request_budget": {"scope": "run-directory", "text_search": 1500, "image_search": 800},
               "aggregation": args.aggregation, "advantage": "author-rloo", "group_size": 4,
               "smoke": args.smoke,
               "questions_per_step": 4, "epochs": 1, "lr": 1e-6, "clip_low": 0.2, "clip_high": 0.28,
@@ -140,9 +195,6 @@ def main():
         print(json.dumps({"preflight": True, "network_requests": 0, "updates": 0,
                           "questions": len(rows), "planned_groups": len(rows), "aggregation": args.aggregation}))
         return
-    diagnostic = json.loads((ROOT / "outputs/rl-diagnostic-128x4-v1/status.json").read_text())
-    if not diagnostic["complete"] and not args.smoke:
-        raise ValueError("筛题诊断尚未完整结束，禁止启动RL")
     for k in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"]:
         os.environ.pop(k, None)
     os.environ["PADDLE_OCR_PROXY"] = ""
@@ -158,6 +210,9 @@ def main():
         (args.output_dir / "operations").mkdir(exist_ok=True)
         if (args.output_dir / "pending-operation.json").exists():
             raise ValueError("存在未确认训练操作，不自动重发")
+        write_json(args.output_dir / "budget-limits.json", {"sampling_tokens": args.token_budget,
+            "training_operation_tokens": args.training_token_budget,
+            "summary_tokens": 250_000 if args.smoke else 8_000_000})
         service = trio.ServiceClient(api_key=os.environ["PYTRIO_API_KEY"])
         cap = next(m for m in service.get_server_capabilities().supported_models if m.model_name == config["base_model"])
         if not cap.training.available or cap.training.max_seq_len < 32768:
@@ -171,7 +226,7 @@ def main():
             training = service.create_training_client_from_state_with_optimizer(pair["state_path"])
         else:
             training = service.create_training_client_from_state(trained["state_path"])
-            pair = save_pair(training, args.output_dir, 0, config, args.token_budget)
+            pair = save_pair(training, args.output_dir, 0, config, args.training_token_budget)
         sampler = service.create_sampling_client(base_model=config["base_model"], model_path=pair["sampler_path"])
         tokenizer = sampler.get_tokenizer()
         processor = AutoImageProcessor.from_pretrained(tokenizer.name_or_path, use_fast=False)
@@ -189,7 +244,8 @@ def main():
                 raise ToolError("训练摘要为空")
             return value
         tools = ToolEnvironment(ROOT / "data/tool_cache/author-seven-v5", image_limit=800, summarizer=summarize,
-            summary_model="Qwen/Qwen3.8-27B", ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir)
+            summary_model="Qwen/Qwen3.8-27B", ocr_cache_dir=ROOT / "data/tool_cache/ocr-v1", usage_dir=args.output_dir,
+            request_ledger=args.output_dir / "tool-requests.jsonl")
         judge_config = {"model": os.environ["JUDGE_MODEL"], "url": os.environ["JUDGE_BASE_URL"].rstrip("/") + "/v1/messages"}
         for offset in range(pair["step"] * 4, len(rows), 4):
             step = offset // 4 + 1
@@ -198,28 +254,37 @@ def main():
             judging = directory / "judges"
             judging.mkdir(exist_ok=True)
             datums, metadata, denominator = [], [], 0
+            skipped_groups = []
+            group_metrics = []
             for question_index, row in enumerate(rows[offset:offset + 4], offset):
-                records, scores = [], []
-                for replica in range(4):
+                def collect_one(replica):
                     identifier = f"{row['sample_id']}-r{replica}"
                     current["id"] = f"step-{step}-{identifier}"
                     record = run_rollout(row, identifier, sampler, tokenizer, processor, tools, budget, directory,
                                          system, pair["sampler_path"], 42 + question_index * 4 + replica)
-                    records.append(record)
                     score = score_rollout(record, row, judging, judge_config, prompts)
-                    scores.append(score)
-                    write_json(directory / f"{identifier}.score.json", score)
+                    return record, score
+                group = collect_group(row["sample_id"], pair["sampler_path"], directory, collect_one)
+                if group is None:
+                    skipped_groups.append(row["sample_id"])
+                    continue
+                records, scores = group
                 ds, ms, count = group_training_data(records, scores, args.aggregation)
+                group_metrics.append({"id": row["sample_id"], "rewards": [s["reward"] for s in scores],
+                    "correct": sum(s["accuracy"] for s in scores),
+                    "format_rewards": [s["format_reward"] for s in scores],
+                    "terminations": [r["termination"] for r in records]})
                 datums.extend(ds)
                 metadata.extend(ms)
                 denominator += count
-            if any(m["advantage"] != 0 for m in metadata):
+            updated = any(m["advantage"] != 0 for m in metadata)
+            if updated:
                 # 沿用作者更新前Actor重算old_log_probs，原始采样值仍保留用于审计。
                 actor_metadata = []
                 for datum, meta in zip(datums, metadata, strict=True):
                     response = remote_operation(args.output_dir, "old-actor", step,
                         lambda d=datum: training.forward([d], loss_fn="cross_entropy").result().model_dump(mode="json"),
-                        input_tokens=len(datum.model_input), token_budget=args.token_budget)
+                        input_tokens=len(datum.model_input), token_budget=args.training_token_budget)
                     actor_metadata.append(actor_metadata_from_response(response, meta))
                 write_json(directory / "actor-old-logprobs.json", {"metadata": actor_metadata,
                            "policy_id": pair["sampler_path"], "computed_before_optimizer_update": True})
@@ -228,28 +293,38 @@ def main():
                     remote_operation(args.output_dir, "backward", step,
                         lambda d=datum, m=meta: training.forward_backward_custom([d],
                             make_ppo_loss([m], denominator)).result().model_dump(mode="json"),
-                        input_tokens=2 * len(datum.model_input), token_budget=args.token_budget)
+                        input_tokens=2 * len(datum.model_input), token_budget=args.training_token_budget)
                 remote_operation(args.output_dir, "update", step,
                     lambda: training.optim_step(trio.AdamParams(**config["adam"])).result().model_dump(mode="json"),
-                    token_budget=args.token_budget)
+                    token_budget=args.training_token_budget)
                 if args.smoke:
                     probe = datums[0]
                     reference = remote_operation(args.output_dir, "live-after-update", step,
                         lambda: training.forward([probe], loss_fn="cross_entropy").result().model_dump(mode="json"),
-                        input_tokens=len(probe.model_input), token_budget=args.token_budget)
+                        input_tokens=len(probe.model_input), token_budget=args.training_token_budget)
                     write_json(args.output_dir / "live-after-update.json", {
                         "model_input": dump_prompt(probe.model_input),
                         "targets": probe.loss_fn_inputs["target_tokens"].data,
                         "logprobs": reference["loss_fn_outputs"][0]["logprobs"]["data"]})
-            pair = save_pair(training, args.output_dir, step, config, args.token_budget)
+            write_json(directory / "metrics.json", {"step": step, "groups": group_metrics,
+                "skipped_groups": skipped_groups, "learnable_trajectories": denominator,
+                "datums": len(datums), "optimizer_updated": updated})
+            pair = save_pair(training, args.output_dir, step, config, args.training_token_budget)
             sampler = service.create_sampling_client(base_model=config["base_model"], model_path=pair["sampler_path"])
-            print(json.dumps({"step": step, "groups": len(rows[offset:offset + 4]), "datums": len(datums)}), flush=True)
+            print(json.dumps({"step": step, "groups": len(group_metrics), "skipped_groups": skipped_groups,
+                              "datums": len(datums), "optimizer_updated": updated}), flush=True)
         updates = count_optimizer_updates([json.loads(f.read_text()) for f in
                                           (args.output_dir / "operations").glob("*.json")])
         if args.smoke and updates != 1:
             raise RuntimeError("smoke未完成恰好一次参数更新，不能宣称通过")
+        if updates == 0:
+            raise RuntimeError("所有批次均未更新参数，不能宣称RL训练完成")
+        metrics = [json.loads(f.read_text()) for f in sorted(args.output_dir.glob("batch-*/metrics.json"))]
         write_json(args.output_dir / "result.json", {"complete": True, "checkpoint": pair,
-                                                    "optimizer_updates": updates, "smoke": args.smoke})
+            "optimizer_updates": updates, "smoke": args.smoke, "planned_questions": len(rows),
+            "completed_groups": sum(len(m["groups"]) for m in metrics),
+            "skipped_groups": [identifier for m in metrics for identifier in m["skipped_groups"]],
+            "validation_questions": len(validation), "validation_used_for_update": False})
 
 
 if __name__ == "__main__":

@@ -6,6 +6,10 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .DS_Store
+.local/
+tests/outputs/
+docs/blog-draft-*.md
+docs/blog-outline-*.md
 data/
 datasets/
 outputs/

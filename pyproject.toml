@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 train = ["torch>=2.4", "torchvision>=0.19"]
+plots = ["matplotlib>=3.9,<4"]
 
 [tool.uv]
 package = false

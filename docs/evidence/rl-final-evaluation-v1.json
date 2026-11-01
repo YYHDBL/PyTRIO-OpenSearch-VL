@@ -1,0 +1,133 @@
+{
+  "verified_at": 1793428907.9673247,
+  "benchmark": {
+    "complete": true,
+    "expected": 100,
+    "generated": 100,
+    "scored": 100,
+    "correct": 49,
+    "pass_at_1": 0.49,
+    "exit_code": 0,
+    "all_ids_match_frozen_set": true,
+    "all_response_hashes_match": true,
+    "no_unconfirmed_benchmark_requests": true,
+    "per_benchmark": {
+      "BrowseComp-VL": {
+        "correct": 6,
+        "count": 10,
+        "pass_at_1": 0.6
+      },
+      "FVQA": {
+        "correct": 9,
+        "count": 10,
+        "pass_at_1": 0.9
+      },
+      "InfoSeek": {
+        "correct": 7,
+        "count": 20,
+        "pass_at_1": 0.35
+      },
+      "LiveVQA": {
+        "correct": 5,
+        "count": 10,
+        "pass_at_1": 0.5
+      },
+      "MMSearch": {
+        "correct": 3,
+        "count": 10,
+        "pass_at_1": 0.3
+      },
+      "SimpleVQA": {
+        "correct": 15,
+        "count": 20,
+        "pass_at_1": 0.75
+      },
+      "VDR": {
+        "correct": 4,
+        "count": 20,
+        "pass_at_1": 0.2
+      }
+    },
+    "termination_counts": {
+      "final_answer": 97,
+      "turn_limit": 3
+    },
+    "tool_calls": 430,
+    "tool_errors": 15,
+    "input_tokens": 6450727,
+    "output_tokens": 111131,
+    "local_summary_usage": {
+      "requests": 983,
+      "input_tokens": 614846,
+      "output_tokens": 118033,
+      "unfinished_requests": 0
+    }
+  },
+  "paired": {
+    "rl_summary_complete": true,
+    "same_question_count": 99,
+    "same_questions": {
+      "base": {
+        "correct": 53,
+        "accuracy": 0.5353535353535354
+      },
+      "sft": {
+        "correct": 50,
+        "accuracy": 0.5050505050505051
+      },
+      "rl": {
+        "correct": 49,
+        "accuracy": 0.494949494949495
+      }
+    },
+    "rl_vs_sft_gained": [
+      "eval-0083",
+      "eval-0101",
+      "eval-0157",
+      "eval-0184"
+    ],
+    "rl_vs_sft_lost": [
+      "eval-0107",
+      "eval-0134",
+      "eval-0140",
+      "eval-0171",
+      "eval-0176"
+    ],
+    "limitations": [
+      "SFT has one unresolved service failure; compare identical completed IDs",
+      "RL uses a temporary self-hosted summary backend; comparison is not a strict single-variable experiment",
+      "custom 100-question benchmark subset, not the full paper benchmarks"
+    ]
+  },
+  "validation": {
+    "expected_questions": 16,
+    "expected_rollouts": 64,
+    "complete": false,
+    "rl": {
+      "scored": 63,
+      "correct": 35,
+      "accuracy": 0.5555555555555556,
+      "mean_reward": 0.41902699769366436,
+      "mean_format": 0.670295753629087,
+      "mean_query": 0.5444444444444444
+    },
+    "sft_same_completed_ids": {
+      "scored": 63,
+      "correct": 38,
+      "accuracy": 0.6031746031746031,
+      "mean_reward": 0.35322226803179185,
+      "mean_format": 0.5493454957740672,
+      "mean_query": 0.5682539682539682
+    },
+    "missing_ids": [
+      "rl-0115-r1"
+    ],
+    "reason": "Flash query judge HTTP400 content moderation, repeated once unchanged"
+  },
+  "limitations": [
+    "temporary self-hosted summary backend differs from historical Base/SFT; weights/quantization identity unverified",
+    "GLM judge; no exhaustive manual grading audit",
+    "custom small benchmark subset; not full paper benchmarks",
+    "API token counters do not substitute for account billing"
+  ]
+}

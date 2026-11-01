@@ -1,9 +1,9 @@
 {
   "samples": 100,
   "seed": 42,
-  "source_path": "/data/jyh-yyh/PyTRIO-OpenSearch-VL/data/selected/eval.jsonl",
+  "source_path": "data/selected/eval.jsonl",
   "source_sha256": "59629e3226f24a1ea5c2f2ea06be92e25489844d66fcec627347d7380a9119b3",
-  "data_path": "/data/jyh-yyh/PyTRIO-OpenSearch-VL/data/selected-eval100-v1/eval.jsonl",
+  "data_path": "data/selected-eval100-v1/eval.jsonl",
   "data_sha256": "9f2f0e3d9117defccccff5a78eaa05099bdd78b3e489eb0540953900e1f5a6f1",
   "counts": {
     "SimpleVQA": 20,

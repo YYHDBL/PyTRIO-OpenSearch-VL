@@ -1,0 +1,2166 @@
+{
+  "cohort": "same 99 frozen benchmark questions",
+  "ids": [
+    "eval-0002",
+    "eval-0005",
+    "eval-0008",
+    "eval-0010",
+    "eval-0011",
+    "eval-0014",
+    "eval-0017",
+    "eval-0018",
+    "eval-0019",
+    "eval-0020",
+    "eval-0021",
+    "eval-0022",
+    "eval-0023",
+    "eval-0024",
+    "eval-0027",
+    "eval-0029",
+    "eval-0030",
+    "eval-0032",
+    "eval-0036",
+    "eval-0040",
+    "eval-0042",
+    "eval-0043",
+    "eval-0044",
+    "eval-0046",
+    "eval-0048",
+    "eval-0050",
+    "eval-0052",
+    "eval-0053",
+    "eval-0054",
+    "eval-0057",
+    "eval-0062",
+    "eval-0064",
+    "eval-0066",
+    "eval-0068",
+    "eval-0071",
+    "eval-0074",
+    "eval-0075",
+    "eval-0077",
+    "eval-0078",
+    "eval-0080",
+    "eval-0081",
+    "eval-0082",
+    "eval-0083",
+    "eval-0088",
+    "eval-0089",
+    "eval-0093",
+    "eval-0094",
+    "eval-0096",
+    "eval-0098",
+    "eval-0101",
+    "eval-0102",
+    "eval-0106",
+    "eval-0107",
+    "eval-0108",
+    "eval-0110",
+    "eval-0112",
+    "eval-0114",
+    "eval-0115",
+    "eval-0117",
+    "eval-0120",
+    "eval-0124",
+    "eval-0126",
+    "eval-0127",
+    "eval-0129",
+    "eval-0134",
+    "eval-0135",
+    "eval-0136",
+    "eval-0138",
+    "eval-0139",
+    "eval-0140",
+    "eval-0141",
+    "eval-0142",
+    "eval-0143",
+    "eval-0146",
+    "eval-0149",
+    "eval-0150",
+    "eval-0151",
+    "eval-0156",
+    "eval-0157",
+    "eval-0161",
+    "eval-0163",
+    "eval-0166",
+    "eval-0167",
+    "eval-0168",
+    "eval-0171",
+    "eval-0175",
+    "eval-0176",
+    "eval-0177",
+    "eval-0178",
+    "eval-0180",
+    "eval-0184",
+    "eval-0185",
+    "eval-0187",
+    "eval-0188",
+    "eval-0189",
+    "eval-0190",
+    "eval-0194",
+    "eval-0197",
+    "eval-0199"
+  ],
+  "stages": {
+    "Base": {
+      "questions": 99,
+      "correct": 53,
+      "accuracy": 0.5353535353535354,
+      "termination_counts": {
+        "final_answer": 82,
+        "no_final_answer": 8,
+        "turn_limit": 8,
+        "context_limit": 1
+      },
+      "questions_with_tool_errors": 3,
+      "questions_with_repeated_calls": 10,
+      "rounds": {
+        "sum": 783,
+        "mean": 7.909090909090909,
+        "median": 3,
+        "p90": 26.60000000000001,
+        "max": 50
+      },
+      "tool_calls": {
+        "sum": 693,
+        "mean": 7,
+        "median": 2,
+        "p90": 25.60000000000001,
+        "max": 50
+      },
+      "tool_errors": {
+        "sum": 39,
+        "mean": 0.3939393939393939,
+        "median": 0,
+        "p90": 0.0,
+        "max": 24
+      },
+      "input_tokens": {
+        "sum": 14947075,
+        "mean": 150980.55555555556,
+        "median": 16110,
+        "p90": 238287.80000000045,
+        "max": 1559672
+      },
+      "output_tokens": {
+        "sum": 430635,
+        "mean": 4349.848484848485,
+        "median": 702,
+        "p90": 11429.200000000006,
+        "max": 36288
+      },
+      "max_context_tokens": {
+        "sum": 1398179,
+        "mean": 14123.020202020201,
+        "median": 6887,
+        "p90": 46253.8,
+        "max": 65386
+      },
+      "repeat_same_action_extra_calls": {
+        "sum": 358,
+        "mean": 3.6161616161616164,
+        "median": 0,
+        "p90": 0.4000000000000057,
+        "max": 46
+      },
+      "strict_step_format_fraction": {
+        "sum": 76.18969031091189,
+        "mean": 0.7695928314233523,
+        "median": 0.8888888888888888,
+        "p90": 1.0,
+        "max": 1
+      },
+      "elapsed_seconds_including_recovery": {
+        "sum": 7926.07,
+        "mean": 80.06131313131313,
+        "median": 27.93,
+        "p90": 246.50200000000004,
+        "max": 728.59
+      },
+      "actions": {
+        "layout_parsing": 5,
+        "image_search": 66,
+        "text_search": 596,
+        "crop": 26
+      },
+      "error_types": {
+        "Tool execution error:\nValueError: 裁剪区域超出图片边界": 24,
+        "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 15
+      },
+      "per_benchmark": {
+        "BrowseComp-VL": {
+          "questions": 10,
+          "correct": 5,
+          "normal_finish": 7,
+          "tool_calls": 115
+        },
+        "FVQA": {
+          "questions": 10,
+          "correct": 7,
+          "normal_finish": 9,
+          "tool_calls": 67
+        },
+        "InfoSeek": {
+          "questions": 20,
+          "correct": 8,
+          "normal_finish": 19,
+          "tool_calls": 32
+        },
+        "LiveVQA": {
+          "questions": 10,
+          "correct": 6,
+          "normal_finish": 9,
+          "tool_calls": 53
+        },
+        "MMSearch": {
+          "questions": 10,
+          "correct": 6,
+          "normal_finish": 10,
+          "tool_calls": 22
+        },
+        "SimpleVQA": {
+          "questions": 19,
+          "correct": 17,
+          "normal_finish": 19,
+          "tool_calls": 56
+        },
+        "VDR": {
+          "questions": 20,
+          "correct": 4,
+          "normal_finish": 9,
+          "tool_calls": 348
+        }
+      },
+      "correct_by_termination": {
+        "final_answer": {
+          "count": 82,
+          "correct": 52
+        },
+        "no_final_answer": {
+          "count": 8,
+          "correct": 0
+        },
+        "turn_limit": {
+          "count": 8,
+          "correct": 1
+        },
+        "context_limit": {
+          "count": 1,
+          "correct": 0
+        }
+      }
+    },
+    "SFT": {
+      "questions": 99,
+      "correct": 50,
+      "accuracy": 0.5050505050505051,
+      "termination_counts": {
+        "final_answer": 97,
+        "turn_limit": 2
+      },
+      "questions_with_tool_errors": 5,
+      "questions_with_repeated_calls": 3,
+      "rounds": {
+        "sum": 473,
+        "mean": 4.777777777777778,
+        "median": 3,
+        "p90": 7.0,
+        "max": 50
+      },
+      "tool_calls": {
+        "sum": 376,
+        "mean": 3.797979797979798,
+        "median": 2,
+        "p90": 6.0,
+        "max": 50
+      },
+      "tool_errors": {
+        "sum": 11,
+        "mean": 0.1111111111111111,
+        "median": 0,
+        "p90": 0.0,
+        "max": 3
+      },
+      "input_tokens": {
+        "sum": 4950913,
+        "mean": 50009.22222222222,
+        "median": 16776,
+        "p90": 45552.200000000026,
+        "max": 1297599
+      },
+      "output_tokens": {
+        "sum": 98033,
+        "mean": 990.2323232323232,
+        "median": 735,
+        "p90": 1556.6000000000001,
+        "max": 6405
+      },
+      "max_context_tokens": {
+        "sum": 817582,
+        "mean": 8258.40404040404,
+        "median": 6909,
+        "p90": 9997.400000000001,
+        "max": 47662
+      },
+      "repeat_same_action_extra_calls": {
+        "sum": 72,
+        "mean": 0.7272727272727273,
+        "median": 0,
+        "p90": 0.0,
+        "max": 37
+      },
+      "strict_step_format_fraction": {
+        "sum": 75.01507936507937,
+        "mean": 0.7577280743947411,
+        "median": 1,
+        "p90": 1.0,
+        "max": 1
+      },
+      "elapsed_seconds_including_recovery": {
+        "sum": 4219.05,
+        "mean": 42.61666666666667,
+        "median": 27.33,
+        "p90": 80.31800000000001,
+        "max": 287.14
+      },
+      "actions": {
+        "layout_parsing": 11,
+        "image_search": 81,
+        "text_search": 260,
+        "crop": 24
+      },
+      "error_types": {
+        "Tool execution error:\nValueError: 裁剪区域超出图片边界": 9,
+        "Tool execution error:\nValueError: 图片引用不存在": 1,
+        "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 1
+      },
+      "per_benchmark": {
+        "BrowseComp-VL": {
+          "questions": 10,
+          "correct": 5,
+          "normal_finish": 10,
+          "tool_calls": 35
+        },
+        "FVQA": {
+          "questions": 10,
+          "correct": 8,
+          "normal_finish": 10,
+          "tool_calls": 25
+        },
+        "InfoSeek": {
+          "questions": 20,
+          "correct": 7,
+          "normal_finish": 20,
+          "tool_calls": 51
+        },
+        "LiveVQA": {
+          "questions": 10,
+          "correct": 7,
+          "normal_finish": 10,
+          "tool_calls": 27
+        },
+        "MMSearch": {
+          "questions": 10,
+          "correct": 3,
+          "normal_finish": 10,
+          "tool_calls": 21
+        },
+        "SimpleVQA": {
+          "questions": 19,
+          "correct": 15,
+          "normal_finish": 19,
+          "tool_calls": 27
+        },
+        "VDR": {
+          "questions": 20,
+          "correct": 5,
+          "normal_finish": 18,
+          "tool_calls": 190
+        }
+      },
+      "correct_by_termination": {
+        "final_answer": {
+          "count": 97,
+          "correct": 50
+        },
+        "turn_limit": {
+          "count": 2,
+          "correct": 0
+        }
+      }
+    },
+    "RL": {
+      "questions": 99,
+      "correct": 49,
+      "accuracy": 0.494949494949495,
+      "termination_counts": {
+        "final_answer": 97,
+        "turn_limit": 2
+      },
+      "questions_with_tool_errors": 7,
+      "questions_with_repeated_calls": 2,
+      "rounds": {
+        "sum": 477,
+        "mean": 4.818181818181818,
+        "median": 3,
+        "p90": 6.200000000000003,
+        "max": 50
+      },
+      "tool_calls": {
+        "sum": 380,
+        "mean": 3.8383838383838382,
+        "median": 2,
+        "p90": 5.200000000000003,
+        "max": 50
+      },
+      "tool_errors": {
+        "sum": 15,
+        "mean": 0.15151515151515152,
+        "median": 0,
+        "p90": 0.0,
+        "max": 3
+      },
+      "input_tokens": {
+        "sum": 5017717,
+        "mean": 50684.0101010101,
+        "median": 16836,
+        "p90": 42958.4,
+        "max": 1247230
+      },
+      "output_tokens": {
+        "sum": 98766,
+        "mean": 997.6363636363636,
+        "median": 731,
+        "p90": 1437.4,
+        "max": 6690
+      },
+      "max_context_tokens": {
+        "sum": 817059,
+        "mean": 8253.121212121212,
+        "median": 6809,
+        "p90": 9955.4,
+        "max": 46497
+      },
+      "repeat_same_action_extra_calls": {
+        "sum": 82,
+        "mean": 0.8282828282828283,
+        "median": 0,
+        "p90": 0.0,
+        "max": 42
+      },
+      "strict_step_format_fraction": {
+        "sum": 79.41222222222223,
+        "mean": 0.8021436588103255,
+        "median": 1,
+        "p90": 1.0,
+        "max": 1
+      },
+      "elapsed_seconds_including_recovery": {
+        "sum": 7033.86,
+        "mean": 71.0490909090909,
+        "median": 35.45,
+        "p90": 84.75800000000004,
+        "max": 2207.39
+      },
+      "actions": {
+        "layout_parsing": 5,
+        "image_search": 83,
+        "text_search": 262,
+        "crop": 28,
+        "super_resolution": 2
+      },
+      "error_types": {
+        "Tool execution error:\nValueError: 裁剪区域超出图片边界": 12,
+        "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 3
+      },
+      "per_benchmark": {
+        "BrowseComp-VL": {
+          "questions": 10,
+          "correct": 6,
+          "normal_finish": 10,
+          "tool_calls": 54
+        },
+        "FVQA": {
+          "questions": 10,
+          "correct": 9,
+          "normal_finish": 10,
+          "tool_calls": 23
+        },
+        "InfoSeek": {
+          "questions": 20,
+          "correct": 7,
+          "normal_finish": 20,
+          "tool_calls": 48
+        },
+        "LiveVQA": {
+          "questions": 10,
+          "correct": 5,
+          "normal_finish": 9,
+          "tool_calls": 69
+        },
+        "MMSearch": {
+          "questions": 10,
+          "correct": 3,
+          "normal_finish": 10,
+          "tool_calls": 23
+        },
+        "SimpleVQA": {
+          "questions": 19,
+          "correct": 15,
+          "normal_finish": 19,
+          "tool_calls": 28
+        },
+        "VDR": {
+          "questions": 20,
+          "correct": 4,
+          "normal_finish": 19,
+          "tool_calls": 135
+        }
+      },
+      "correct_by_termination": {
+        "final_answer": {
+          "count": 97,
+          "correct": 49
+        },
+        "turn_limit": {
+          "count": 2,
+          "correct": 0
+        }
+      }
+    }
+  },
+  "paired": {
+    "Base_to_SFT": {
+      "gained_ids": [
+        "eval-0081",
+        "eval-0107",
+        "eval-0126",
+        "eval-0134",
+        "eval-0176",
+        "eval-0180",
+        "eval-0197",
+        "eval-0199"
+      ],
+      "lost_ids": [
+        "eval-0017",
+        "eval-0029",
+        "eval-0040",
+        "eval-0135",
+        "eval-0138",
+        "eval-0142",
+        "eval-0156",
+        "eval-0157",
+        "eval-0184",
+        "eval-0190",
+        "eval-0194"
+      ],
+      "both_correct": 42,
+      "both_wrong": 38,
+      "identical_normalized_report_but_changed_judge": [],
+      "identical_exact_report_but_changed_judge": [],
+      "recovered_normal_finish": {
+        "count": 15,
+        "correct_before": 1,
+        "correct_after": 5
+      },
+      "normal_finish_regressed": 0
+    },
+    "SFT_to_RL": {
+      "gained_ids": [
+        "eval-0083",
+        "eval-0101",
+        "eval-0157",
+        "eval-0184"
+      ],
+      "lost_ids": [
+        "eval-0107",
+        "eval-0134",
+        "eval-0140",
+        "eval-0171",
+        "eval-0176"
+      ],
+      "both_correct": 45,
+      "both_wrong": 45,
+      "identical_normalized_report_but_changed_judge": [
+        "eval-0083"
+      ],
+      "identical_exact_report_but_changed_judge": [
+        "eval-0083"
+      ],
+      "recovered_normal_finish": {
+        "count": 1,
+        "correct_before": 0,
+        "correct_after": 0
+      },
+      "normal_finish_regressed": 1
+    },
+    "Base_to_RL": {
+      "gained_ids": [
+        "eval-0081",
+        "eval-0083",
+        "eval-0101",
+        "eval-0126",
+        "eval-0180",
+        "eval-0197",
+        "eval-0199"
+      ],
+      "lost_ids": [
+        "eval-0017",
+        "eval-0029",
+        "eval-0040",
+        "eval-0135",
+        "eval-0138",
+        "eval-0140",
+        "eval-0142",
+        "eval-0156",
+        "eval-0171",
+        "eval-0190",
+        "eval-0194"
+      ],
+      "both_correct": 42,
+      "both_wrong": 39,
+      "identical_normalized_report_but_changed_judge": [],
+      "identical_exact_report_but_changed_judge": [],
+      "recovered_normal_finish": {
+        "count": 15,
+        "correct_before": 1,
+        "correct_after": 2
+      },
+      "normal_finish_regressed": 0
+    }
+  },
+  "changed_cases_metrics": [
+    {
+      "id": "eval-0017",
+      "benchmark": "SimpleVQA",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 9266,
+          "output_tokens": 689,
+          "max_context_tokens": 5163,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 5.87
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 1,
+          "tool_calls": 0,
+          "tool_errors": 0,
+          "input_tokens": 4451,
+          "output_tokens": 746,
+          "max_context_tokens": 5197,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0,
+          "actions": {},
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 13.82
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 1,
+          "tool_calls": 0,
+          "tool_errors": 0,
+          "input_tokens": 4451,
+          "output_tokens": 689,
+          "max_context_tokens": 5140,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0,
+          "actions": {},
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 10.23
+        }
+      }
+    },
+    {
+      "id": "eval-0029",
+      "benchmark": "SimpleVQA",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 29,
+          "tool_calls": 28,
+          "tool_errors": 24,
+          "input_tokens": 192162,
+          "output_tokens": 3312,
+          "max_context_tokens": 8915,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.1724137931034483,
+          "actions": {
+            "layout_parsing": 2,
+            "crop": 26
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: 裁剪区域超出图片边界": 24
+          },
+          "elapsed_seconds_including_recovery": 89.49
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 9440,
+          "output_tokens": 534,
+          "max_context_tokens": 5213,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "crop": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 10.39
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 1,
+          "tool_calls": 0,
+          "tool_errors": 0,
+          "input_tokens": 4531,
+          "output_tokens": 332,
+          "max_context_tokens": 4863,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {},
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 5.21
+        }
+      }
+    },
+    {
+      "id": "eval-0040",
+      "benchmark": "InfoSeek",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 9336,
+          "output_tokens": 520,
+          "max_context_tokens": 5396,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 11.75
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 15312,
+          "output_tokens": 419,
+          "max_context_tokens": 6000,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 32.61
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 15302,
+          "output_tokens": 405,
+          "max_context_tokens": 5976,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 30.58
+        }
+      }
+    },
+    {
+      "id": "eval-0081",
+      "benchmark": "FVQA",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16110,
+          "output_tokens": 394,
+          "max_context_tokens": 6249,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 23.69
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16362,
+          "output_tokens": 506,
+          "max_context_tokens": 6506,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 16.18
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16350,
+          "output_tokens": 543,
+          "max_context_tokens": 6531,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 28.73
+        }
+      }
+    },
+    {
+      "id": "eval-0083",
+      "benchmark": "FVQA",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16628,
+          "output_tokens": 1169,
+          "max_context_tokens": 7155,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 33.15
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 22559,
+          "output_tokens": 707,
+          "max_context_tokens": 7250,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.25,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 35.81
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 22436,
+          "output_tokens": 659,
+          "max_context_tokens": 7124,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.25,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 46.04
+        }
+      }
+    },
+    {
+      "id": "eval-0101",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 23010,
+          "output_tokens": 812,
+          "max_context_tokens": 7351,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.75,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 40.12
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 11,
+          "tool_calls": 10,
+          "tool_errors": 1,
+          "input_tokens": 79713,
+          "output_tokens": 1890,
+          "max_context_tokens": 11597,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0,
+          "actions": {
+            "crop": 2,
+            "layout_parsing": 1,
+            "image_search": 1,
+            "text_search": 6
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: 裁剪区域超出图片边界": 1
+          },
+          "elapsed_seconds_including_recovery": 93.42
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 9,
+          "tool_calls": 8,
+          "tool_errors": 0,
+          "input_tokens": 60395,
+          "output_tokens": 1775,
+          "max_context_tokens": 10302,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.1111111111111111,
+          "actions": {
+            "crop": 2,
+            "super_resolution": 1,
+            "image_search": 1,
+            "text_search": 4
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 93.67
+        }
+      }
+    },
+    {
+      "id": "eval-0107",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "turn_limit",
+          "normal_finish": false,
+          "rounds": 50,
+          "tool_calls": 50,
+          "tool_errors": 0,
+          "input_tokens": 1382201,
+          "output_tokens": 13222,
+          "max_context_tokens": 50933,
+          "repeat_same_action_extra_calls": 40,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 49
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 242.78
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 24293,
+          "output_tokens": 879,
+          "max_context_tokens": 7983,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 35.53
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 24341,
+          "output_tokens": 997,
+          "max_context_tokens": 8171,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 2207.39
+        }
+      }
+    },
+    {
+      "id": "eval-0126",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 17284,
+          "output_tokens": 439,
+          "max_context_tokens": 7269,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.6666666666666666,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 31.62
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 9777,
+          "output_tokens": 422,
+          "max_context_tokens": 5259,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "crop": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 6.99
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 9809,
+          "output_tokens": 495,
+          "max_context_tokens": 5332,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "crop": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 8.19
+        }
+      }
+    },
+    {
+      "id": "eval-0134",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "no_final_answer",
+          "normal_finish": false,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 13567,
+          "output_tokens": 33015,
+          "max_context_tokens": 40196,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "image_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 459.88
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 31286,
+          "output_tokens": 958,
+          "max_context_tokens": 9804,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 38.83
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 21937,
+          "output_tokens": 779,
+          "max_context_tokens": 8877,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 49.87
+        }
+      }
+    },
+    {
+      "id": "eval-0135",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 23835,
+          "output_tokens": 1167,
+          "max_context_tokens": 8005,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.75,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 50.77
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 30909,
+          "output_tokens": 970,
+          "max_context_tokens": 8489,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 51.77
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 23101,
+          "output_tokens": 1064,
+          "max_context_tokens": 7828,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 52.68
+        }
+      }
+    },
+    {
+      "id": "eval-0138",
+      "benchmark": "VDR",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "turn_limit",
+          "normal_finish": false,
+          "rounds": 50,
+          "tool_calls": 50,
+          "tool_errors": 0,
+          "input_tokens": 1425044,
+          "output_tokens": 7060,
+          "max_context_tokens": 52689,
+          "repeat_same_action_extra_calls": 39,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 49
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 199.13
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 6,
+          "tool_calls": 5,
+          "tool_errors": 0,
+          "input_tokens": 41533,
+          "output_tokens": 1703,
+          "max_context_tokens": 10171,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 4
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 73.12
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 32013,
+          "output_tokens": 1115,
+          "max_context_tokens": 8842,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 69.43
+        }
+      }
+    },
+    {
+      "id": "eval-0140",
+      "benchmark": "MMSearch",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 12738,
+          "output_tokens": 1327,
+          "max_context_tokens": 8420,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.5,
+          "actions": {
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 32.15
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 17815,
+          "output_tokens": 1078,
+          "max_context_tokens": 7677,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 40.89
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16435,
+          "output_tokens": 1017,
+          "max_context_tokens": 6912,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 36.73
+        }
+      }
+    },
+    {
+      "id": "eval-0142",
+      "benchmark": "MMSearch",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 9,
+          "tool_calls": 8,
+          "tool_errors": 0,
+          "input_tokens": 81305,
+          "output_tokens": 2752,
+          "max_context_tokens": 14353,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.8888888888888888,
+          "actions": {
+            "image_search": 1,
+            "text_search": 7
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 128.87
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 24527,
+          "output_tokens": 1099,
+          "max_context_tokens": 8246,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 43.96
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 33190,
+          "output_tokens": 1313,
+          "max_context_tokens": 9334,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 77.3
+        }
+      }
+    },
+    {
+      "id": "eval-0156",
+      "benchmark": "MMSearch",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 18020,
+          "output_tokens": 531,
+          "max_context_tokens": 6887,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.6666666666666666,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 22.25
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 17873,
+          "output_tokens": 705,
+          "max_context_tokens": 7090,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 19.37
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 17872,
+          "output_tokens": 581,
+          "max_context_tokens": 6954,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 28.47
+        }
+      }
+    },
+    {
+      "id": "eval-0157",
+      "benchmark": "MMSearch",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 21858,
+          "output_tokens": 602,
+          "max_context_tokens": 6946,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.75,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 36.4
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 21864,
+          "output_tokens": 627,
+          "max_context_tokens": 6971,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 10.17
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 21911,
+          "output_tokens": 711,
+          "max_context_tokens": 7081,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 44.48
+        }
+      }
+    },
+    {
+      "id": "eval-0171",
+      "benchmark": "LiveVQA",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 2,
+          "tool_calls": 1,
+          "tool_errors": 0,
+          "input_tokens": 10791,
+          "output_tokens": 848,
+          "max_context_tokens": 6446,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 19.19
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 23961,
+          "output_tokens": 850,
+          "max_context_tokens": 7814,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 46.64
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 16743,
+          "output_tokens": 731,
+          "max_context_tokens": 6901,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 35.86
+        }
+      }
+    },
+    {
+      "id": "eval-0176",
+      "benchmark": "LiveVQA",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "no_final_answer",
+          "normal_finish": false,
+          "rounds": 26,
+          "tool_calls": 25,
+          "tool_errors": 14,
+          "input_tokens": 363835,
+          "output_tokens": 35773,
+          "max_context_tokens": 50824,
+          "repeat_same_action_extra_calls": 2,
+          "strict_step_format_fraction": 0.4230769230769231,
+          "actions": {
+            "text_search": 25
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 14
+          },
+          "elapsed_seconds_including_recovery": 550.35
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 9,
+          "tool_calls": 8,
+          "tool_errors": 1,
+          "input_tokens": 73620,
+          "output_tokens": 1538,
+          "max_context_tokens": 11966,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.8888888888888888,
+          "actions": {
+            "layout_parsing": 1,
+            "image_search": 1,
+            "text_search": 6
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 1
+          },
+          "elapsed_seconds_including_recovery": 109.65
+        },
+        "RL": {
+          "correct": false,
+          "termination": "turn_limit",
+          "normal_finish": false,
+          "rounds": 50,
+          "tool_calls": 50,
+          "tool_errors": 3,
+          "input_tokens": 1236635,
+          "output_tokens": 4945,
+          "max_context_tokens": 46497,
+          "repeat_same_action_extra_calls": 40,
+          "strict_step_format_fraction": 0.94,
+          "actions": {
+            "layout_parsing": 1,
+            "image_search": 1,
+            "text_search": 48
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 3
+          },
+          "elapsed_seconds_including_recovery": 215.32
+        }
+      }
+    },
+    {
+      "id": "eval-0180",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 15072,
+          "output_tokens": 499,
+          "max_context_tokens": 6033,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 28.16
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 29376,
+          "output_tokens": 782,
+          "max_context_tokens": 7997,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 44.4
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 14993,
+          "output_tokens": 515,
+          "max_context_tokens": 6048,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 31.92
+        }
+      }
+    },
+    {
+      "id": "eval-0184",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 18723,
+          "output_tokens": 1655,
+          "max_context_tokens": 8182,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 45.7
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 25597,
+          "output_tokens": 1571,
+          "max_context_tokens": 8814,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.25,
+          "actions": {
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 59.99
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 17158,
+          "output_tokens": 925,
+          "max_context_tokens": 7211,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 46.06
+        }
+      }
+    },
+    {
+      "id": "eval-0190",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 37424,
+          "output_tokens": 1956,
+          "max_context_tokens": 10214,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.8,
+          "actions": {
+            "text_search": 4
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 65.11
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 36899,
+          "output_tokens": 1242,
+          "max_context_tokens": 9602,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 69.35
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 20,
+          "tool_calls": 19,
+          "tool_errors": 0,
+          "input_tokens": 315417,
+          "output_tokens": 6297,
+          "max_context_tokens": 26141,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 18
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 356.74
+        }
+      }
+    },
+    {
+      "id": "eval-0194",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 3,
+          "tool_calls": 2,
+          "tool_errors": 0,
+          "input_tokens": 20475,
+          "output_tokens": 1092,
+          "max_context_tokens": 8484,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.6666666666666666,
+          "actions": {
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 40.15
+        },
+        "SFT": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 5,
+          "tool_calls": 4,
+          "tool_errors": 0,
+          "input_tokens": 31915,
+          "output_tokens": 1223,
+          "max_context_tokens": 8158,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.2,
+          "actions": {
+            "crop": 2,
+            "layout_parsing": 1,
+            "text_search": 1
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 40.49
+        },
+        "RL": {
+          "correct": false,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 6,
+          "tool_calls": 5,
+          "tool_errors": 0,
+          "input_tokens": 42752,
+          "output_tokens": 1443,
+          "max_context_tokens": 9735,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 0.16666666666666666,
+          "actions": {
+            "crop": 2,
+            "text_search": 3
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 71.18
+        }
+      }
+    },
+    {
+      "id": "eval-0197",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "context_limit",
+          "normal_finish": false,
+          "rounds": 47,
+          "tool_calls": 47,
+          "tool_errors": 1,
+          "input_tokens": 1546122,
+          "output_tokens": 13823,
+          "max_context_tokens": 65386,
+          "repeat_same_action_extra_calls": 30,
+          "strict_step_format_fraction": 0.9787234042553191,
+          "actions": {
+            "text_search": 47
+          },
+          "error_types": {
+            "Tool execution error:\nValueError: DeepSeek 搜索词必须为 1–128 个字符；不会自动截断": 1
+          },
+          "elapsed_seconds_including_recovery": 414.51
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 24802,
+          "output_tokens": 1553,
+          "max_context_tokens": 8722,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 58.24
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 4,
+          "tool_calls": 3,
+          "tool_errors": 0,
+          "input_tokens": 24790,
+          "output_tokens": 1505,
+          "max_context_tokens": 8592,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 2
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 76.75
+        }
+      }
+    },
+    {
+      "id": "eval-0199",
+      "benchmark": "BrowseComp-VL",
+      "stages": {
+        "Base": {
+          "correct": false,
+          "termination": "turn_limit",
+          "normal_finish": false,
+          "rounds": 50,
+          "tool_calls": 50,
+          "tool_errors": 0,
+          "input_tokens": 1282101,
+          "output_tokens": 9689,
+          "max_context_tokens": 47230,
+          "repeat_same_action_extra_calls": 30,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 49
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 315.55
+        },
+        "SFT": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 8,
+          "tool_calls": 7,
+          "tool_errors": 0,
+          "input_tokens": 56364,
+          "output_tokens": 1391,
+          "max_context_tokens": 10670,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 6
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 84.35
+        },
+        "RL": {
+          "correct": true,
+          "termination": "final_answer",
+          "normal_finish": true,
+          "rounds": 9,
+          "tool_calls": 8,
+          "tool_errors": 0,
+          "input_tokens": 69400,
+          "output_tokens": 1436,
+          "max_context_tokens": 12141,
+          "repeat_same_action_extra_calls": 0,
+          "strict_step_format_fraction": 1,
+          "actions": {
+            "image_search": 1,
+            "text_search": 7
+          },
+          "error_types": {},
+          "elapsed_seconds_including_recovery": 144.56
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "RL summary backend changed to user deployment; cannot isolate all effects to RL",
+    "GLM judgments not exhaustively manually audited",
+    "single run and 99 paired questions",
+    "elapsed_seconds includes checkpoint recovery and cache/network differences",
+    "strict format is computed on all steps, not the training fatal-prefix reward"
+  ],
+  "validation": {
+    "expected_questions": 16,
+    "expected_rollouts": 64,
+    "complete": false,
+    "rl": {
+      "scored": 63,
+      "correct": 35,
+      "accuracy": 0.5555555555555556,
+      "mean_reward": 0.41902699769366436,
+      "mean_format": 0.670295753629087,
+      "mean_query": 0.5444444444444444
+    },
+    "sft_same_completed_ids": {
+      "scored": 63,
+      "correct": 38,
+      "accuracy": 0.6031746031746031,
+      "mean_reward": 0.35322226803179185,
+      "mean_format": 0.5493454957740672,
+      "mean_query": 0.5682539682539682
+    },
+    "gained": 4,
+    "lost": 7,
+    "missing_ids": [
+      "rl-0115-r1"
+    ]
+  },
+  "validation_accuracy_all_64": {
+    "questions": 16,
+    "rollouts": 64,
+    "accuracy_complete": true,
+    "rl_correct": 36,
+    "sft_correct": 38,
+    "gained": 5,
+    "lost": 7,
+    "rl_mean_format_all64": 0.6691973824786325,
+    "sft_mean_format_all64": 0.5407619724025974,
+    "rl_question_correct_distribution": {
+      "3": 3,
+      "0": 5,
+      "2": 1,
+      "4": 6,
+      "1": 1
+    },
+    "sft_question_correct_distribution": {
+      "4": 6,
+      "0": 4,
+      "2": 4,
+      "3": 2
+    },
+    "combined_reward_scored": 63,
+    "missing_query_id": "rl-0115-r1",
+    "new_api_requests": 0
+  },
+  "validation_reward_change_decomposition": {
+    "paired_rollouts": 63,
+    "method": "symmetric product decomposition; algebraic identity, not causal attribution",
+    "mean_contribution": {
+      "format": 0.08352456406027835,
+      "accuracy": -0.01650793650793651,
+      "query": -0.0012118978904693193,
+      "total": 0.06580472966187252
+    }
+  },
+  "training_pool_comparison": {
+    "same_questions": 93,
+    "sft_diagnostic": {
+      "rollouts": 372,
+      "correct": 252,
+      "mean_reward": 0.44371835277974797,
+      "mean_format_reward": 0.6636674111219701,
+      "mean_query": 0.5963709677419354
+    },
+    "rl_online_policy_mixture": {
+      "rollouts": 372,
+      "correct": 248,
+      "mean_reward": 0.42244772933474123,
+      "mean_format_reward": 0.6453089407291445,
+      "mean_query": 0.5793010752688172
+    },
+    "same_seeds": false,
+    "final_checkpoint_evaluation": false
+  }
+}
