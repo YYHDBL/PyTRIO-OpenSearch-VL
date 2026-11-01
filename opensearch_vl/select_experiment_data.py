@@ -17,7 +17,7 @@ import pyarrow.parquet as pq
 from PIL import Image
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "data/source"
 BENCH = ROOT / "data/benchmarks/vision-deepresearch-eval/data"
 OUTPUT = ROOT / "data/selected"

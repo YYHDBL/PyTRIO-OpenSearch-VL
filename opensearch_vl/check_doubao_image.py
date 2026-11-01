@@ -11,10 +11,10 @@ from dotenv import load_dotenv
 from PIL import Image
 import pytrio as trio
 
-from agent_baseline import ROOT, TokenBudget
-from agent_tools import ToolEnvironment, model_image_bytes
-from doubao_image import DoubaoImageClient
-from service_io import write_json
+from .agent_baseline import ROOT, TokenBudget
+from .agent_tools import ToolEnvironment, model_image_bytes
+from .doubao_image import DoubaoImageClient
+from .service_io import write_json
 
 
 def main() -> None:

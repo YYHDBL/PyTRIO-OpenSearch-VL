@@ -15,7 +15,7 @@ from PIL import Image
 
 IMAGE_MARKER = "<image>"
 IMAGE_PAD = "<|image_pad|>"
-TEMPLATE_PATH = Path(__file__).parent / "templates/qwen3_5_opensearch.jinja"
+TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "templates/qwen3_5_opensearch.jinja"
 
 # 沿用原仓库 LlamaFactory QwenToolUtils 的 JSON 工具格式，不改写作者 system 文本。
 QWEN_TOOL_PROMPT = (

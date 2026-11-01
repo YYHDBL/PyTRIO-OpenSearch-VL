@@ -9,9 +9,9 @@ import numpy as np
 import pytrio as trio
 from PIL import Image
 
-from agent_baseline import outside_thought, parse_action, sample_prompt
-from agent_tools import ToolError, model_image_bytes
-from service_io import write_json
+from .agent_baseline import outside_thought, parse_action, sample_prompt
+from .agent_tools import ToolError, model_image_bytes
+from .service_io import write_json
 
 
 def dump_prompt(prompt):

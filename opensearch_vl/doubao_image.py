@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 import httpx
 from PIL import Image
 
-from service_io import save_http_response, write_json
+from .service_io import save_http_response, write_json
 
 
 ENDPOINT = "https://open.feedcoopapi.com/search_api/global_search"

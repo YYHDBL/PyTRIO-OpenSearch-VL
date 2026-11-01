@@ -10,7 +10,7 @@ import unittest
 
 class PaddleOcrTest(unittest.TestCase):
     def test_invalid_explicit_proxy_fails_before_submission(self):
-        from paddle_ocr import OCRServiceError, PaddleOCRClient
+        from opensearch_vl.paddle_ocr import OCRServiceError, PaddleOCRClient
 
         client = PaddleOCRClient.__new__(PaddleOCRClient)
         client.token = "test-only-token"
@@ -27,7 +27,7 @@ class PaddleOcrTest(unittest.TestCase):
                 os.environ["PADDLE_OCR_PROXY"] = previous
 
     def test_unknown_submission_outcome_blocks_automatic_reupload(self):
-        import paddle_ocr
+        from opensearch_vl import paddle_ocr
 
         self.assertTrue(hasattr(paddle_ocr, "assert_submission_safe"))
         root = Path("outputs/test-ocr-uncertain")
@@ -43,8 +43,7 @@ class PaddleOcrTest(unittest.TestCase):
             shutil.rmtree(root)
 
     def test_layout_blocks_use_the_author_text_label_filter(self):
-        self.assertIsNotNone(importlib.util.find_spec("paddle_ocr"))
-        from paddle_ocr import normalize_results
+        from opensearch_vl.paddle_ocr import normalize_results
 
         blocks = [{"block_label": "paragraph_title", "block_content": " Title "},
                   {"block_label": "text", "block_content": "Body"},
@@ -58,8 +57,7 @@ class PaddleOcrTest(unittest.TestCase):
         self.assertEqual(result["blocks"], blocks)
 
     def test_invalid_results_are_not_silently_empty_ocr(self):
-        self.assertIsNotNone(importlib.util.find_spec("paddle_ocr"))
-        from paddle_ocr import normalize_results
+        from opensearch_vl.paddle_ocr import normalize_results
 
         for invalid in ("", "[]", '{"error":"service failed"}',
                         '{"result":{"layoutParsingResults":[{}]}}',
@@ -68,8 +66,7 @@ class PaddleOcrTest(unittest.TestCase):
                 normalize_results(invalid)
 
     def test_private_and_non_https_download_urls_are_rejected(self):
-        self.assertIsNotNone(importlib.util.find_spec("paddle_ocr"))
-        from paddle_ocr import validate_result_url
+        from opensearch_vl.paddle_ocr import validate_result_url
 
         for url in ("http://example.com/x", "https://127.0.0.1/x", "https://localhost/x", "file:///etc/passwd"):
             with self.assertRaises(ValueError):

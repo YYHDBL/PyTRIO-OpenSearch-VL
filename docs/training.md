@@ -16,14 +16,14 @@
 先用 `audit_sft.py` 检查图片、模板、监督mask和长度，再运行训练。`model-dir` 指向本机 tokenizer / processor 目录：
 
 ```bash
-uv run python audit_sft.py \
+uv run python -m opensearch_vl.audit_sft \
   --model-dir data/models/Qwen3.5-4B \
   --data data/selected-seven-2048-v1/sft.jsonl \
   --image-root data/source/sft \
   --output-dir outputs/sft-audit-2048 \
   --max-seq-len 32768
 
-uv run python train_sft.py \
+uv run python -m opensearch_vl.train_sft \
   --model-dir data/models/Qwen3.5-4B \
   --data data/selected-seven-2048-v1/sft.jsonl \
   --image-root data/source/sft \
@@ -58,7 +58,7 @@ uv run python train_sft.py \
 
 ```bash
 # 默认只预检，不提交训练
-uv run python train_rl.py \
+uv run python -m opensearch_vl.train_rl \
   --output-dir outputs/rl-new \
   --selected-ids outputs/rl-selection-100-v1/train-ids.json \
   --validation-ids outputs/rl-selection-100-v1/validation-ids.json \
@@ -70,14 +70,14 @@ uv run python train_rl.py \
 ## 固定评测
 
 ```bash
-uv run python agent_baseline.py \
+uv run python -m opensearch_vl.agent_baseline \
   --data data/selected-eval100-v1/eval.jsonl \
   --output-dir outputs/eval-base \
   --max-context 65536 --max-tokens 32768 --max-turns 50 \
   --token-budget 25000000 --summary-token-budget 8000000 \
   --image-request-budget 800
 
-uv run python judge_baseline.py \
+uv run python -m opensearch_vl.judge_baseline \
   --results-dir outputs/eval-base --output-dir outputs/judge-base \
   --expected 100 --continue-on-error
 ```

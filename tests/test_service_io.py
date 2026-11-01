@@ -14,7 +14,7 @@ import httpx
 
 class ServiceIOTest(unittest.TestCase):
     def test_real_http_elapsed_is_saved(self):
-        from service_io import save_http_response
+        from opensearch_vl.service_io import save_http_response
 
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self):
@@ -43,8 +43,7 @@ class ServiceIOTest(unittest.TestCase):
             shutil.rmtree(root)
 
     def test_response_bytes_are_preserved_without_credentials(self):
-        self.assertIsNotNone(importlib.util.find_spec("service_io"))
-        from service_io import save_http_response
+        from opensearch_vl.service_io import save_http_response
 
         root = Path("outputs/test-service-io")
         self.assertFalse(root.exists())

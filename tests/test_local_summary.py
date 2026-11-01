@@ -8,7 +8,7 @@ import unittest
 
 class LocalSummaryTest(unittest.TestCase):
     def test_nonempty_length_limited_summary_matches_original_pytrio_behavior(self):
-        from local_summary import summary_text, LocalSummaryError
+        from opensearch_vl.local_summary import summary_text, LocalSummaryError
 
         body = {"model": "model", "choices": [{"finish_reason": "length", "message": {"content": "partial summary"}}]}
         self.assertEqual(summary_text(body, "model"), "partial summary")
@@ -26,7 +26,7 @@ class LocalSummaryTest(unittest.TestCase):
             summary_text(body, "different-model")
 
     def test_different_deployments_never_share_summary_cache_identity(self):
-        from local_summary import cache_identity
+        from opensearch_vl.local_summary import cache_identity
 
         first = {"model": "model", "base_url": "http://one/v1", "parameters": {"temperature": 0.3}}
         second = {**first, "base_url": "http://two/v1"}
@@ -35,8 +35,8 @@ class LocalSummaryTest(unittest.TestCase):
         self.assertEqual(cache_identity(first), cache_identity(dict(first)))
 
     def test_unknown_request_blocks_post_and_cannot_be_treated_as_zero_cost(self):
-        from local_summary import LocalSummaryClient, LocalSummaryError
-        from agent_tools import BudgetExhausted
+        from opensearch_vl.local_summary import LocalSummaryClient, LocalSummaryError
+        from opensearch_vl.agent_tools import BudgetExhausted
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)

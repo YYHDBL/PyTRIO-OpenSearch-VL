@@ -6,8 +6,7 @@ import unittest
 
 class BalancedSFTTest(unittest.TestCase):
     def features(self, replies):
-        self.assertIsNotNone(importlib.util.find_spec("select_balanced_sft"))
-        from select_balanced_sft import trajectory_features
+        from opensearch_vl.select_balanced_sft import trajectory_features
         return trajectory_features({"images": ["one.png"], "conversations": [
             {"from": "human", "value": "<image>question"},
             *({"from": "gpt", "value": r} for r in replies)]})
@@ -35,7 +34,6 @@ class BalancedSFTTest(unittest.TestCase):
         self.assertIsNone(self.features([call] * 3 + ['<response>answer</response>']))
 
     def test_question_decontamination_removes_only_the_known_image_metadata_prefix(self):
-        self.assertIsNotNone(importlib.util.find_spec("select_balanced_sft"))
-        from select_balanced_sft import normalized_question
+        from opensearch_vl.select_balanced_sft import normalized_question
         self.assertEqual(normalized_question("<image>\nimage_id: img_1 Question: Which city?"),
                          normalized_question("Which city?"))

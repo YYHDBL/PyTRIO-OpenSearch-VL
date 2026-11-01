@@ -8,7 +8,7 @@ import unittest
 
 class JudgeIsolationTest(unittest.TestCase):
     def test_unconfirmed_score_defers_one_item_but_keeps_other_scores(self):
-        from judge_baseline import judge_records
+        from opensearch_vl.judge_baseline import judge_records
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)

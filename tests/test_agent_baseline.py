@@ -16,9 +16,9 @@ class BaselineTest(unittest.TestCase):
         import json
         from pathlib import Path
         import shutil
-        import agent_baseline
-        from agent_tools import ToolEnvironment, model_image_bytes
-        from doubao_image import ENDPOINT
+        from opensearch_vl import agent_baseline
+        from opensearch_vl.agent_tools import ToolEnvironment, model_image_bytes
+        from opensearch_vl.doubao_image import ENDPOINT
 
         self.assertTrue(hasattr(agent_baseline, "run_questions"))
         root = Path("outputs/test-question-isolation")
@@ -77,7 +77,7 @@ class BaselineTest(unittest.TestCase):
         from pathlib import Path
         from types import SimpleNamespace
         import pytrio as trio
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         tree = ast.parse(Path(agent_baseline.__file__).read_text())
         assignment = next(node for node in ast.walk(tree) if isinstance(node, ast.Assign)
@@ -91,8 +91,7 @@ class BaselineTest(unittest.TestCase):
                 self.fail(f"评测入口未满足实际 SDK 的 sampler 参数契约：{error}")
 
     def test_tool_calls_and_final_answers_are_distinguished(self):
-        self.assertIsNotNone(importlib.util.find_spec("agent_baseline"))
-        from agent_baseline import parse_action
+        from opensearch_vl.agent_baseline import parse_action
 
         self.assertEqual(
             parse_action('<think>Check</think><tool_call>{"name":"text_search","arguments":{"q":"bridge"}}</tool_call>'),
@@ -103,19 +102,19 @@ class BaselineTest(unittest.TestCase):
             parse_action('<tool_call>{"name": "missing"}</tool_call>')
 
     def test_tool_call_text_inside_reasoning_is_not_executed(self):
-        from agent_baseline import parse_action
+        from opensearch_vl.agent_baseline import parse_action
 
         self.assertIsNone(parse_action('<think>Example <tool_call>{"name":"text_search","arguments":{"q":"x"}}</tool_call></think><response>Done</response>'))
 
     def test_final_answer_is_extracted_without_reasoning(self):
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         self.assertTrue(hasattr(agent_baseline, "final_answer"))
         self.assertEqual(agent_baseline.final_answer('<think>secret</think><response>BRUVIK</response>'), "BRUVIK")
         self.assertEqual(agent_baseline.final_answer('<think>unfinished'), "")
 
     def test_original_image_dimensions_are_preserved_for_crop(self):
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         self.assertTrue(hasattr(agent_baseline, "model_image_bytes"))
         image = Image.new("RGB", (1600, 100))
@@ -126,7 +125,7 @@ class BaselineTest(unittest.TestCase):
     def test_repeated_identical_searches_use_disk_cache(self):
         from pathlib import Path
         import shutil
-        import agent_tools
+        from opensearch_vl import agent_tools
 
         root = Path("outputs/test-tool-cache")
         self.assertFalse(root.exists())
@@ -144,8 +143,7 @@ class BaselineTest(unittest.TestCase):
             shutil.rmtree(root)
 
     def test_judge_format_errors_do_not_count_as_incorrect(self):
-        self.assertIsNotNone(importlib.util.find_spec("judge_baseline"))
-        from judge_baseline import parse_judge_response
+        from opensearch_vl.judge_baseline import parse_judge_response
 
         self.assertTrue(parse_judge_response("correct: yes\nreasoning: same answer"))
         self.assertFalse(parse_judge_response("correct: no\nreasoning: wrong entity"))
@@ -155,7 +153,7 @@ class BaselineTest(unittest.TestCase):
     def test_crop_preserves_actual_pixel_bounds(self):
         from pathlib import Path
         import shutil
-        from agent_tools import ToolEnvironment, model_image_bytes
+        from opensearch_vl.agent_tools import ToolEnvironment, model_image_bytes
 
         root = Path("outputs/test-crop")
         self.assertFalse(root.exists())
@@ -175,7 +173,7 @@ class BaselineTest(unittest.TestCase):
     def test_halted_protocol_run_cannot_resume(self):
         from pathlib import Path
         import shutil
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         self.assertTrue(hasattr(agent_baseline, "assert_run_allowed"))
         root = Path("outputs/test-halted-run")
@@ -189,7 +187,7 @@ class BaselineTest(unittest.TestCase):
             shutil.rmtree(root)
 
     def test_all_author_tool_names_are_accepted(self):
-        from agent_baseline import parse_action
+        from opensearch_vl.agent_baseline import parse_action
 
         for name in ("crop", "image_search", "text_search", "web_search", "layout_parsing",
                      "sharpen", "perspective_correct", "super_resolution"):
@@ -198,7 +196,7 @@ class BaselineTest(unittest.TestCase):
 
     def test_author_system_includes_all_declared_tools_without_rewrite(self):
         import json
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         self.assertTrue(hasattr(agent_baseline, "author_system"))
         names = ("crop", "layout_parsing", "web_search", "image_search", "text_search",
@@ -212,7 +210,7 @@ class BaselineTest(unittest.TestCase):
             agent_baseline.author_system([row, {**row, "system": "Different"}])
 
     def test_model_images_keep_png_and_original_dimensions(self):
-        from agent_tools import model_image_bytes
+        from opensearch_vl.agent_tools import model_image_bytes
 
         raw = model_image_bytes(Image.new("RGB", (1600, 100)))
         with Image.open(io.BytesIO(raw)) as opened:
@@ -223,7 +221,7 @@ class BaselineTest(unittest.TestCase):
         from pathlib import Path
         import shutil
         import numpy as np
-        from agent_tools import ToolEnvironment, model_image_bytes
+        from opensearch_vl.agent_tools import ToolEnvironment, model_image_bytes
 
         root = Path("outputs/test-image-enhancement")
         self.assertFalse(root.exists())
@@ -253,7 +251,7 @@ class BaselineTest(unittest.TestCase):
             shutil.rmtree(root)
 
     def test_text_summary_prompt_matches_author_fields_and_content_limit(self):
-        import agent_tools
+        from opensearch_vl import agent_tools
 
         self.assertTrue(hasattr(agent_tools, "text_summary_prompt"))
         prompt = agent_tools.text_summary_prompt("A" * 2001, "bridge", "Title")
@@ -266,7 +264,7 @@ class BaselineTest(unittest.TestCase):
         import json
         from pathlib import Path
         import shutil
-        import agent_tools
+        from opensearch_vl import agent_tools
 
         root = Path("outputs/test-bailian-usage")
         shutil.rmtree(root, ignore_errors=True)
@@ -300,7 +298,7 @@ class BaselineTest(unittest.TestCase):
         import httpx as httpx_module
         from pathlib import Path
         import shutil
-        import agent_tools
+        from opensearch_vl import agent_tools
 
         root = Path("outputs/test-connect-retry")
         shutil.rmtree(root, ignore_errors=True)

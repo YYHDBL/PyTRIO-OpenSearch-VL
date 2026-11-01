@@ -9,11 +9,11 @@ import numpy as np
 import pytrio as trio
 from dotenv import load_dotenv
 
-from agent_baseline import ROOT
-from rl_prepare import build_datum
-from rl_rollout import load_prompt
-from service_io import write_json
-from train_sft import remote_operation
+from .agent_baseline import ROOT
+from .rl_prepare import build_datum
+from .rl_rollout import load_prompt
+from .service_io import write_json
+from .train_sft import remote_operation
 
 
 def compare_logprobs(before, restored, sampled):

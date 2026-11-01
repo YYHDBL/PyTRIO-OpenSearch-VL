@@ -18,14 +18,13 @@ from dotenv import load_dotenv
 from pytrio.types.forward.forward_backward_output import ForwardBackwardOutput
 from transformers import AutoImageProcessor, AutoTokenizer
 
-from agent_baseline import sample_prompt
-from agent_tools import model_image_bytes
+from .agent_baseline import CODE_ROOT, ROOT, sample_prompt
+from .agent_tools import model_image_bytes
 from PIL import Image
-from protocol import TEMPLATE_PATH, build_sft_datum, system_with_tools
-from service_io import write_json
+from .protocol import TEMPLATE_PATH, build_sft_datum, system_with_tools
+from .service_io import write_json
 
 
-ROOT = Path(__file__).resolve().parent
 
 
 def checkpoint_schedule(steps: int, interval: int) -> list[int]:
@@ -206,7 +205,7 @@ def run(args) -> None:
     data_hash = hashlib.sha256(args.data.read_bytes()).hexdigest()
     if not audit["cpu_audit_passed"] or audit["data_sha256"] != data_hash:
         raise ValueError("SFT 数据与已通过的 CPU 审计不一致")
-    if hashlib.sha256((ROOT / "protocol.py").read_bytes()).hexdigest() != audit["protocol_sha256"] or hashlib.sha256(TEMPLATE_PATH.read_bytes()).hexdigest() != audit["template_sha256"]:
+    if hashlib.sha256((CODE_ROOT / "protocol.py").read_bytes()).hexdigest() != audit["protocol_sha256"] or hashlib.sha256(TEMPLATE_PATH.read_bytes()).hexdigest() != audit["template_sha256"]:
         raise ValueError("图文转换或模板已改变，必须重新审计")
     for name, expected in audit["model_files_sha256"].items():
         if hashlib.sha256((args.model_dir / name).read_bytes()).hexdigest() != expected:

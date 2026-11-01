@@ -15,15 +15,15 @@ from dotenv import load_dotenv
 from pytrio.errors.actor import ActorError
 from transformers import AutoImageProcessor
 
-from agent_baseline import ROOT, TokenBudget, author_system
-from agent_tools import ToolEnvironment, ToolError
-from judge_baseline import parse_judge_response
-from rl_diagnostic import author_prompts, judge_request, parse_score, reward_parts, trajectory_summary
-from rl_loss import make_ppo_loss
-from rl_prepare import build_trajectory_datums, rloo_advantages
-from rl_rollout import dump_prompt, load_prompt, run_rollout
-from service_io import write_json
-from train_sft import remote_operation
+from .agent_baseline import CODE_ROOT, ROOT, TokenBudget, author_system
+from .agent_tools import ToolEnvironment, ToolError
+from .judge_baseline import parse_judge_response
+from .rl_diagnostic import author_prompts, judge_request, parse_score, reward_parts, trajectory_summary
+from .rl_loss import make_ppo_loss
+from .rl_prepare import build_trajectory_datums, rloo_advantages
+from .rl_rollout import dump_prompt, load_prompt, run_rollout
+from .service_io import write_json
+from .train_sft import remote_operation
 
 
 def validate_selection(selected, available, smoke):
@@ -186,7 +186,7 @@ def main():
                        "weight_decay": 0.01, "grad_clip_norm": 1.0},
               "judge": os.environ["JUDGE_MODEL"], "system_sha256": hashlib.sha256(system.encode()).hexdigest(),
               "prompts_sha256": hashlib.sha256(json.dumps(prompts).encode()).hexdigest(),
-              "code_sha256": {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in
+              "code_sha256": {n: hashlib.sha256((CODE_ROOT / n).read_bytes()).hexdigest() for n in
                               ["train_rl.py", "rl_loss.py", "rl_prepare.py", "rl_rollout.py", "rl_diagnostic.py", "agent_tools.py", "agent_baseline.py"]}}
     config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
     inspect.signature(trio.TrainingClient.forward_backward_custom).bind(None, data=[], loss_fn=lambda *_: None)

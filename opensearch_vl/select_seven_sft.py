@@ -8,8 +8,8 @@ import json
 from pathlib import Path
 import random
 
-from agent_tools import SUPPORTED_TOOLS
-from select_experiment_data import CALL, ROOT, SEED, image_hash, key, sft_data, write_jsonl
+from .agent_tools import SUPPORTED_TOOLS
+from .select_experiment_data import CALL, ROOT, SEED, image_hash, key, sft_data, write_jsonl
 
 
 def main() -> None:

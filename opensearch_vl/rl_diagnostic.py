@@ -17,11 +17,11 @@ from dotenv import load_dotenv
 from pytrio.errors.actor import ActorError
 from transformers import AutoImageProcessor
 
-from agent_baseline import ROOT, TokenBudget, SummaryServiceError, author_system, run_question
-from agent_tools import BudgetExhausted, ToolEnvironment, ToolError
-from judge_baseline import parse_judge_response
-from service_io import save_http_response, write_json
-from local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
+from .agent_baseline import CODE_ROOT, ROOT, TokenBudget, SummaryServiceError, author_system, run_question
+from .agent_tools import BudgetExhausted, ToolEnvironment, ToolError
+from .judge_baseline import parse_judge_response
+from .service_io import save_http_response, write_json
+from .local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
 
 
 class JudgeQuotaExhausted(RuntimeError):
@@ -205,13 +205,13 @@ def main():
                   "data_sha256": hashlib.sha256(data.read_bytes()).hexdigest(),
                   "system_sha256": hashlib.sha256(system.encode()).hexdigest(), "judge": judge_config,
                   "accuracy_prompt": accuracy_prompt, "query_prompt": query_prompt,
-                  "code_sha256": {n: hashlib.sha256((ROOT / n).read_bytes()).hexdigest() for n in
+                  "code_sha256": {n: hashlib.sha256((CODE_ROOT / n).read_bytes()).hexdigest() for n in
                                   ["rl_diagnostic.py", "agent_baseline.py", "agent_tools.py", "doubao_image.py", "deepseek_search.py", "paddle_ocr.py", "service_io.py", "protocol.py"]}}
         if selected is not None:
             config["selected_ids"] = [row["sample_id"] for _, row in indexed_rows]
         if args.summary_backend == "local":
             config["summary_provider"] = local_summary_configuration()
-            config["code_sha256"]["local_summary.py"] = hashlib.sha256((ROOT / "local_summary.py").read_bytes()).hexdigest()
+            config["code_sha256"]["local_summary.py"] = hashlib.sha256((CODE_ROOT / "local_summary.py").read_bytes()).hexdigest()
         config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
         cp = args.output_dir / "config.json"
         if cp.exists() and json.loads(cp.read_text()) != config:

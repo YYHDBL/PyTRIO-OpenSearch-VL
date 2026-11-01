@@ -11,8 +11,8 @@ import numpy as np
 
 class SftAuditTest(unittest.TestCase):
     def test_tool_filter_accepts_seven_tool_actions_and_rejects_unknown_actions(self):
-        import select_experiment_data
-        from agent_tools import SUPPORTED_TOOLS
+        from opensearch_vl import select_experiment_data
+        from opensearch_vl.agent_tools import SUPPORTED_TOOLS
 
         self.assertTrue(hasattr(select_experiment_data, "supported_calls"))
         for name in SUPPORTED_TOOLS:
@@ -21,7 +21,7 @@ class SftAuditTest(unittest.TestCase):
         self.assertFalse(select_experiment_data.supported_calls([], SUPPORTED_TOOLS))
 
     def test_separate_tool_schema_is_included_without_rewriting_system(self):
-        from protocol import build_messages
+        from opensearch_vl.protocol import build_messages
 
         tool = {"type": "function", "function": {"name": "crop", "parameters": {"type": "object"}}}
         row = {"system": "Original author instructions", "tools": json.dumps([tool]),
@@ -35,8 +35,7 @@ class SftAuditTest(unittest.TestCase):
         self.assertEqual(json.loads(definitions[0]), tool)
 
     def test_shift_and_mask_corruption_are_rejected(self):
-        self.assertIsNotNone(importlib.util.find_spec("audit_sft"))
-        from audit_sft import validate_arrays
+        from opensearch_vl.audit_sft import validate_arrays
 
         tokens = np.array([10, 11, 12, 13])
         supervised = np.array([0, 1, 0, 1])

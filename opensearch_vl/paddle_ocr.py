@@ -14,7 +14,7 @@ from urllib.parse import urlsplit
 import httpx
 from PIL import Image
 
-from service_io import save_http_response, write_private
+from .service_io import save_http_response, write_private
 
 
 class OCRServiceError(RuntimeError):

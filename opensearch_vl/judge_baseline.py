@@ -14,9 +14,9 @@ import time
 from dotenv import load_dotenv
 import httpx
 
-from agent_baseline import ROOT, write_json
-from service_io import save_http_response
-from answer_extraction import evaluation_response
+from .agent_baseline import CODE_ROOT, ROOT, write_json
+from .service_io import save_http_response
+from .answer_extraction import evaluation_response
 
 
 # 来自 OpenSearch-VL eval_with_gpt4o.py；仅更换调用接口与裁判模型。
@@ -174,7 +174,7 @@ def main() -> None:
               "protocol": "anthropic", "temperature": 0, "max_tokens": 1024,
               "prompt_sha256": hashlib.sha256(JUDGE_PROMPT.encode()).hexdigest(),
               "answer_extraction_protocol": "OpenSearch-VL-1ac26e2-full-trajectory",
-              "answer_extraction_sha256": hashlib.sha256((ROOT / "answer_extraction.py").read_bytes()).hexdigest()}
+              "answer_extraction_sha256": hashlib.sha256((CODE_ROOT / "answer_extraction.py").read_bytes()).hexdigest()}
     config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
     args.output_dir.mkdir(parents=True, exist_ok=True)
     config_path = args.output_dir / "config.json"

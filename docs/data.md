@@ -20,7 +20,7 @@
 
 最终100题从200题候选池按固定种子42分层抽取：SimpleVQA、InfoSeek、VDR各20题，FVQA、MMSearch、LiveVQA、BrowseComp-VL各10题；BrowseComp-VL中Level 1/2为3/7。完整ID和抽样方式见[冻结清单](evidence/eval100-v1-manifest.json)。最终文件放在 `data/selected-eval100-v1/eval.jsonl`，SHA-256为 `9f2f0e3d9117defccccff5a78eaa05099bdd78b3e489eb0540953900e1f5a6f1`。当前仓库没有将这一步的一次性抽样过程封装成独立CLI；复用已发布清单重建时需验证哈希。
 
-`select_balanced_sft.py --model-dir <tokenizer目录>` 从公开轨迹筛选2,048条，检索 / 裁剪或OCR / 图像增强约60% / 30% / 10%。检查实际工具动作、完整结束、重复动作、图片、token长度和assistant-only mask；使用种子42，输出 `data/selected-seven-2048-v1/sft.jsonl`。筛选依赖初始七工具数据和审计结果，需先执行 `select_seven_sft.py` 与 `audit_sft.py`，审计输出放在 `outputs/sft-audit-seven-v1/`。[分布](evidence/sft2048-v1-manifest.json)和[CPU审计](evidence/sft-audit-2048-v1.json)保留聚合记录。
+`python -m opensearch_vl.select_balanced_sft --model-dir <tokenizer目录>` 从公开轨迹筛选2,048条，检索 / 裁剪或OCR / 图像增强约60% / 30% / 10%。检查实际工具动作、完整结束、重复动作、图片、token长度和assistant-only mask；使用种子42，输出 `data/selected-seven-2048-v1/sft.jsonl`。筛选依赖初始七工具数据和审计结果，需先通过 `python -m opensearch_vl.select_seven_sft` 与 `python -m opensearch_vl.audit_sft` 准备，审计输出放在 `outputs/sft-audit-seven-v1/`。[分布](evidence/sft2048-v1-manifest.json)和[CPU审计](evidence/sft-audit-2048-v1.json)保留聚合记录。
 
 RL先对128道候选各采样4次，按完整题组、奖励和题面 / 图片去重后，整理100道训练题与16道开发验证题。[选题记录](evidence/rl-selection-100-v1.json)列出来源和分布；训练入口读取执行机器上的 `train-ids.json` 与 `validation-ids.json`，诊断轨迹不用于参数更新。该次划分依赖已有诊断结果，不是下载数据后直接得到的通用划分。
 

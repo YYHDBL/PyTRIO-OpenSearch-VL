@@ -10,8 +10,7 @@ from PIL import Image
 
 class DoubaoImageTest(unittest.TestCase):
     def test_base64_payload_uses_visual_and_keeps_original_image_bytes(self):
-        self.assertIsNotNone(importlib.util.find_spec("doubao_image"))
-        from doubao_image import image_search_payload
+        from opensearch_vl.doubao_image import image_search_payload
 
         stream = io.BytesIO()
         Image.new("RGB", (8, 8)).save(stream, format="PNG")
@@ -24,8 +23,7 @@ class DoubaoImageTest(unittest.TestCase):
         self.assertNotIn("Url", payload["ImageQuery"])
 
     def test_private_urls_and_invalid_counts_are_rejected(self):
-        self.assertIsNotNone(importlib.util.find_spec("doubao_image"))
-        from doubao_image import image_search_payload
+        from opensearch_vl.doubao_image import image_search_payload
 
         for url in ("file:///etc/passwd", "https://127.0.0.1/image.png", "http://localhost/image.png",
                     "https://user:password@example.org/image.png"):
@@ -36,8 +34,7 @@ class DoubaoImageTest(unittest.TestCase):
                 image_search_payload("https://example.org/image.png", count)
 
     def test_api_errors_are_not_treated_as_empty_searches(self):
-        self.assertIsNotNone(importlib.util.find_spec("doubao_image"))
-        from doubao_image import DoubaoImageError, parse_search_response
+        from opensearch_vl.doubao_image import DoubaoImageError, parse_search_response
 
         for body in ({}, [], {"ResponseMetadata": {"RequestId": "id", "Error": {"Code": "10403"}}, "Result": None},
                      {"ResponseMetadata": {"RequestId": "id"}, "Result": {"ErrorCode": 10412}},
@@ -46,8 +43,7 @@ class DoubaoImageTest(unittest.TestCase):
                 parse_search_response(body)
 
     def test_valid_empty_results_are_preserved(self):
-        self.assertIsNotNone(importlib.util.find_spec("doubao_image"))
-        from doubao_image import parse_search_response
+        from opensearch_vl.doubao_image import parse_search_response
 
         result = parse_search_response({"ResponseMetadata": {"RequestId": "id"},
                                         "Result": {"ErrorCode": 0, "TotalDocCount": 0, "Documents": []}})
@@ -55,7 +51,7 @@ class DoubaoImageTest(unittest.TestCase):
         self.assertEqual(result["request_id"], "id")
 
     def test_observed_empty_engine_response_preserves_the_original_code(self):
-        from doubao_image import DoubaoImageError, parse_search_response
+        from opensearch_vl.doubao_image import DoubaoImageError, parse_search_response
 
         body = {"ResponseMetadata": {"RequestId": "id"}, "Result": {"ErrorCode": 500,
                 "TotalDocCount": 0, "Documents": None,
@@ -69,7 +65,7 @@ class DoubaoImageTest(unittest.TestCase):
         self.assertEqual(result["response_kind"], "empty_search")
 
     def test_other_500_errors_are_not_converted_to_no_matches(self):
-        from doubao_image import DoubaoImageError, parse_search_response
+        from opensearch_vl.doubao_image import DoubaoImageError, parse_search_response
 
         with self.assertRaises(DoubaoImageError):
             parse_search_response({"ResponseMetadata": {"RequestId": "id"},

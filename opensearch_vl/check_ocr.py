@@ -9,12 +9,12 @@ import time
 
 from dotenv import load_dotenv
 
-from agent_tools import ToolEnvironment
-from paddle_ocr import PaddleOCRClient
+from .agent_tools import ToolEnvironment
+from .paddle_ocr import PaddleOCRClient
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--image", type=Path)
     parser.add_argument("--output", type=Path, default=root / "outputs/ocr-smoke-v1.json")

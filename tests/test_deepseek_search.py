@@ -6,8 +6,7 @@ import unittest
 
 class DeepSeekSearchTest(unittest.TestCase):
     def test_query_and_result_count_are_checked_without_truncation(self):
-        self.assertIsNotNone(importlib.util.find_spec("deepseek_search"))
-        from deepseek_search import search_payload
+        from opensearch_vl.deepseek_search import search_payload
 
         for query, count in (("", 5), (" " * 3, 5), ("中" * 129, 5), ("query", 0), ("query", True)):
             with self.assertRaises(ValueError):
@@ -16,8 +15,7 @@ class DeepSeekSearchTest(unittest.TestCase):
         self.assertEqual(search_payload(query, 5)["query"], query)
 
     def test_malformed_response_is_a_service_failure(self):
-        self.assertIsNotNone(importlib.util.find_spec("deepseek_search"))
-        from deepseek_search import DeepSeekServiceError, parse_fetch, parse_search
+        from opensearch_vl.deepseek_search import DeepSeekServiceError, parse_fetch, parse_search
 
         for response in ({}, [], {"results": ["invalid"]}, {"results": [{"title": "x"}]}):
             with self.assertRaises(DeepSeekServiceError):

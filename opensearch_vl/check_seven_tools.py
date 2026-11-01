@@ -14,9 +14,9 @@ from PIL import Image
 import pytrio as trio
 from transformers import AutoImageProcessor, AutoTokenizer
 
-from agent_baseline import ROOT, TokenBudget, author_system, sample_prompt
-from agent_tools import ToolEnvironment, model_image_bytes
-from protocol import IMAGE_MARKER, IMAGE_PAD, TEMPLATE_PATH, build_messages
+from .agent_baseline import ROOT, TokenBudget, author_system, sample_prompt
+from .agent_tools import ToolEnvironment, model_image_bytes
+from .protocol import IMAGE_MARKER, IMAGE_PAD, TEMPLATE_PATH, build_messages
 
 
 def check_prompt(rows: list[dict], tokenizer, processor) -> dict:

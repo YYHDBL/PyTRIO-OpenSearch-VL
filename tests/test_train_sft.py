@@ -10,7 +10,7 @@ import numpy as np
 import pytrio as trio
 from pytrio.types import TensorData
 
-import train_sft
+from opensearch_vl import train_sft
 
 
 class TrainSFTTest(unittest.TestCase):

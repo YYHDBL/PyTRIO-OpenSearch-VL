@@ -16,8 +16,8 @@ import torch
 
 class RLAdapterTest(unittest.TestCase):
     def test_account_quota_stops_instead_of_discarding_remaining_training_tasks(self):
-        from rl_diagnostic import JudgeQuotaExhausted, raise_on_judge_quota
-        from train_rl import collect_group
+        from opensearch_vl.rl_diagnostic import JudgeQuotaExhausted, raise_on_judge_quota
+        from opensearch_vl.train_rl import collect_group
 
         raise_on_judge_quota({"error": {"code": "1302", "message": "普通请求限流"}})
         root = Path(__file__).resolve().parent / "outputs"
@@ -30,7 +30,7 @@ class RLAdapterTest(unittest.TestCase):
             self.assertFalse((path / "q.skipped.json").exists())
 
     def test_tool_budget_is_run_scoped_and_survives_resume_without_erasing_history(self):
-        from agent_tools import ToolEnvironment, BudgetExhausted
+        from opensearch_vl.agent_tools import ToolEnvironment, BudgetExhausted
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)
@@ -56,7 +56,7 @@ class RLAdapterTest(unittest.TestCase):
             self.assertEqual(ToolEnvironment(cache).ledger, history)
 
     def test_selected_complete_groups_do_not_require_failed_unselected_tasks(self):
-        from train_rl import validate_diagnostic_selection
+        from opensearch_vl.train_rl import validate_diagnostic_selection
 
         diagnostic = {"complete": False, "groups": {
             "ready": {"complete": True, "scored": 4},
@@ -71,8 +71,8 @@ class RLAdapterTest(unittest.TestCase):
             validate_diagnostic_selection(["ready"], diagnostic)
 
     def test_service_failure_skips_whole_group_and_preserves_pending(self):
-        from rl_diagnostic import judge_request, parse_score
-        from train_rl import collect_group
+        from opensearch_vl.rl_diagnostic import judge_request, parse_score
+        from opensearch_vl.train_rl import collect_group
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)
@@ -96,9 +96,9 @@ class RLAdapterTest(unittest.TestCase):
                 collect_group("q", "different-policy", path, collect)
 
     def test_budget_and_programming_errors_are_not_skipped_as_service_failures(self):
-        from agent_baseline import TokenBudget
-        from agent_tools import BudgetExhausted
-        from train_rl import collect_group
+        from opensearch_vl.agent_baseline import TokenBudget
+        from opensearch_vl.agent_tools import BudgetExhausted
+        from opensearch_vl.train_rl import collect_group
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)
@@ -112,14 +112,14 @@ class RLAdapterTest(unittest.TestCase):
                 collect_group("q", "policy", path, lambda replica: int("invalid"))
 
     def test_update_count_uses_operation_type_not_filename_substring(self):
-        from train_rl import count_optimizer_updates
+        from opensearch_vl.train_rl import count_optimizer_updates
 
         self.assertEqual(count_optimizer_updates([
             {"operation": "update"}, {"operation": "live-after-update"},
             {"operation": "save-state"}]), 1)
 
     def test_actor_recomputation_preserves_sampling_logprobs_separately(self):
-        from train_rl import actor_metadata_from_response
+        from opensearch_vl.train_rl import actor_metadata_from_response
 
         meta = {"start": 1, "old": [-0.7, -0.8], "advantage": 0.3, "normalizer": 1}
         response = {"loss_fn_outputs": [{"logprobs": {"data": [0., -0.71, -0.82]}}]}
@@ -131,7 +131,7 @@ class RLAdapterTest(unittest.TestCase):
             actor_metadata_from_response({"loss_fn_outputs": [{"logprobs": {"data": [0.]}}]}, meta)
 
     def test_actor_recomputation_is_before_every_backward_and_optimizer(self):
-        path = Path(__file__).resolve().parent.parent / "train_rl.py"
+        path = Path(__file__).resolve().parent.parent / "opensearch_vl/train_rl.py"
         tree = ast.parse(path.read_text())
         loop = next(node for node in ast.walk(tree) if isinstance(node, ast.If)
                     and isinstance(node.test, ast.Name) and node.test.id == "updated")
@@ -145,7 +145,7 @@ class RLAdapterTest(unittest.TestCase):
         self.assertLess(operations.index("backward"), operations.index("update"))
 
     def test_checkpoint_verification_requires_matching_backends_and_real_change(self):
-        from verify_rl_smoke import compare_logprobs
+        from opensearch_vl.verify_rl_smoke import compare_logprobs
 
         result = compare_logprobs([-1., -2.], [-1.01, -2.02], [-1.015, -2.025])
         self.assertTrue(result["weight_effect_observed"])
@@ -156,7 +156,7 @@ class RLAdapterTest(unittest.TestCase):
             compare_logprobs([-1.], [-1., -2.], [-1.])
 
     def test_smoke_is_limited_to_two_tasks_and_one_batch(self):
-        import train_rl
+        from opensearch_vl import train_rl
 
         self.assertTrue(hasattr(train_rl, "validate_selection"))
         available = {"a", "b", "c", "d"}
@@ -170,7 +170,7 @@ class RLAdapterTest(unittest.TestCase):
 
     def test_image_prompt_survives_json_roundtrip(self):
         import json
-        from rl_rollout import dump_prompt, load_prompt
+        from opensearch_vl.rl_rollout import dump_prompt, load_prompt
 
         stream = io.BytesIO()
         Image.new("RGB", (8, 8), "red").save(stream, format="PNG")
@@ -180,7 +180,7 @@ class RLAdapterTest(unittest.TestCase):
         self.assertEqual(restored, prompt)
 
     def test_rloo_matches_actual_author_function(self):
-        from rl_prepare import rloo_advantages
+        from opensearch_vl.rl_prepare import rloo_advantages
 
         path = Path(__file__).resolve().parents[2] / "opensearch-vl/RL/rllm/verl/verl/trainer/ppo/core_algos.py"
         if not path.exists():
@@ -199,14 +199,14 @@ class RLAdapterTest(unittest.TestCase):
         np.testing.assert_allclose(rloo_advantages(values, [False] * 4), expected[:, 0].numpy())
 
     def test_training_group_rejects_mixed_policy_versions(self):
-        from train_rl import group_training_data
+        from opensearch_vl.train_rl import group_training_data
 
         with self.assertRaises(ValueError):
             group_training_data([{"policy_id": p} for p in ["a", "a", "a", "b"]], [{}] * 4,
                                 "seq-mean-token-sum")
 
     def test_empty_fatal_trajectories_still_have_group_statistics_but_no_datums(self):
-        from train_rl import group_training_data
+        from opensearch_vl.train_rl import group_training_data
 
         records = [{"policy_id": "a", "trace": [], "termination": "context_limit"} for _ in range(4)]
         scores = [{"fatal_start": None, "reward": 0.} for _ in range(4)]

@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 from transformers import AutoImageProcessor, AutoTokenizer
 
-from protocol import IMAGE_PAD, TEMPLATE_PATH, build_messages, build_sft_datum
+from .protocol import IMAGE_PAD, TEMPLATE_PATH, build_messages, build_sft_datum
 
 
 def validate_arrays(tokens, supervised, targets, weights, input_length: int) -> None:
@@ -124,8 +124,8 @@ def audit_row(row: dict, tokenizer, processor, image_root: Path) -> dict:
 
 
 def compare_remote_lengths(tokenizer, processor, baseline_dir: Path, eval_path: Path) -> dict:
-    from agent_baseline import LEGACY_SYSTEM, sample_prompt
-    from agent_tools import model_image_bytes
+    from .agent_baseline import LEGACY_SYSTEM, sample_prompt
+    from .agent_tools import model_image_bytes
 
     evaluation = {row["sample_id"]: row for row in map(json.loads, eval_path.open())}
     checked, mismatches = 0, []
@@ -195,7 +195,7 @@ def main() -> None:
                "remote_lengths_passed": remote["checked_first_turns"] > 0 and not remote["mismatches"],
                "data_sha256": hashlib.sha256(args.data.read_bytes()).hexdigest(),
                "template_sha256": hashlib.sha256(TEMPLATE_PATH.read_bytes()).hexdigest(),
-               "protocol_sha256": hashlib.sha256(Path("protocol.py").read_bytes()).hexdigest(),
+               "protocol_sha256": hashlib.sha256(Path(__file__).with_name("protocol.py").read_bytes()).hexdigest(),
                "model_files_sha256": model_files,
                "versions": {name: version(name) for name in ("transformers", "pytrio", "numpy", "pillow")},
                "processor": {"class": type(processor).__name__, "size": dict(processor.size),

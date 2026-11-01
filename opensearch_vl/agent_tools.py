@@ -15,9 +15,9 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from doubao_image import DoubaoImageClient, DoubaoImageError
-from deepseek_search import DeepSeekPageUnavailable, DeepSeekSearchClient, DeepSeekServiceError
-from paddle_ocr import OCRServiceError, PaddleOCRClient
+from .doubao_image import DoubaoImageClient, DoubaoImageError
+from .deepseek_search import DeepSeekPageUnavailable, DeepSeekSearchClient, DeepSeekServiceError
+from .paddle_ocr import OCRServiceError, PaddleOCRClient
 
 
 SUPPORTED_TOOLS = {"crop", "layout_parsing", "web_search", "image_search", "text_search",

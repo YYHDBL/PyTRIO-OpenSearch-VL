@@ -12,14 +12,14 @@ from PIL import Image
 import pytrio as trio
 from transformers import AutoImageProcessor
 
-from service_io import write_json
+from .service_io import write_json
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
-    root = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parent.parent
     load_dotenv(root / ".env")
     for key in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "ALL_PROXY", "all_proxy"):
         os.environ.pop(key, None)

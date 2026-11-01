@@ -4,10 +4,10 @@ import json
 from pathlib import Path
 import statistics
 
-from service_io import write_json
+from .service_io import write_json
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def mean_parts(scores):

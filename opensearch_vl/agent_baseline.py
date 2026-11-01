@@ -19,14 +19,15 @@ from dotenv import load_dotenv
 from PIL import Image
 from transformers import AutoImageProcessor
 
-from agent_tools import BudgetExhausted, SUPPORTED_TOOLS, ToolEnvironment, ToolError, model_image_bytes
-from doubao_image import ENDPOINT as IMAGE_SEARCH_ENDPOINT
-from answer_extraction import evaluation_response
-from protocol import IMAGE_MARKER, system_with_tools
-from local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
+from .agent_tools import BudgetExhausted, SUPPORTED_TOOLS, ToolEnvironment, ToolError, model_image_bytes
+from .doubao_image import ENDPOINT as IMAGE_SEARCH_ENDPOINT
+from .answer_extraction import evaluation_response
+from .protocol import IMAGE_MARKER, system_with_tools
+from .local_summary import LocalSummaryClient, cache_identity, configuration as local_summary_configuration
 
 
-ROOT = Path(__file__).resolve().parent
+CODE_ROOT = Path(__file__).resolve().parent
+ROOT = CODE_ROOT.parent
 # 仅供复核已停止的三工具批次；新的评测从 SFT 数据读取作者 system 和工具定义。
 LEGACY_SYSTEM = """You are a Visual Investigation Agent. Answer the user's image question accurately.
 Identify uncertain visual entities with image_search and verify external facts with text_search.
@@ -388,16 +389,16 @@ def main() -> None:
                   "web_provider": "deepseek-search-fetch",
                   "network_route": "direct",
                   "data_sha256": hashlib.sha256(args.data.read_bytes()).hexdigest(),
-                  "code_sha256": hashlib.sha256(Path(__file__).read_bytes() + (ROOT / "agent_tools.py").read_bytes()
-                                                 + (ROOT / "protocol.py").read_bytes() + (ROOT / "paddle_ocr.py").read_bytes()
-                                                 + (ROOT / "doubao_image.py").read_bytes()
-                                                 + (ROOT / "deepseek_search.py").read_bytes()
-                                                 + (ROOT / "service_io.py").read_bytes()
-                                                 + (ROOT / "answer_extraction.py").read_bytes()).hexdigest()}
+                  "code_sha256": hashlib.sha256(Path(__file__).read_bytes() + (CODE_ROOT / "agent_tools.py").read_bytes()
+                                                 + (CODE_ROOT / "protocol.py").read_bytes() + (CODE_ROOT / "paddle_ocr.py").read_bytes()
+                                                 + (CODE_ROOT / "doubao_image.py").read_bytes()
+                                                 + (CODE_ROOT / "deepseek_search.py").read_bytes()
+                                                 + (CODE_ROOT / "service_io.py").read_bytes()
+                                                 + (CODE_ROOT / "answer_extraction.py").read_bytes()).hexdigest()}
         if args.summary_backend == "local":
             config["summary_provider"] = local_summary_configuration()
             config["summary_model"] = config["summary_provider"]["model"]
-            config["local_summary_code_sha256"] = hashlib.sha256((ROOT / "local_summary.py").read_bytes()).hexdigest()
+            config["local_summary_code_sha256"] = hashlib.sha256((CODE_ROOT / "local_summary.py").read_bytes()).hexdigest()
         config["sha256"] = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
         config_path = args.output_dir / "config.json"
         if config_path.exists() and json.loads(config_path.read_text()) != config:

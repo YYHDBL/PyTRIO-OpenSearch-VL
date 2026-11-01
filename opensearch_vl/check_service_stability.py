@@ -16,14 +16,14 @@ from PIL import Image
 import pytrio as trio
 from transformers import AutoImageProcessor
 
-from agent_baseline import ROOT, TokenBudget, sample_prompt
-from agent_tools import ToolEnvironment, model_image_bytes
-from doubao_image import DoubaoImageClient
-from deepseek_search import DeepSeekSearchClient, DeepSeekPageUnavailable
-from judge_baseline import JUDGE_PROMPT, judge_record
-from paddle_ocr import OCRServiceError, PaddleOCRClient
-from protocol import IMAGE_MARKER
-from service_io import write_json
+from .agent_baseline import ROOT, TokenBudget, sample_prompt
+from .agent_tools import ToolEnvironment, model_image_bytes
+from .doubao_image import DoubaoImageClient
+from .deepseek_search import DeepSeekSearchClient, DeepSeekPageUnavailable
+from .judge_baseline import JUDGE_PROMPT, judge_record
+from .paddle_ocr import OCRServiceError, PaddleOCRClient
+from .protocol import IMAGE_MARKER
+from .service_io import write_json
 
 
 def main() -> None:

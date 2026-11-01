@@ -9,8 +9,8 @@ from urllib.parse import urlsplit
 
 import httpx
 
-from agent_tools import BudgetExhausted
-from service_io import save_http_response, write_json, write_private
+from .agent_tools import BudgetExhausted
+from .service_io import save_http_response, write_json, write_private
 
 
 class LocalSummaryError(RuntimeError):

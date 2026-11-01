@@ -14,11 +14,11 @@ import ijson
 import numpy as np
 from transformers import AutoImageProcessor, AutoTokenizer
 
-from agent_baseline import outside_thought
-from agent_tools import SUPPORTED_TOOLS
-from audit_sft import audit_row
-from protocol import TEMPLATE_PATH, system_with_tools
-from select_experiment_data import CALL, IMAGE_PREFIX, ROOT, SFT_FILES, key, read_image_paths, write_jsonl
+from .agent_baseline import CODE_ROOT, outside_thought
+from .agent_tools import SUPPORTED_TOOLS
+from .audit_sft import audit_row
+from .protocol import TEMPLATE_PATH, system_with_tools
+from .select_experiment_data import CALL, IMAGE_PREFIX, ROOT, SFT_FILES, key, read_image_paths, write_jsonl
 
 
 FAMILY_TARGETS = {"retrieval": 1228, "perception": 615, "enhancement": 205}
@@ -201,7 +201,7 @@ def main() -> None:
                "remote_length_check": {**prior["remote_length_check"], "method": "reuse earlier checks with identical tokenizer/processor, protocol and template; no new remote requests"},
                "data_sha256": hashlib.sha256((output / "sft.jsonl").read_bytes()).hexdigest(),
                "template_sha256": hashlib.sha256(TEMPLATE_PATH.read_bytes()).hexdigest(),
-               "protocol_sha256": hashlib.sha256((ROOT / "protocol.py").read_bytes()).hexdigest(),
+               "protocol_sha256": hashlib.sha256((CODE_ROOT / "protocol.py").read_bytes()).hexdigest(),
                "model_files_sha256": model_hashes,
                "versions": {n: version(n) for n in ("pytrio", "transformers", "numpy", "pillow")},
                "scope": "new 2048 rows independently audited with audit_row; heldout 200/RL128 excluded; no GPU training"}

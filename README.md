@@ -52,7 +52,7 @@ chmod 600 .env
 填写 `.env` 后检查配置：
 
 ```bash
-uv run python check_services.py
+uv run python -m opensearch_vl.check_services
 ```
 
 该命令只检查配置；真实服务调用、训练和推理会产生用量。数据、模型处理器与 EDSR 权重需自行准备，仓库不附带私有权重或实验账号。[数据准备](docs/data.md)说明公开来源与目录约定。
@@ -63,10 +63,10 @@ uv run python check_services.py
 
 ```bash
 # 查看入口参数，不启动实验
-uv run python train_sft.py --help
-uv run python train_rl.py --help
-uv run python agent_baseline.py --help
-uv run python judge_baseline.py --help
+uv run python -m opensearch_vl.train_sft --help
+uv run python -m opensearch_vl.train_rl --help
+uv run python -m opensearch_vl.agent_baseline --help
+uv run python -m opensearch_vl.judge_baseline --help
 
 # 离线测试，不调用付费服务
 uv run python -m unittest discover -s tests -v
@@ -78,12 +78,12 @@ SFT 保存 State 和 Sampler 两类权重：前者恢复训练，后者用于采
 
 | 位置 | 内容 |
 | --- | --- |
-| `train_sft.py`、`protocol.py`、`audit_sft.py` | 多模态数据转换、监督 mask、SFT 与审计 |
-| `train_rl.py`、`rl_*.py` | 在线采样、奖励、RLOO 优势、Fatal-Aware mask、PPO 更新 |
-| `agent_baseline.py`、`agent_tools.py` | Agent 运行与七类工具调度 |
-| `deepseek_search.py`、`doubao_image.py`、`paddle_ocr.py` | 外部服务适配、缓存与用量记录 |
-| `select_*.py` | 数据筛选和去重 |
-| `judge_baseline.py`、`answer_extraction.py` | 答案提取与裁判评分 |
+| `opensearch_vl/train_sft.py`、`protocol.py`、`audit_sft.py` | 多模态数据转换、监督 mask、SFT 与审计 |
+| `opensearch_vl/train_rl.py`、`rl_*.py` | 在线采样、奖励、RLOO 优势、Fatal-Aware mask、PPO 更新 |
+| `opensearch_vl/agent_baseline.py`、`agent_tools.py` | Agent 运行与七类工具调度 |
+| `opensearch_vl/deepseek_search.py`、`doubao_image.py`、`paddle_ocr.py` | 外部服务适配、缓存与用量记录 |
+| `opensearch_vl/select_*.py` | 数据筛选和去重 |
+| `opensearch_vl/judge_baseline.py`、`answer_extraction.py` | 答案提取与裁判评分 |
 | `analysis/` | 结果统计、真实轨迹导出和绘图 |
 | `tests/` | 离线回归测试 |
 | `docs/`、`docs/evidence/` | 使用说明、结果报告和聚合证据 |

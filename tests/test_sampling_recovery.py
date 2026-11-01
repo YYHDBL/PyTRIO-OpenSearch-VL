@@ -10,8 +10,8 @@ from pytrio.errors.actor import ActorAPIError
 
 class SamplingRecoveryTest(unittest.TestCase):
     def test_rejected_request_is_not_unknown_and_does_not_release_reservation(self):
-        from agent_baseline import TokenBudget
-        from agent_tools import BudgetExhausted
+        from opensearch_vl.agent_baseline import TokenBudget
+        from opensearch_vl.agent_tools import BudgetExhausted
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)
@@ -29,7 +29,7 @@ class SamplingRecoveryTest(unittest.TestCase):
                 restored.reserve_request("another", 1, 1)
 
     def test_timeout_and_server_error_cannot_be_declared_rejected(self):
-        from agent_baseline import TokenBudget
+        from opensearch_vl.agent_baseline import TokenBudget
 
         root = Path(__file__).resolve().parent / "outputs"
         root.mkdir(exist_ok=True)

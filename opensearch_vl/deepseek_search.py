@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 
 import httpx
 
-from service_io import save_http_response, write_json
+from .service_io import save_http_response, write_json
 
 
 BASE_URL = "https://api.deepseek.com/v1/tools"

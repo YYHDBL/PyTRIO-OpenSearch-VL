@@ -5,7 +5,7 @@ import unittest
 
 class DiagnosticTest(unittest.TestCase):
     def test_validation_selection_keeps_original_question_indices_and_seeds(self):
-        from rl_diagnostic import selected_indexed_rows
+        from opensearch_vl.rl_diagnostic import selected_indexed_rows
 
         rows = [{"sample_id": name} for name in ["rl-0000", "rl-0001", "rl-0002", "rl-0003"]]
         chosen = selected_indexed_rows(rows, ["rl-0003", "rl-0001"])
@@ -18,7 +18,7 @@ class DiagnosticTest(unittest.TestCase):
                 selected_indexed_rows(rows, invalid)
 
     def test_sampling_defaults_preserve_base_and_diagnostic_is_random(self):
-        import agent_baseline
+        from opensearch_vl import agent_baseline
 
         self.assertTrue(hasattr(agent_baseline, "sampling_parameters"))
         base = agent_baseline.sampling_parameters({"generation_stop_tokens": ["<|im_end|>"]}, 100, {})
@@ -33,8 +33,7 @@ class DiagnosticTest(unittest.TestCase):
     def test_fatal_prefix_and_terminal_answer_are_not_benchmark_extraction(self):
         import importlib.util
 
-        self.assertIsNotNone(importlib.util.find_spec("rl_diagnostic"))
-        from rl_diagnostic import reward_parts
+        from opensearch_vl.rl_diagnostic import reward_parts
 
         good = {"assistant": '<think>x</think><tool_call>{}</tool_call>', "action": {"name": "text_search", "arguments": {"q": "q"}}, "observation": "evidence"}
         error = {"assistant": '<think>x</think><tool_call>{}</tool_call>', "tool_error": True}
@@ -48,8 +47,7 @@ class DiagnosticTest(unittest.TestCase):
     def test_group_is_incomplete_until_all_four_rewards_exist(self):
         import importlib.util
 
-        self.assertIsNotNone(importlib.util.find_spec("rl_diagnostic"))
-        from rl_diagnostic import group_summary
+        from opensearch_vl.rl_diagnostic import group_summary
 
         self.assertFalse(group_summary([{"accuracy": 1, "reward": 0.9}]) ["complete"])
         result = group_summary([{"accuracy": 0, "reward": x} for x in (0.02, 0.04, 0.06, 0.08)])

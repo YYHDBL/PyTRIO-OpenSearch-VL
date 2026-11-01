@@ -5,7 +5,7 @@ from pathlib import Path
 import shutil
 import unittest
 
-import agent_baseline
+from opensearch_vl import agent_baseline
 
 
 class EvaluationLimitsTest(unittest.TestCase):
